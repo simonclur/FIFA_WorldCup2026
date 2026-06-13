@@ -20,6 +20,32 @@
       --chip: rgba(13, 107, 114, 0.08);
       --shadow: 0 14px 30px rgba(20, 32, 51, 0.08);
       --radius: 13px;
+      --spotlight-surface: linear-gradient(180deg, #fff7ed 0%, #fff 100%);
+      --spotlight-border: rgba(160, 59, 12, 0.48);
+      --spotlight-title: #6f2504;
+      --spotlight-chip-bg: rgba(207, 78, 22, 0.18);
+      --spotlight-chip-border: rgba(143, 37, 0, 0.42);
+      --spotlight-match-bg: #ffffff;
+      --spotlight-match-border: rgba(143, 37, 0, 0.52);
+      --spotlight-match-inner: rgba(143, 37, 0, 0.24);
+      --spotlight-match-text: #121820;
+      --spotlight-muted-text: #2f3a48;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --spotlight-surface: linear-gradient(180deg, rgba(18, 26, 37, 0.96) 0%, rgba(11, 17, 26, 0.97) 100%);
+        --spotlight-border: rgba(255, 145, 77, 0.5);
+        --spotlight-title: #ffd5b4;
+        --spotlight-chip-bg: rgba(207, 78, 22, 0.34);
+        --spotlight-chip-border: rgba(255, 164, 107, 0.58);
+        --spotlight-match-bg: rgba(20, 29, 40, 0.98);
+        --spotlight-match-border: rgba(255, 164, 107, 0.62);
+        --spotlight-match-inner: rgba(255, 164, 107, 0.26);
+        --spotlight-match-text: #f4f8ff;
+        --spotlight-muted-text: #c7d4e6;
+      }
     }
 
     @page {
@@ -72,6 +98,27 @@
       break-after: auto;
       page-break-after: auto;
       margin-bottom: 0;
+    }
+
+    .page[data-sticky-name]::before {
+      content: attr(data-sticky-name);
+      display: block;
+      position: sticky;
+      top: calc(env(safe-area-inset-top) + 6px);
+      z-index: 40;
+      margin: -2mm -2mm 2.6mm;
+      padding: 1.4mm 2mm;
+      border: 1px solid rgba(20, 32, 51, 0.2);
+      border-radius: 10px;
+      background: rgba(246, 241, 232, 0.96);
+      backdrop-filter: blur(3px);
+      font-family: "Unbounded", "Barlow", "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 8.2pt;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent-3);
+      box-shadow: 0 4px 12px rgba(20, 32, 51, 0.12);
     }
 
     .page-head {
@@ -402,19 +449,125 @@
       color: var(--accent-3);
     }
 
-    .live-event-row {
+    /* Events timeline — 3-column grid: home | centre track | away */
+    .events-timeline {
       display: grid;
-      grid-template-columns: 9mm minmax(0, 1fr) auto;
-      gap: 1mm;
-      font-size: 6.8pt;
-      line-height: 1.25;
-      padding: 0.5mm 0;
-      border-top: 1px solid rgba(20, 32, 51, 0.08);
+      grid-template-columns: minmax(0, 1fr) 38px minmax(0, 1fr);
     }
 
-    .live-event-row:first-child {
-      border-top: 0;
+    .et-label-home,
+    .et-label-away {
+      font-size: 6pt;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 1.5mm 1.5mm;
     }
+
+    .et-label-home { text-align: right; }
+    .et-label-away { text-align: left; }
+    .et-label-mid  { /* empty centre header */ }
+
+    .et-home,
+    .et-away {
+      display: flex;
+      align-items: center;
+      gap: 1.2mm;
+      padding: 1.3mm 1.5mm;
+      font-size: 6.8pt;
+      line-height: 1.25;
+      min-width: 0;
+    }
+
+    .et-home { justify-content: flex-end; text-align: right; }
+    .et-away { justify-content: flex-start; }
+
+    /* Centre track — continuous vertical line via ::before on each node */
+    .et-node {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.3mm 0;
+    }
+
+    .et-node::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 50%;
+      width: 1.5px;
+      transform: translateX(-50%);
+      background: rgba(20, 32, 51, 0.18);
+      z-index: 0;
+    }
+
+    .et-badge {
+      position: relative;
+      z-index: 1;
+      font-size: 5.4pt;
+      font-weight: 700;
+      padding: 1.5px 3.5px;
+      border-radius: 3px;
+      white-space: nowrap;
+      line-height: 1;
+      background: rgba(20, 32, 51, 0.28);
+      color: #fff;
+    }
+
+    /* Badge colour by event type */
+    .et-node.et-goal          .et-badge { background: #1e7e34; }
+    .et-node.et-yellow        .et-badge { background: #a07800; }
+    .et-node.et-second-yellow .et-badge { background: #c25800; }
+    .et-node.et-red           .et-badge { background: #c62828; }
+    .et-node.et-sub           .et-badge { background: #8a9ab0; }
+
+    /* Player name — truncate overflow */
+    .et-player {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    /* Text colour by event type */
+    .et-goal          .et-player { font-weight: 700; color: #155724; }
+    .et-yellow        .et-player { color: #7a5900; }
+    .et-second-yellow .et-player { color: #9c4200; }
+    .et-red           .et-player { color: #b71c1c; }
+    .et-sub           .et-player { color: var(--muted); font-size: 6.4pt; }
+
+    /* Sub secondary detail (off: name) */
+    .et-sub-detail {
+      color: var(--muted);
+      font-size: 6pt;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+
+    /* CSS-drawn card icons */
+    .et-card {
+      display: inline-block;
+      flex-shrink: 0;
+      width: 5px;
+      height: 7.5px;
+      border-radius: 1px;
+      vertical-align: middle;
+    }
+
+    .et-card-yellow        { background: #f5c800; }
+    .et-card-red           { background: #e62020; }
+    /* Second yellow: yellow left half, red right half */
+    .et-card-second-yellow { width: 9px; background: linear-gradient(to right, #f5c800 55%, #e62020 55%); }
+
+    /* Substitution arrows */
+    .et-sub-on  { color: #1e7e34; font-size: 8pt; line-height: 1; flex-shrink: 0; }
+    .et-sub-off { color: #c62828; font-size: 8pt; line-height: 1; flex-shrink: 0; }
+
+    /* Goal ball emoji */
+    .et-icon { font-size: 8pt; flex-shrink: 0; line-height: 1; }
 
     .live-stream {
       border: 1px solid var(--line);
@@ -583,6 +736,314 @@
 
     .group-stage-main .groups-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .group-live-spotlight {
+      margin-bottom: 3mm;
+    }
+
+    .group-live-spotlight[hidden] {
+      display: none !important;
+    }
+
+    .group-live-spotlight-card {
+      display: grid;
+      gap: 1.8mm;
+      padding: 2.6mm;
+      background: var(--spotlight-surface);
+      border-color: var(--spotlight-border);
+    }
+
+    .group-live-spotlight-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2mm;
+      margin: 0;
+      font-size: 9.4pt;
+      line-height: 1.1;
+      color: var(--spotlight-title);
+    }
+
+    .group-live-spotlight-head .badge {
+      color: var(--spotlight-title);
+      border: 1px solid var(--spotlight-chip-border);
+      background: var(--spotlight-chip-bg);
+    }
+
+    .group-live-spotlight-list {
+      display: grid;
+      gap: 2.2mm;
+      justify-items: center;
+      /* Prevent doubled ticker content from expanding the grid track */
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .group-live-spotlight-item {
+      width: min(100%, 180mm);
+      /* Must not grow beyond its column — doubled ticker uses max-content */
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    /* Spotlight cards are intentionally enlarged for rapid live scanning. */
+    .group-live-spotlight-list .match.live-spotlight-match {
+      border: 2px solid var(--spotlight-match-border);
+      border-radius: 14px;
+      padding: 2mm 2.5mm 1.8mm;
+      background: var(--spotlight-match-bg);
+      box-shadow: inset 0 0 0 0.8px var(--spotlight-match-inner);
+      color: var(--spotlight-match-text);
+      font-size: 14pt;
+      line-height: 1.25;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match:first-child {
+      padding-top: 2mm;
+      border-top: 2px solid var(--spotlight-match-border);
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .team-name {
+      font-size: 15pt;
+      font-weight: 900;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .teams {
+      gap: 1.7mm;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .score-inline {
+      margin: 0 0.8mm;
+      font-size: 17.6pt;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .score-inline.live {
+      font-size: 20.4pt;
+      color: #cb3b00;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .flag {
+      width: 5.6mm;
+      height: 5.6mm;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .time {
+      font-size: 12pt;
+      font-weight: 700;
+      color: var(--spotlight-muted-text);
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .status {
+      font-size: 10.2pt;
+      padding: 0.45mm 2mm;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .slot {
+      font-size: 10.5pt;
+      padding: 0.45mm 1.8mm;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .match-badge,
+    .group-live-spotlight-list .match.live-spotlight-match .match-header-badge {
+      font-size: 9.6pt;
+      padding: 0.45mm 1.8mm;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .teams-badges {
+      margin-left: auto;
+      justify-content: flex-end;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .status.live {
+      color: #fff;
+      border-color: rgba(255, 125, 67, 0.72);
+      background: rgba(207, 78, 22, 0.84);
+    }
+
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .live-spotlight-ticker {
+      margin-top: 1.2mm;
+      padding-top: 1.2mm;
+      border-top: 1px dashed rgba(20, 32, 51, 0.24);
+      color: var(--spotlight-match-text);
+      /* Do NOT set overflow here — let the viewport div handle clipping so
+         the card's own width is never influenced by the max-content track */
+      min-width: 0;
+      width: 100%;
+    }
+
+    /* Dedicated viewport div that clips the scrolling track */
+    .live-spotlight-ticker-viewport {
+      overflow: hidden;
+      width: 100%;
+      min-width: 0;
+      /* contain: layout isolates the max-content track from ancestor sizing */
+      contain: layout;
+    }
+
+    .live-spotlight-ticker-viewport:hover .live-spotlight-ticker-track {
+      animation-play-state: paused;
+    }
+
+    .live-spotlight-clock-row {
+      display: flex;
+      align-items: center;
+      gap: 0.8mm;
+      margin-bottom: 0.9mm;
+    }
+
+    .live-spotlight-clock-label {
+      font-size: 7pt;
+      color: var(--spotlight-muted-text);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .live-spotlight-clock {
+      font-size: 9pt;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      color: var(--spotlight-title);
+      border: 1px solid rgba(20, 32, 51, 0.2);
+      border-radius: 999px;
+      padding: 0.35mm 1.4mm;
+      background: rgba(20, 32, 51, 0.06);
+      white-space: nowrap;
+    }
+
+    .live-spotlight-ticker-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35mm 1.2mm;
+      border: 1px solid rgba(20, 32, 51, 0.22);
+      border-radius: 999px;
+      background: rgba(20, 32, 51, 0.06);
+      font-size: 7pt;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.8mm;
+    }
+
+    .live-spotlight-ticker-label.sub-label {
+      margin-top: 1.2mm;
+      border-color: rgba(138, 154, 176, 0.4);
+      background: rgba(138, 154, 176, 0.1);
+      color: var(--spotlight-muted-text);
+    }
+
+    /* Slower scroll for subs ticker (more detail to read) */
+    .live-spotlight-ticker-viewport.subs-viewport .live-spotlight-ticker-track {
+      animation-duration: 22s;
+    }
+
+    .live-spotlight-ticker-track {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0.8mm;
+      /* Animate left — items are doubled so loop is seamless */
+      animation: ticker-scroll 18s linear infinite;
+      width: max-content;
+      will-change: transform;
+    }
+
+    .live-spotlight-ticker-track:hover {
+      animation-play-state: paused;
+    }
+
+    .live-spotlight-ticker-event {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 0.5mm;
+      white-space: nowrap;
+      border: 1px solid rgba(20, 32, 51, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.84);
+      padding: 0.38mm 1.25mm;
+      font-size: 8.1pt;
+      line-height: 1;
+      color: var(--spotlight-match-text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .live-spotlight-ticker-event .ticker-minute {
+      font-weight: 900;
+      color: var(--spotlight-title);
+    }
+
+    .live-spotlight-ticker-event .ticker-team {
+      color: var(--spotlight-muted-text);
+      font-weight: 700;
+    }
+
+    .live-spotlight-ticker-event .et-icon,
+    .live-spotlight-ticker-event .et-sub-on,
+    .live-spotlight-ticker-event .et-sub-off {
+      font-size: 8.4pt;
+    }
+
+    .live-spotlight-ticker-empty {
+      font-size: 8pt;
+      color: var(--spotlight-muted-text);
+      border: 1px dashed rgba(20, 32, 51, 0.24);
+      border-radius: 9px;
+      padding: 0.9mm 1.2mm;
+      background: rgba(20, 32, 51, 0.04);
+    }
+
+    .live-spotlight-ticker-sep {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      padding: 0 3mm;
+      color: var(--spotlight-muted-text);
+      font-size: 10pt;
+      opacity: 0.45;
+      user-select: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline.live {
+        color: #ff9655;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .status.live {
+        color: #fffaf7;
+        border-color: rgba(255, 188, 148, 0.8);
+        background: rgba(201, 84, 25, 0.88);
+      }
+
+      .live-spotlight-ticker {
+        border-top-color: rgba(255, 255, 255, 0.24);
+      }
+
+      .live-spotlight-ticker-label {
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--spotlight-title);
+      }
+
+      .live-spotlight-clock {
+        border-color: rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .live-spotlight-ticker-event {
+        border-color: rgba(255, 255, 255, 0.26);
+        background: rgba(11, 17, 26, 0.68);
+      }
+
+      .live-spotlight-ticker-empty {
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.06);
+      }
     }
 
     .group-stage-sidebar {
@@ -1750,6 +2211,12 @@
       background: rgba(37, 128, 80, 0.12);
     }
 
+    .status.ht {
+      color: #6a3e00;
+      border-color: rgba(146, 94, 0, 0.34);
+      background: rgba(255, 196, 92, 0.2);
+    }
+
     .status.scheduled,
     .status.tbd {
       color: var(--muted);
@@ -1815,6 +2282,13 @@
       .page {
         background: rgba(10, 19, 34, 0.92);
         border-color: rgba(173, 201, 236, 0.22);
+      }
+
+      .page[data-sticky-name]::before {
+        border-color: rgba(173, 201, 236, 0.34);
+        background: rgba(9, 18, 31, 0.92);
+        color: #c9def8;
+        box-shadow: 0 5px 16px rgba(2, 7, 16, 0.58);
       }
 
       .card,
@@ -2206,6 +2680,10 @@
     }
 
     @media print {
+      .page[data-sticky-name]::before {
+        display: none;
+      }
+
       :root {
         color-scheme: light;
         --paper: #f6f1e8;
@@ -2277,6 +2755,44 @@
       .group-stage-layout {
         grid-template-columns: minmax(0, 1fr) 56mm;
         gap: 2mm;
+      }
+
+      .group-live-spotlight-list {
+        justify-items: stretch;
+      }
+
+      .group-live-spotlight-item {
+        width: 100%;
+      }
+
+      /* Keep print density readable without oversized spotlight cards. */
+      .group-live-spotlight-list .match.live-spotlight-match {
+        border: 1.4px solid rgba(143, 37, 0, 0.4);
+        border-radius: 10px;
+        padding: 0.95mm 1.2mm 0.9mm;
+        font-size: 6.9pt;
+        line-height: 1.2;
+        box-shadow: none;
+        background: white;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match:first-child {
+        padding-top: 0.95mm;
+        border-top: 1.4px solid rgba(143, 37, 0, 0.4);
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .team-name { font-size: 7.5pt; font-weight: 800; }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline { font-size: 8.8pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline.live { font-size: 10.2pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .flag { width: 2.5mm; height: 2.5mm; }
+      .group-live-spotlight-list .match.live-spotlight-match .time { font-size: 7pt; font-weight: 600; }
+      .group-live-spotlight-list .match.live-spotlight-match .status { font-size: 5.9pt; padding: 0.2mm 1.3mm; }
+      .group-live-spotlight-list .match.live-spotlight-match .slot { font-size: 5.8pt; padding: 0.2mm 1.1mm; }
+      .group-live-spotlight-list .match.live-spotlight-match .match-badge,
+      .group-live-spotlight-list .match.live-spotlight-match .match-header-badge { font-size: 5.9pt; padding: 0.4mm 1.3mm; }
+
+      .live-spotlight-ticker {
+        display: none;
       }
 
       .group-stage-sidebar {
@@ -2380,6 +2896,18 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .group-live-spotlight-list .match.live-spotlight-match {
+        font-size: 11pt;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .team-name { font-size: 12pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline { font-size: 14.2pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline.live { font-size: 16.2pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .slot { font-size: 8.2pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .status { font-size: 8.1pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .match-badge,
+      .group-live-spotlight-list .match.live-spotlight-match .match-header-badge { font-size: 7.8pt; }
+
       .live-columns {
         grid-template-columns: 1fr;
       }
@@ -2401,6 +2929,23 @@
       .group-stage-main .groups-grid {
         grid-template-columns: 1fr;
       }
+
+      .group-live-spotlight-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match {
+        font-size: 9.6pt;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .team-name { font-size: 10.8pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline { font-size: 12.8pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline.live { font-size: 14.8pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .slot { font-size: 7.2pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .status { font-size: 7pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .match-badge,
+      .group-live-spotlight-list .match.live-spotlight-match .match-header-badge { font-size: 6.8pt; }
 
       .match {
         padding-top: 0.7mm;
@@ -2434,6 +2979,213 @@
         min-height: 360px;
       }
     }
+
+    @media (max-width: 430px) {
+      .page[data-sticky-name]::before {
+        top: calc(env(safe-area-inset-top) + 5px);
+        margin: -1.4mm -1.4mm 2.2mm;
+        padding: 1.5mm 1.8mm;
+        font-size: 8.8pt;
+      }
+
+      .spread {
+        width: 100%;
+        padding:
+          calc(10px + env(safe-area-inset-top))
+          calc(10px + env(safe-area-inset-right))
+          calc(14px + env(safe-area-inset-bottom))
+          calc(10px + env(safe-area-inset-left));
+      }
+
+      .page {
+        border-radius: 14px;
+        padding: 4.5mm 4mm 4.2mm;
+        margin-bottom: 4mm;
+      }
+
+      .page-head {
+        gap: 3.2mm;
+        padding-bottom: 3mm;
+        margin-bottom: 3mm;
+      }
+
+      .page-title {
+        font-size: clamp(21px, 7.3vw, 30px);
+        letter-spacing: -0.03em;
+      }
+
+      .page-subtitle {
+        font-size: 8.7pt;
+        line-height: 1.45;
+      }
+
+      .runtime-notice {
+        font-size: 8.2pt;
+        padding: 2.6mm 2.8mm;
+      }
+
+      .chip {
+        font-size: 8.1pt;
+        padding: 1.8mm 2.8mm;
+      }
+
+      .card {
+        padding: 3.4mm;
+      }
+
+      .section-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.2mm;
+      }
+
+      .section-note {
+        font-size: 7.9pt;
+      }
+
+      .preferences-bar {
+        padding: 2.4mm;
+        gap: 1.6mm;
+      }
+
+      .team-chip-picker {
+        max-height: 42vh;
+        padding: 1.1mm;
+        gap: 1mm;
+      }
+
+      .team-chip,
+      .preferences-btn,
+      .btn-action {
+        min-height: 32px;
+        padding: 0 10px;
+        font-size: 9.6pt;
+      }
+
+      .preferences-actions {
+        width: 100%;
+      }
+
+      .preferences-actions .preferences-btn {
+        flex: 1 1 auto;
+        justify-content: center;
+      }
+
+      .match {
+        font-size: 8.4pt;
+        line-height: 1.3;
+      }
+
+      .match-main {
+        gap: 0.9mm;
+      }
+
+      .teams {
+        gap: 1.3mm;
+      }
+
+      .team-name {
+        font-size: 9.6pt;
+      }
+
+      .score-inline {
+        font-size: 11.6pt;
+      }
+
+      .score-inline.live {
+        font-size: 13.4pt;
+      }
+
+      .time-upcoming {
+        font-size: 11.6pt;
+      }
+
+      .time-date-sub {
+        font-size: 7pt;
+      }
+
+      .odds-inline {
+        font-size: 7.1pt;
+      }
+
+      .group-live-spotlight-card {
+        padding: 2.5mm;
+        gap: 2mm;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match {
+        font-size: 8.8pt;
+        padding: 1.8mm 2mm 1.5mm;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .team-name {
+        font-size: 10pt;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .teams {
+        gap: 2.1mm;
+        flex-wrap: nowrap;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline {
+        font-size: 12.1pt;
+        margin: 0 1.1mm;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline.live {
+        font-size: 13.8pt;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .flag {
+        width: 4.8mm;
+        height: 4.8mm;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .time {
+        font-size: 9.5pt;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .status {
+        font-size: 6.8pt;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .slot,
+      .group-live-spotlight-list .match.live-spotlight-match .match-badge,
+      .group-live-spotlight-list .match.live-spotlight-match .match-header-badge {
+        font-size: 6.5pt;
+      }
+
+      .live-spotlight-clock-row {
+        flex-wrap: wrap;
+        row-gap: 0.8mm;
+      }
+
+      .live-spotlight-clock {
+        font-size: 8.1pt;
+      }
+
+      .live-spotlight-ticker-label {
+        font-size: 6.3pt;
+      }
+
+      .live-spotlight-ticker-item {
+        font-size: 8.1pt;
+      }
+
+      .squad-sunburst-chart {
+        min-height: 300px;
+      }
+
+      .squad-sunburst-details {
+        height: auto;
+        max-height: none;
+        min-height: 0;
+      }
+
+      .embed-frame {
+        min-height: 300px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2443,7 +3195,7 @@
       <a id="local-http-link" href="http://127.0.0.1:8080/index.html" target="_blank" rel="noreferrer noopener">http://127.0.0.1:8080/index.html</a>
     </div>
 
-    <section class="page" data-page="group-stage">
+    <section class="page" data-page="group-stage" data-sticky-name="Group Stage">
       <header class="page-head">
         <div>
           <h1 class="page-title">FIFA World Cup 2026 Tracker</h1>
@@ -2483,6 +3235,8 @@
         <p id="preferred-team-hint" class="preferences-hint">Select one or more teams using chips. Your choices are saved and restored after refresh.</p>
       </section>
 
+      <div id="group-live-spotlight" class="group-live-spotlight" hidden></div>
+
       <div class="group-stage-layout">
         <div class="group-stage-main">
           <div class="grid groups-grid" id="groups-grid"></div>
@@ -2507,7 +3261,7 @@
       </div>
     </section>
 
-    <section class="page" data-page="live-match">
+    <section class="page" data-page="live-match" data-sticky-name="Live Match Centre">
       <header class="page-head">
         <div>
           <h2 class="page-title">Live Match Centre</h2>
@@ -2538,7 +3292,7 @@
       </div>
     </section>
 
-    <section class="page" data-page="group-tables">
+    <section class="page" data-page="group-tables" data-sticky-name="Group Tables">
       <header class="page-head">
         <div>
           <h2 class="page-title">Group Tables</h2>
@@ -2565,7 +3319,7 @@
       </div>
     </section>
 
-    <section class="page" data-page="round-of-32">
+    <section class="page" data-page="round-of-32" data-sticky-name="Round of 32">
       <header class="page-head">
         <div>
           <h2 class="page-title">Round of 32</h2>
@@ -2592,7 +3346,7 @@
       </div>
     </section>
 
-    <section class="page" data-page="round-of-16">
+    <section class="page" data-page="round-of-16" data-sticky-name="Round of 16">
       <header class="page-head">
         <div>
           <h2 class="page-title">Round of 16</h2>
@@ -2619,7 +3373,7 @@
       </div>
     </section>
 
-    <section class="page" data-page="finals">
+    <section class="page" data-page="finals" data-sticky-name="Finals">
       <header class="page-head">
         <div>
           <h2 class="page-title">Finals</h2>
@@ -2646,7 +3400,7 @@
       </div>
     </section>
 
-    <section class="page" data-page="completed-matches">
+    <section class="page" data-page="completed-matches" data-sticky-name="Completed Matches">
       <header class="page-head">
         <div>
           <h2 class="page-title">Completed Matches</h2>
@@ -2673,7 +3427,7 @@
       </div>
     </section>
 
-    <section class="page" data-page="special-interest-stats">
+    <section class="page" data-page="special-interest-stats" data-sticky-name="Special Interest Stats">
       <header class="page-head">
         <div>
           <h2 class="page-title">Special Interest Stats</h2>
@@ -2827,12 +3581,17 @@
       matchReminders: new Set(),
       preferredTeams: new Set(),
       preferredTeamLabels: new Map(),
+      touchHoverLockedKey: null,
+      suppressNextMatchClick: false,
+      winnersSankeyTouchLock: null,
+      winnersSankeyOutsidePointerHandler: null,
       topScorersFilters: {
         year: 'all',
         team: 'all',
         sortBy: 'year',
       },
       timer: null,
+      kickoffTriggerTimer: null,
     };
 
     const worldCupTopScorers = [
@@ -2928,15 +3687,13 @@
     const oddsMovementBaselineStorageKey = 'fifa2026_odds_movement_baseline_v1';
 
     const queryParams = new URLSearchParams(window.location.search);
+    const configuredProxyBase = String(queryParams.get('proxyBase') || '').trim().replace(/\/+$/, '');
+    const useApiProxy = Boolean(configuredProxyBase);
     const sbsMatchCentreBaseUrl = 'https://www.sbs.com.au/sport/fifa-world-cup-2026/match-centre';
     const configuredSbsMatchId = String(queryParams.get('sbsMatchId') || '4tcpns1nwyc0jtpucgzj9dp90').trim();
     const configuredDemoMatchId = String(queryParams.get('demoMatchId') || '').trim();
     state.replayMatchId = configuredDemoMatchId || null;
     const oddsApiKeysStorageKey = 'fifa2026_odds_api_keys_v1';
-    const embeddedOddsApiKeys = {
-      theOddsApi: '84affc8f596bfadda904f7c51ae5a89c',
-      oddsPapi: 'bcda9bd5-b956-4164-8143-f24c99e46078',
-    };
 
     function loadStoredOddsApiKeys() {
       try {
@@ -2967,8 +3724,8 @@
     }
 
     const storedOddsApiKeys = loadStoredOddsApiKeys();
-    const resolvedOddsApiKey = (queryParams.get('oddsApiKey') || storedOddsApiKeys.theOddsApi || embeddedOddsApiKeys.theOddsApi || '').trim();
-    const resolvedOddsPapiKey = (queryParams.get('oddspapiKey') || queryParams.get('oddsPapiKey') || storedOddsApiKeys.oddsPapi || embeddedOddsApiKeys.oddsPapi || '').trim();
+    const resolvedOddsApiKey = (queryParams.get('oddsApiKey') || storedOddsApiKeys.theOddsApi || '').trim();
+    const resolvedOddsPapiKey = (queryParams.get('oddspapiKey') || queryParams.get('oddsPapiKey') || storedOddsApiKeys.oddsPapi || '').trim();
 
     if (resolvedOddsApiKey || resolvedOddsPapiKey) {
       saveStoredOddsApiKeys({
@@ -2980,6 +3737,8 @@
     const oddsConfig = {
       forceRefresh: ['1', 'true', 'yes'].includes((queryParams.get('oddsForce') || '').toLowerCase()),
       provider: (queryParams.get('oddsProvider') || 'auto').toLowerCase(),
+      proxyBase: configuredProxyBase,
+      useProxy: useApiProxy,
       topTeamsCount: 32,
       refreshMs: 60 * 60 * 60 * 1000,
       highlightWindowDays: 7,
@@ -3001,6 +3760,43 @@
         verbosity: 3,
         oddsFormat: 'decimal',
       },
+    };
+
+    const buildUrlWithParams = (baseUrl, params = {}) => {
+      const url = new URL(baseUrl);
+      Object.entries(params || {}).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === '') {
+          return;
+        }
+        url.searchParams.set(key, String(value));
+      });
+      return url.toString();
+    };
+
+    const buildFifaApiUrl = (path, params = {}) => {
+      const safePath = String(path || '').startsWith('/') ? String(path) : `/${String(path || '')}`;
+      const base = oddsConfig.useProxy
+        ? `${oddsConfig.proxyBase}/fifa${safePath}`
+        : `${apiBase}${safePath}`;
+      return buildUrlWithParams(base, params);
+    };
+
+    const buildOddsApiUrl = (provider, path, params = {}) => {
+      const safePath = String(path || '').startsWith('/') ? String(path) : `/${String(path || '')}`;
+      if (oddsConfig.useProxy) {
+        return buildUrlWithParams(`${oddsConfig.proxyBase}/odds/${provider}${safePath}`, params);
+      }
+
+      const directBaseByProvider = {
+        oddspapi: 'https://api.oddspapi.io',
+        'the-odds-api': 'https://api.the-odds-api.com',
+      };
+      const directBase = directBaseByProvider[String(provider || '').toLowerCase()];
+      if (!directBase) {
+        throw new Error(`Unsupported odds provider URL builder: ${provider}`);
+      }
+
+      return buildUrlWithParams(`${directBase}${safePath}`, params);
     };
 
     const dateFormatter = new Intl.DateTimeFormat('en-AU', {
@@ -3692,19 +4488,32 @@
     };
 
     const getOddsProviderContext = () => {
+      const hasProxy = oddsConfig.useProxy;
       const hasTheOddsApi = Boolean(oddsConfig.theOddsApi.apiKey);
       const hasOddsPapi = Boolean(oddsConfig.oddsPapi.apiKey);
 
       if (oddsConfig.provider === 'oddspapi') {
-        return hasOddsPapi ? { provider: 'oddspapi', apiKey: oddsConfig.oddsPapi.apiKey } : { provider: 'none', apiKey: '' };
+        if (hasOddsPapi) {
+          return { provider: 'oddspapi', apiKey: oddsConfig.oddsPapi.apiKey };
+        }
+
+        return hasProxy ? { provider: 'oddspapi', apiKey: 'proxy' } : { provider: 'none', apiKey: '' };
       }
 
       if (oddsConfig.provider === 'the-odds-api') {
-        return hasTheOddsApi ? { provider: 'the-odds-api', apiKey: oddsConfig.theOddsApi.apiKey } : { provider: 'none', apiKey: '' };
+        if (hasTheOddsApi) {
+          return { provider: 'the-odds-api', apiKey: oddsConfig.theOddsApi.apiKey };
+        }
+
+        return hasProxy ? { provider: 'the-odds-api', apiKey: 'proxy' } : { provider: 'none', apiKey: '' };
       }
 
       if (hasOddsPapi) {
         return { provider: 'oddspapi', apiKey: oddsConfig.oddsPapi.apiKey };
+      }
+
+      if (hasProxy) {
+        return { provider: 'oddspapi', apiKey: 'proxy' };
       }
 
       if (hasTheOddsApi) {
@@ -4019,7 +4828,11 @@
     };
 
     const getOddsPapiWorldCupTournamentIds = async () => {
-      const url = `https://api.oddspapi.io/v4/tournaments?sportId=${encodeURIComponent(oddsConfig.oddsPapi.sportId)}&language=${encodeURIComponent(oddsConfig.oddsPapi.language)}&apiKey=${encodeURIComponent(oddsConfig.oddsPapi.apiKey)}`;
+      const url = buildOddsApiUrl('oddspapi', '/v4/tournaments', {
+        sportId: oddsConfig.oddsPapi.sportId,
+        language: oddsConfig.oddsPapi.language,
+        apiKey: oddsConfig.useProxy ? '' : oddsConfig.oddsPapi.apiKey,
+      });
       const payload = await fetchJson(url, { quotaProvider: 'oddspapi' });
       const tournaments = Array.isArray(payload) ? payload : [];
 
@@ -4037,7 +4850,12 @@
 
     const loadTheOddsApiContenders = async () => {
       const cfg = oddsConfig.theOddsApi;
-      const url = `https://api.the-odds-api.com/v4/sports/${cfg.sportKey}/odds/?apiKey=${encodeURIComponent(cfg.apiKey)}&regions=${encodeURIComponent(cfg.regions)}&markets=${encodeURIComponent(cfg.markets)}&oddsFormat=${encodeURIComponent(cfg.oddsFormat)}`;
+      const url = buildOddsApiUrl('the-odds-api', `/v4/sports/${cfg.sportKey}/odds/`, {
+        apiKey: oddsConfig.useProxy ? '' : cfg.apiKey,
+        regions: cfg.regions,
+        markets: cfg.markets,
+        oddsFormat: cfg.oddsFormat,
+      });
       const payload = await fetchJson(url, { quotaProvider: 'the-odds-api' });
       markOddsProviderSuccess('the-odds-api');
       return {
@@ -4054,7 +4872,14 @@
       }
 
       const cfg = oddsConfig.oddsPapi;
-      const url = `https://api.oddspapi.io/v4/odds-by-tournaments?tournamentIds=${encodeURIComponent(tournamentIds.join(','))}&bookmakers=${encodeURIComponent(cfg.bookmakers)}&language=${encodeURIComponent(cfg.language)}&verbosity=${encodeURIComponent(cfg.verbosity)}&oddsFormat=${encodeURIComponent(cfg.oddsFormat)}&apiKey=${encodeURIComponent(cfg.apiKey)}`;
+      const url = buildOddsApiUrl('oddspapi', '/v4/odds-by-tournaments', {
+        tournamentIds: tournamentIds.join(','),
+        bookmakers: cfg.bookmakers,
+        language: cfg.language,
+        verbosity: cfg.verbosity,
+        oddsFormat: cfg.oddsFormat,
+        apiKey: oddsConfig.useProxy ? '' : cfg.apiKey,
+      });
       const payload = await fetchJson(url, { quotaProvider: 'oddspapi' });
       markOddsProviderSuccess('oddspapi');
       return {
@@ -4433,6 +5258,10 @@
         return 'FT';
       }
 
+      if (isHalftimeMatch(match)) {
+        return 'HT';
+      }
+
       return isActivelyPlayedMatch(match) ? 'Live' : 'Score';
     };
 
@@ -4443,6 +5272,10 @@
 
       if (match.ResultType === 1 || isCompletedMatch(match)) {
         return 'status ft';
+      }
+
+      if (isHalftimeMatch(match)) {
+        return 'status ht';
       }
 
       return isActivelyPlayedMatch(match) ? 'status live' : 'status';
@@ -4511,6 +5344,8 @@
       return true;
     };
 
+    const isHalftimeMatch = (match) => Number(match?.MatchStatus) === 4;
+
     const isCompletedMatch = (match) => {
       const status = Number(match?.MatchStatus);
       const resultType = Number(match?.ResultType);
@@ -4526,6 +5361,31 @@
     };
 
     const resolveRefreshCadenceMs = () => (hasActiveLiveRefreshMode() ? liveRefreshIntervalMs : refreshIntervalMs);
+
+    // Schedule a one-shot fetch exactly when the next match is due to kick off, so scores
+    // appear promptly rather than waiting up to 5 minutes for the regular polling interval.
+    const scheduleKickoffTrigger = () => {
+      if (state.kickoffTriggerTimer !== null) {
+        clearTimeout(state.kickoffTriggerTimer);
+        state.kickoffTriggerTimer = null;
+      }
+
+      const kickoffTs = state.nextUpKickoffTs;
+      if (!Number.isFinite(kickoffTs)) {
+        return;
+      }
+
+      // Fire 5 seconds after the scheduled kickoff to give the API a moment to reflect the live state.
+      const delayMs = kickoffTs - Date.now() + 5000;
+      if (delayMs <= 0) {
+        return; // kickoff is already past or imminent — the regular live-refresh timer covers it
+      }
+
+      state.kickoffTriggerTimer = setTimeout(() => {
+        state.kickoffTriggerTimer = null;
+        loadMatches({ autoScrollNextUp: false });
+      }, delayMs);
+    };
 
     const formatCountdownClock = (remainingMs) => {
       const safeSeconds = Math.max(0, Math.ceil(Number(remainingMs) / 1000));
@@ -4679,6 +5539,66 @@
       return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} (${phase})`;
     };
 
+    const parseLiveMinuteValue = (value) => {
+      const minute = Number(value);
+      if (!Number.isFinite(minute) || minute < 0) {
+        return Number.NaN;
+      }
+
+      return minute;
+    };
+
+    const formatRunningClockLabel = (totalSecondsValue) => {
+      const totalSeconds = Math.max(0, Math.floor(Number(totalSecondsValue)));
+      if (!Number.isFinite(totalSeconds)) {
+        return 'Live';
+      }
+
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${minutes}:${String(seconds).padStart(2, '0')}'`;
+    };
+
+    const getSpotlightLiveClockLabel = (baseMinuteValue, pullTs, kickoffTs, isFrozen = false) => {
+      const baseMinute = parseLiveMinuteValue(baseMinuteValue);
+      const nowTs = Date.now();
+      const pullTimeTs = Number(pullTs);
+
+      if (Number.isFinite(baseMinute) && Number.isFinite(pullTimeTs) && pullTimeTs > 0) {
+        if (isFrozen) {
+          return formatRunningClockLabel(Math.floor(baseMinute * 60));
+        }
+
+        const elapsedSincePullSeconds = Math.max(0, Math.floor((nowTs - pullTimeTs) / 1000));
+        const baseSeconds = Math.floor(baseMinute * 60);
+        return formatRunningClockLabel(baseSeconds + elapsedSincePullSeconds);
+      }
+
+      const kickoffTimeTs = Number(kickoffTs);
+      if (Number.isFinite(kickoffTimeTs) && kickoffTimeTs > 0) {
+        if (isFrozen) {
+          const freezeAtTs = Number.isFinite(pullTimeTs) && pullTimeTs > 0 ? pullTimeTs : nowTs;
+          const elapsedToFreezeSeconds = Math.max(0, Math.floor((freezeAtTs - kickoffTimeTs) / 1000));
+          return formatRunningClockLabel(elapsedToFreezeSeconds);
+        }
+
+        const elapsedSeconds = Math.max(0, Math.floor((nowTs - kickoffTimeTs) / 1000));
+        return formatRunningClockLabel(elapsedSeconds);
+      }
+
+      return 'Live';
+    };
+
+    const updateSpotlightLiveClockViews = () => {
+      document.querySelectorAll('.live-spotlight-clock[data-live-clock-base-minute]').forEach((node) => {
+        const baseMinute = node.getAttribute('data-live-clock-base-minute');
+        const pullTs = Number(node.getAttribute('data-live-clock-pull-ts') || Number.NaN);
+        const kickoffTs = Number(node.getAttribute('data-live-clock-kickoff-ts') || Number.NaN);
+        const isFrozen = node.getAttribute('data-live-clock-freeze') === '1';
+        node.textContent = getSpotlightLiveClockLabel(baseMinute, pullTs, kickoffTs, isFrozen);
+      });
+    };
+
     const updateLiveEstimatedTimeRemainingView = () => {
       const node = document.getElementById('live-match-time-remaining');
       if (!node) {
@@ -4728,6 +5648,7 @@
       }
 
       updateLiveEstimatedTimeRemainingView();
+      updateSpotlightLiveClockViews();
     };
 
     const syncReplayMatchInUrl = (matchId) => {
@@ -4903,43 +5824,123 @@
       }).join('');
     };
 
-    const createLiveEventRows = (team, sideLabel) => {
+    const createLiveEventRows = (team, sideLabel, sideKey, opposingTeam = null, opposingLabel = '') => {
       const players = new Map((Array.isArray(team?.Players) ? team.Players : []).map((player) => [String(player.IdPlayer || ''), pickEnglishDescription(player.PlayerName) || pickEnglishDescription(player.ShortName) || 'Player']));
+      const opposingPlayers = new Map((Array.isArray(opposingTeam?.Players) ? opposingTeam.Players : []).map((player) => [String(player.IdPlayer || ''), pickEnglishDescription(player.PlayerName) || pickEnglishDescription(player.ShortName) || 'Player']));
       const rows = [];
 
       for (const goal of (Array.isArray(team?.Goals) ? team.Goals : [])) {
-        const scorer = players.get(String(goal.IdPlayer || '')) || 'Unknown scorer';
+        const goalType = Number(goal.Type);
+        const scorerId = String(goal.IdPlayer || '');
+        const ownTeamScorer = players.get(scorerId);
+        const opposingTeamScorer = opposingPlayers.get(scorerId);
+        const isLikelyOwnGoal = goalType === 3 || (!ownTeamScorer && !!opposingTeamScorer);
+        const scorer = ownTeamScorer || opposingTeamScorer || 'Unknown scorer';
         const assist = players.get(String(goal.IdAssistPlayer || ''));
         rows.push({
           minute: String(goal.Minute || '-'),
           order: minuteSortValue(goal.Minute),
-          text: `Goal: ${scorer}${assist ? ` (assist ${assist})` : ''}`,
           side: sideLabel,
+          sideKey: sideKey || 'home',
+          type: 'goal',
+          player: isLikelyOwnGoal ? `${scorer} (own goal)` : scorer,
+          detail: isLikelyOwnGoal && opposingTeamScorer && opposingLabel
+            ? `from ${opposingLabel}`
+            : (assist ? `assist: ${assist}` : null),
         });
       }
 
       for (const booking of (Array.isArray(team?.Bookings) ? team.Bookings : [])) {
         const player = players.get(String(booking.IdPlayer || '')) || 'Unknown player';
+        const cardNum = Number(booking.Card);
+        const type = cardNum === 1 ? 'yellow' : cardNum === 2 ? 'second-yellow' : 'red';
         rows.push({
           minute: String(booking.Minute || '-'),
           order: minuteSortValue(booking.Minute),
-          text: `${cardTypeLabel(booking.Card)} card: ${player}`,
           side: sideLabel,
+          sideKey: sideKey || 'home',
+          type,
+          player,
+          detail: null,
         });
       }
 
       for (const sub of (Array.isArray(team?.Substitutions) ? team.Substitutions : [])) {
         const onName = pickEnglishDescription(sub.PlayerOnName) || 'Sub on';
         const offName = pickEnglishDescription(sub.PlayerOffName) || 'Sub off';
+        // FIFA omits Minute for half-time subs (Period 4); fall back to a period label
+        const rawMinute = String(sub.Minute || '').trim();
+        const period = Number(sub.Period);
+        const minuteLabel = rawMinute
+          ? rawMinute
+          : period === 4 ? 'HT'
+          : period === 6 ? 'ET1'
+          : period === 7 ? 'ET2'
+          : '-';
         rows.push({
-          minute: String(sub.Minute || '-'),
-          order: minuteSortValue(sub.Minute),
-          text: `Sub: ${offName} -> ${onName}`,
+          minute: minuteLabel,
+          order: minuteSortValue(rawMinute || (period === 4 ? '45' : period === 6 ? '90' : period === 7 ? '105' : '-')),
           side: sideLabel,
+          sideKey: sideKey || 'home',
+          type: 'sub',
+          player: onName,
+          detail: `off: ${offName}`,
         });
       }
 
       return rows;
+    };
+
+    const renderEventIcon = (type) => {
+      if (type === 'goal') return '<span class="et-icon" aria-hidden="true">⚽</span>';
+      if (type === 'yellow') return '<span class="et-card et-card-yellow" title="Yellow card"></span>';
+      if (type === 'second-yellow') return '<span class="et-card et-card-second-yellow" title="Second yellow / Red"></span>';
+      if (type === 'red') return '<span class="et-card et-card-red" title="Red card"></span>';
+      if (type === 'sub') return '<span class="et-sub-on" aria-hidden="true">↑</span><span class="et-sub-off" aria-hidden="true">↓</span>';
+      return '';
+    };
+
+    const formatEventMinute = (minute) => {
+      const raw = String(minute || '').trim();
+      if (!raw || raw === '-') return '?';
+      // Already a labelled string (HT, ET1, ET2) or already has the prime symbol — return as-is
+      if (/[A-Za-z]/.test(raw) || raw.endsWith("'")) return raw;
+      return `${raw}'`;
+    };
+
+    const renderEventsTimeline = (events, homeName, awayName) => {
+      if (!events.length) {
+        return '<div class="empty">Detailed events are not yet available for this active match.</div>';
+      }
+
+      const labelRow = [
+        `<div class="et-label-home">${escapeHtml(homeName)}</div>`,
+        `<div class="et-label-mid"></div>`,
+        `<div class="et-label-away">${escapeHtml(awayName)}</div>`,
+      ].join('');
+
+      const rows = events.map((event) => {
+        const icon = renderEventIcon(event.type);
+        const player = `<span class="et-player">${escapeHtml(event.player)}</span>`;
+        const detail = event.detail ? `<span class="et-sub-detail">${escapeHtml(event.detail)}</span>` : '';
+        const badgeCell = `<div class="et-node et-${escapeHtml(event.type)}"><span class="et-badge">${escapeHtml(formatEventMinute(event.minute))}</span></div>`;
+
+        if (event.sideKey === 'home') {
+          return [
+            `<div class="et-home et-${escapeHtml(event.type)}">${detail}${player}${icon}</div>`,
+            badgeCell,
+            `<div class="et-away"></div>`,
+          ].join('');
+        } else {
+          return [
+            `<div class="et-home"></div>`,
+            badgeCell,
+            `<div class="et-away et-${escapeHtml(event.type)}">${icon}${player}${detail}</div>`,
+          ].join('');
+        }
+      }).join('');
+
+      return `<div class="events-timeline">${labelRow}${rows}</div>`;
     };
 
     const slugifyForUrl = (value) => String(value || '')
@@ -5211,8 +6212,8 @@
       const matchClock = Number.isFinite(Number(active.MatchTime)) ? `${Number(active.MatchTime)}'` : 'Live';
 
       const events = [
-        ...createLiveEventRows(detail?.HomeTeam, homeName),
-        ...createLiveEventRows(detail?.AwayTeam, awayName),
+        ...createLiveEventRows(detail?.HomeTeam, homeName, 'home', detail?.AwayTeam, awayName),
+        ...createLiveEventRows(detail?.AwayTeam, awayName, 'away', detail?.HomeTeam, homeName),
       ].sort((a, b) => a.order - b.order || a.side.localeCompare(b.side));
 
       const currentHighlightsUrl = getHighlightsUrlForMatch(active);
@@ -5274,14 +6275,8 @@
           </div>
 
           <section class="live-events">
-            <h4>Live Events (Goals, Cards, Subs)</h4>
-            ${events.length ? events.map((event) => `
-              <div class="live-event-row">
-                <div>${escapeHtml(event.minute)}</div>
-                <div>${escapeHtml(event.text)}</div>
-                <div>${escapeHtml(event.side)}</div>
-              </div>
-            `).join('') : '<div class="empty">Detailed events are not yet available for this active match.</div>'}
+            <h4>Match Events</h4>
+            ${renderEventsTimeline(events, homeName, awayName)}
           </section>
 
           <section class="live-stream">
@@ -5325,7 +6320,16 @@
       });
     };
 
-    const renderMatch = (match) => {
+    const renderMatch = (match, options = null) => {
+      const extraClass = options && typeof options === 'object' && typeof options.extraClass === 'string'
+        ? options.extraClass.trim()
+        : '';
+      const statusOverride = options && typeof options === 'object' && Number.isFinite(Number(options.statusOverride))
+        ? Number(options.statusOverride)
+        : Number.NaN;
+      const displayMatch = Number.isFinite(statusOverride)
+        ? { ...match, MatchStatus: statusOverride }
+        : match;
       const homeRaw = teamName(match.Home);
       const awayRaw = teamName(match.Away);
       const home = displayTeamName(homeRaw);
@@ -5336,17 +6340,17 @@
       const kickoffTs = match?.Date ? new Date(match.Date).getTime() : NaN;
       const hoverKey = `${homeCanonical}|${awayCanonical}|${kickoffKey}`;
       const matchId = String(match?.IdMatch || '').trim();
-      const replayable = isCompletedMatch(match) && !!matchId;
+      const replayable = isCompletedMatch(displayMatch) && !!matchId;
 
-      const isUpcoming = isUpcomingMatch(match);
-      const isLive = isActivelyPlayedMatch(match);
-      const isFinished = isCompletedMatch(match);
+      const isUpcoming = isUpcomingMatch(displayMatch);
+      const isLive = isActivelyPlayedMatch(displayMatch);
+      const isFinished = isCompletedMatch(displayMatch);
       const gcalUrl = isUpcoming ? buildGoogleCalendarUrl(match) : null;
       const isReminderSet = isUpcoming && state.matchReminders.has(matchId);
       const oddsInline = renderMatchOddsInline(match);
       const liveSyncBadge = isLive ? `<span class="match-badge data-refresh" data-live-refresh-badge="1">${escapeHtml(getLiveMatchSyncBadgeText())}</span>` : '';
-      const statusText = formatStatus(match);
-      const statusMarkup = statusText === 'Scheduled' ? '' : `<div class="${statusClass(match)}">${escapeHtml(statusText)}</div>`;
+      const statusText = formatStatus(displayMatch);
+      const statusMarkup = statusText === 'Scheduled' ? '' : `<div class="${statusClass(displayMatch)}">${escapeHtml(statusText)}</div>`;
       const matchNumberTag = matchNumberLabel(match);
       const topMatchupBadge = isContenderMatch(match) ? `<span class="match-header-badge top-matchup-header">Top matchup</span>` : '';
       const preferredTeamLabels = getPreferredTeamsForMatch(match);
@@ -5367,13 +6371,13 @@
       const badges = `
         <span class="teams-badges">
           ${replayable ? '<span class="match-badge secondary">Replay</span>' : ''}
-          ${isNextUpMatch(match) ? `<span class="match-badge next"${Number.isFinite(kickoffTs) ? ` data-kickoff-ts="${kickoffTs}"` : ''}>${escapeHtml(nextUpBadgeText(kickoffTs))}</span>` : ''}
+          ${isNextUpMatch(displayMatch) ? `<span class="match-badge next"${Number.isFinite(kickoffTs) ? ` data-kickoff-ts="${kickoffTs}"` : ''}>${escapeHtml(nextUpBadgeText(kickoffTs))}</span>` : ''}
           ${liveSyncBadge}
         </span>
       `;
 
       return `
-      <article class="match${isNextUpMatch(match) ? ' next-up' : ''}${isContenderMatch(match) ? ' featured' : ''}${isPreferredTeamMatch(match) ? ' preferred-team' : ''}${replayable ? ' replayable' : ''}" data-match-id="${escapeHtml(matchId)}" data-replayable="${replayable ? '1' : '0'}" data-hover-key="${escapeHtml(hoverKey)}" data-home-team="${escapeHtml(home)}" data-away-team="${escapeHtml(away)}" data-home-canonical="${escapeHtml(homeCanonical)}" data-away-canonical="${escapeHtml(awayCanonical)}">
+      <article class="match${isNextUpMatch(displayMatch) ? ' next-up' : ''}${isContenderMatch(match) ? ' featured' : ''}${isPreferredTeamMatch(match) ? ' preferred-team' : ''}${replayable ? ' replayable' : ''}${extraClass ? ` ${escapeHtml(extraClass)}` : ''}" data-match-id="${escapeHtml(matchId)}" data-replayable="${replayable ? '1' : '0'}" data-hover-key="${escapeHtml(hoverKey)}" data-home-team="${escapeHtml(home)}" data-away-team="${escapeHtml(away)}" data-home-canonical="${escapeHtml(homeCanonical)}" data-away-canonical="${escapeHtml(awayCanonical)}">
         <div class="match-main">
           <div class="teams">
             ${renderFlag(match.Home)}
@@ -5399,6 +6403,104 @@
         </div>
       </article>
     `;
+    };
+
+    const renderGroupStageLiveSpotlight = (liveMatches) => {
+      const spotlightNode = document.getElementById('group-live-spotlight');
+      if (!spotlightNode) {
+        return;
+      }
+
+      if (!Array.isArray(liveMatches) || !liveMatches.length) {
+        spotlightNode.innerHTML = '';
+        spotlightNode.hidden = true;
+        return;
+      }
+
+      spotlightNode.hidden = false;
+
+      const renderSpotlightTicker = (match) => {
+        const matchId = String(match?.IdMatch || '').trim();
+        const detail = String(state.liveDetail?.IdMatch || '').trim() === matchId ? state.liveDetail : null;
+        const home = displayTeamName(teamName(match?.Home));
+        const away = displayTeamName(teamName(match?.Away));
+        const pullTs = state.lastFifaPullAt instanceof Date ? state.lastFifaPullAt.getTime() : Number.NaN;
+        const kickoffTs = new Date(match?.Date || 0).getTime();
+        const baseMinute = Number.isFinite(Number(match?.MatchTime))
+          ? Number(match.MatchTime)
+          : (Number.isFinite(Number(detail?.MatchTime)) ? Number(detail.MatchTime) : Number.NaN);
+        const isHalftime = isHalftimeMatch(match) || Number(detail?.MatchStatus) === 4;
+        const clockLabel = getSpotlightLiveClockLabel(baseMinute, pullTs, kickoffTs, isHalftime);
+        const clockHeading = isHalftime ? 'Official clock (HT)' : 'Official clock';
+        const freezeAttr = isHalftime ? '1' : '0';
+
+        const allEvents = detail
+          ? [
+            ...createLiveEventRows(detail?.HomeTeam, home, 'home', detail?.AwayTeam, away),
+            ...createLiveEventRows(detail?.AwayTeam, away, 'away', detail?.HomeTeam, home),
+          ].sort((a, b) => a.order - b.order || a.side.localeCompare(b.side))
+          : [];
+
+        const primaryEvents = allEvents.filter((e) => e.type !== 'sub');
+        const subEvents     = allEvents.filter((e) => e.type === 'sub');
+
+        const clockHtml = `<div class="live-spotlight-clock-row"><span class="live-spotlight-clock-label">${escapeHtml(clockHeading)}</span><span class="live-spotlight-clock" data-live-clock-base-minute="${escapeHtml(baseMinute)}" data-live-clock-pull-ts="${escapeHtml(pullTs)}" data-live-clock-kickoff-ts="${escapeHtml(kickoffTs)}" data-live-clock-freeze="${escapeHtml(freezeAttr)}">${escapeHtml(clockLabel)}</span></div>`;
+
+        if (!allEvents.length) {
+          return `<div class="live-spotlight-ticker">${clockHtml}<div class="live-spotlight-ticker-label">Match events</div><div class="live-spotlight-ticker-empty">Awaiting detailed live events feed.</div></div>`;
+        }
+
+        const renderEventChip = (event) => {
+          const icon  = renderEventIcon(event.type);
+          const min   = escapeHtml(formatEventMinute(event.minute));
+          const side  = escapeHtml(event.sideKey === 'home' ? 'H' : 'A');
+          const player = escapeHtml(event.player || 'Player');
+          return `<span class="live-spotlight-ticker-event et-${escapeHtml(event.type)}"><span class="ticker-minute">${min}</span>${icon}<span class="ticker-team">${side}</span><span>${player}</span></span>`;
+        };
+
+        const renderSubChip = (event) => {
+          const min    = escapeHtml(formatEventMinute(event.minute));
+          const side   = escapeHtml(event.sideKey === 'home' ? 'H' : 'A');
+          const onName  = escapeHtml(event.player || 'Sub on');
+          // detail field is 'off: Player' — strip prefix
+          const offName = escapeHtml((event.detail || '').replace(/^off:\s*/i, '') || 'Sub off');
+          return `<span class="live-spotlight-ticker-event et-sub"><span class="ticker-minute">${min}</span><span class="ticker-team">${side}</span><span class="et-sub-on" aria-label="on">↑</span><span>${onName}</span><span class="et-sub-off" aria-label="off">↓</span><span>${offName}</span></span>`;
+        };
+
+        const separator = `<span class="live-spotlight-ticker-sep" aria-hidden="true">·</span>`;
+
+        const buildTrack = (chips) => {
+          const html = chips.join('');
+          // Separator between the two halves marks the loop boundary visually
+          return html + separator + html + separator;
+        };
+
+        const primaryHtml = primaryEvents.length
+          ? `<div class="live-spotlight-ticker-label">Goals &amp; Cards</div><div class="live-spotlight-ticker-viewport"><div class="live-spotlight-ticker-track">${buildTrack(primaryEvents.map(renderEventChip))}</div></div>`
+          : `<div class="live-spotlight-ticker-label">Goals &amp; Cards</div><div class="live-spotlight-ticker-empty">No goals or cards yet.</div>`;
+
+        const subsHtml = subEvents.length
+          ? `<div class="live-spotlight-ticker-label sub-label">Substitutions</div><div class="live-spotlight-ticker-viewport subs-viewport"><div class="live-spotlight-ticker-track">${buildTrack(subEvents.map(renderSubChip))}</div></div>`
+          : '';
+
+        return `<div class="live-spotlight-ticker">${clockHtml}${primaryHtml}${subsHtml}</div>`;
+      };
+
+      spotlightNode.innerHTML = `
+        <section class="card group-live-spotlight-card">
+          <h3 class="group-live-spotlight-head">
+            <span>Live Match Spotlight</span>
+            <span class="badge">Live now</span>
+          </h3>
+          <div class="group-live-spotlight-list">
+            ${liveMatches.map((match) => {
+              const detail = String(state.liveDetail?.IdMatch || '').trim() === String(match?.IdMatch || '').trim() ? state.liveDetail : null;
+              const liveDetailStatus = Number(detail?.MatchStatus);
+              return `<div class="group-live-spotlight-item">${renderMatch(match, { extraClass: 'live-spotlight-match', statusOverride: liveDetailStatus })}${renderSpotlightTicker(match)}</div>`;
+            }).join('')}
+          </div>
+        </section>
+      `;
     };
 
     const attachMatchHoverHandlers = () => {
@@ -5436,6 +6538,7 @@
 
         document.querySelectorAll('.match.hover-focus').forEach((node) => node.classList.remove('hover-focus'));
         state.hoveredMatchKey = null;
+        state.touchHoverLockedKey = null;
         state.hoveredTeams = new Map();
         renderWinnerOddsPanel();
       };
@@ -5454,6 +6557,10 @@
       });
 
       document.addEventListener('mouseout', (event) => {
+        if (state.touchHoverLockedKey) {
+          return;
+        }
+
         const matchNode = event.target?.closest?.('.match');
         if (!matchNode) {
           return;
@@ -5473,9 +6580,47 @@
         clearHover();
       });
 
+      document.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'touch') {
+          return;
+        }
+
+        if (event.target?.closest?.('.btn-bell')) {
+          state.suppressNextMatchClick = true;
+          return;
+        }
+
+        const touchedMatch = event.target?.closest?.('.match');
+        if (touchedMatch) {
+          const key = String(touchedMatch?.dataset?.hoverKey || '').trim();
+          state.suppressNextMatchClick = true;
+          if (!key) {
+            return;
+          }
+
+          if (state.touchHoverLockedKey === key) {
+            clearHover();
+            return;
+          }
+
+          setHoveredFromMatch(touchedMatch);
+          state.touchHoverLockedKey = key;
+          return;
+        }
+
+        if (state.touchHoverLockedKey) {
+          clearHover();
+        }
+      });
+
       document.addEventListener('click', async (event) => {
         const matchNode = event.target?.closest?.('.match');
         if (!matchNode) {
+          return;
+        }
+
+        if (state.suppressNextMatchClick) {
+          state.suppressNextMatchClick = false;
           return;
         }
 
@@ -5754,9 +6899,15 @@
       const matches = state.matches
         .filter((match) => stageName(match) === 'First Stage' && !isCompletedMatch(match));
 
+      const liveMatches = matches.filter(isActivelyPlayedMatch);
+      const nonLiveMatches = matches.filter((match) => !isActivelyPlayedMatch(match));
+
       renderWinnerOddsPanel();
-      renderDateGroupedCards('groups-grid', matches, 'Group stage', {
-        emptyMessage: 'No active group-stage fixtures right now. See Completed Matches for finished games.',
+      renderGroupStageLiveSpotlight(liveMatches);
+      renderDateGroupedCards('groups-grid', nonLiveMatches, 'Group stage', {
+        emptyMessage: liveMatches.length
+          ? 'No additional non-live group-stage fixtures right now.'
+          : 'No active group-stage fixtures right now. See Completed Matches for finished games.',
       });
       document.getElementById('group-rendered-at').textContent = renderStamp();
     };
@@ -6138,34 +7289,138 @@
         });
       };
 
+      const lockSankeyHighlight = ({ year = '', champion = '' } = {}) => {
+        state.winnersSankeyTouchLock = {
+          year: String(year || ''),
+          champion: String(champion || ''),
+        };
+
+        if (!state.winnersSankeyTouchLock.year && !state.winnersSankeyTouchLock.champion) {
+          state.winnersSankeyTouchLock = null;
+          clearHighlight();
+          return;
+        }
+
+        setHighlight(state.winnersSankeyTouchLock);
+      };
+
       yearNodes.forEach((node) => {
         node.addEventListener('pointerenter', () => {
+          if (state.winnersSankeyTouchLock) {
+            return;
+          }
+
           const year = String(node.getAttribute('data-year') || '');
           if (year) {
             setHighlight({ year });
           }
         });
+
+        node.addEventListener('pointerdown', (event) => {
+          if (event.pointerType !== 'touch') {
+            return;
+          }
+
+          const year = String(node.getAttribute('data-year') || '');
+          const active = state.winnersSankeyTouchLock;
+          if (active && active.year === year && !active.champion) {
+            lockSankeyHighlight({});
+            return;
+          }
+
+          lockSankeyHighlight({ year });
+        });
       });
 
       championNodes.forEach((node) => {
         node.addEventListener('pointerenter', () => {
+          if (state.winnersSankeyTouchLock) {
+            return;
+          }
+
           const champion = String(node.getAttribute('data-champion') || '');
           if (champion) {
             setHighlight({ champion });
           }
         });
+
+        node.addEventListener('pointerdown', (event) => {
+          if (event.pointerType !== 'touch') {
+            return;
+          }
+
+          const champion = String(node.getAttribute('data-champion') || '');
+          const active = state.winnersSankeyTouchLock;
+          if (active && active.champion === champion && !active.year) {
+            lockSankeyHighlight({});
+            return;
+          }
+
+          lockSankeyHighlight({ champion });
+        });
       });
 
       linkNodes.forEach((link) => {
         link.addEventListener('pointerenter', () => {
+          if (state.winnersSankeyTouchLock) {
+            return;
+          }
+
           const year = String(link.getAttribute('data-year') || '');
           const champion = String(link.getAttribute('data-champion') || '');
           setHighlight({ year, champion });
         });
+
+        link.addEventListener('pointerdown', (event) => {
+          if (event.pointerType !== 'touch') {
+            return;
+          }
+
+          const year = String(link.getAttribute('data-year') || '');
+          const champion = String(link.getAttribute('data-champion') || '');
+          const active = state.winnersSankeyTouchLock;
+          if (active && active.year === year && active.champion === champion) {
+            lockSankeyHighlight({});
+            return;
+          }
+
+          lockSankeyHighlight({ year, champion });
+        });
       });
 
       if (svgNode) {
-        svgNode.addEventListener('pointerleave', clearHighlight);
+        svgNode.addEventListener('pointerleave', () => {
+          if (state.winnersSankeyTouchLock) {
+            return;
+          }
+          clearHighlight();
+        });
+      }
+
+      if (state.winnersSankeyOutsidePointerHandler) {
+        document.removeEventListener('pointerdown', state.winnersSankeyOutsidePointerHandler, true);
+      }
+
+      state.winnersSankeyOutsidePointerHandler = (event) => {
+        if (event.pointerType !== 'touch') {
+          return;
+        }
+
+        if (!state.winnersSankeyTouchLock) {
+          return;
+        }
+
+        if (chartNode.contains(event.target)) {
+          return;
+        }
+
+        lockSankeyHighlight({});
+      };
+
+      document.addEventListener('pointerdown', state.winnersSankeyOutsidePointerHandler, true);
+
+      if (state.winnersSankeyTouchLock) {
+        setHighlight(state.winnersSankeyTouchLock);
       }
 
       metaNode.innerHTML = [
@@ -6658,7 +7913,7 @@
       }
 
       try {
-        const detail = await fetchJson(`${apiBase}/live/football/${encodeURIComponent(id)}?language=en`);
+        const detail = await fetchJson(buildFifaApiUrl(`/live/football/${encodeURIComponent(id)}`, { language: 'en' }));
         state.liveDetail = detail;
         state.liveDetailUpdatedAt = new Date();
       } catch {
@@ -6669,7 +7924,11 @@
 
     async function loadMatches(options = {}) {
       const shouldAutoScroll = Boolean(options.autoScrollNextUp);
-      const url = `${apiBase}/calendar/matches?language=en&count=500&idSeason=${seasonId}`;
+      const url = buildFifaApiUrl('/calendar/matches', {
+        language: 'en',
+        count: 500,
+        idSeason: seasonId,
+      });
       const payload = await fetchJson(url);
       const matches = Array.isArray(payload.Results) ? payload.Results : [];
 
@@ -6683,6 +7942,7 @@
       state.lastFifaPullErrorMessage = '';
       syncRefreshSchedule();
       state.nextUpKickoffTs = computeNextUpKickoffTs(matches);
+      scheduleKickoffTrigger();
       renderPreferredTeamSelector();
 
       const focusedMatch = resolveLiveFocusMatch(matches);

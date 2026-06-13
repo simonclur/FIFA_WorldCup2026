@@ -1,0 +1,8 @@
+name = "fifa-worldcup-2026-proxy"
+main = "cloudflare-worker.js"
+compatibility_date = "2026-06-13"
+
+[vars]
+# Configure these in the Cloudflare dashboard as encrypted secrets for production.
+# THE_ODDS_API_KEY = ""
+# ODDSPAPI_KEY = ""
