@@ -3883,7 +3883,7 @@
 
   <script src="./squad-sunburst-data.js"></script>
   <script>
-    // Load squad-data.json for Live Match Centre enrichment
+    // Load squad-data.json for Live Match Centre enrichment and Group Tables
     let squadDataMap = null;
     fetch('./squad-data.json')
       .then(r => r.json())
@@ -3893,6 +3893,8 @@
           const key = `${player.nationalTeamCode}|${player.jersey}`;
           squadDataMap.set(key, player);
         }
+        // Store full array in state for Group Tables card aggregation
+        state.squadData = squads;
       })
       .catch(err => console.warn('Failed to load squad-data.json for player enrichment:', err));
   </script>
