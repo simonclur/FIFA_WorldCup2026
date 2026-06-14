@@ -59,7 +59,7 @@ Core pages and modules include:
 - The odds sidebar remains sticky in the right column for non-live fixtures, and now begins below the spotlight panel.
 - The live spotlight increases spacing between the team names and the score so the scoreboard reads more cleanly at a glance.
 - The live spotlight now keeps the kickoff time/date smaller while using larger team names and score text, with extra spacing around the live score separator, so the featured match is easier to scan at a glance.
-- Live spotlight cards now include the TV-style SBS icon as a direct link to the SBS On Demand live stream page in a new tab.
+- Live spotlight cards now include the TV-style SBS icon as a direct link to the SBS On Demand homepage for live matches (users navigate from there); for replays it links to the specific match page.
 - Live spotlight cards now include a browser-aware Listen Live action for talkSPORT that prefers the HLS stream and falls back to MP3 when HLS playback is unavailable.
 - Live Match Centre substitution events now show explicit directional markers: green up-arrow for players coming on and red down-arrow for players coming off.
 - Completed Matches now appears directly after Group Stage and uses an accordion control so the archive can be expanded or collapsed on demand.

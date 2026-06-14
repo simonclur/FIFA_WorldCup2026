@@ -6108,7 +6108,8 @@
     };
 
     const parseLiveMinuteValue = (value) => {
-      const minute = Number(value);
+      const cleanValue = String(value || '').replace(/[^\d.]/g, '');
+      const minute = Number(cleanValue);
       if (!Number.isFinite(minute) || minute < 0) {
         return Number.NaN;
       }
@@ -6178,8 +6179,8 @@
       const detail = getCachedLiveDetail(matchId);
 
       // Get the freshest MatchTime available
-      const matchTimeFromMatch = Number(match?.MatchTime);
-      const matchTimeFromDetail = Number(detail?.MatchTime);
+      const matchTimeFromMatch = parseLiveMinuteValue(match?.MatchTime);
+      const matchTimeFromDetail = parseLiveMinuteValue(detail?.MatchTime);
       const freshMatchTime = Number.isFinite(matchTimeFromMatch)
         ? matchTimeFromMatch
         : (Number.isFinite(matchTimeFromDetail) ? matchTimeFromDetail : null);
@@ -6796,6 +6797,10 @@
     };
 
     const getSbsOnDemandLiveStreamUrlForMatch = (match) => {
+      if (isActivelyPlayedMatch(match)) {
+        return 'https://www.sbs.com.au/ondemand';
+      }
+
       const home = teamName(match?.Home);
       const away = teamName(match?.Away);
       const group = groupNameFromMatch(match);
@@ -7011,7 +7016,8 @@
       const referee = pickEnglishDescription((detail?.Officials || []).find((official) => Number(official.OfficialType) === 1)?.Name) || 'Not listed';
       const tacticsHome = String(detail?.HomeTeam?.Tactics || '').trim();
       const tacticsAway = String(detail?.AwayTeam?.Tactics || '').trim();
-      const matchClock = Number.isFinite(Number(active.MatchTime)) ? `${Number(active.MatchTime)}'` : 'Live';
+      const parsedMatchTime = parseLiveMinuteValue(active.MatchTime);
+      const matchClock = Number.isFinite(parsedMatchTime) ? `${Math.floor(parsedMatchTime)}:${String(Math.floor((parsedMatchTime % 1) * 60)).padStart(2, '0')}'` : 'Live';
 
       const events = [
         ...createLiveEventRows(detail?.HomeTeam, homeName, 'home', detail?.AwayTeam, awayName),
@@ -7039,9 +7045,9 @@
         `;
       }).join('');
 
-      const sbsOnDemandLiveStreamUrl = buildSbsOnDemandLiveStreamUrl(homeName, awayName, group, stage);
-      const sbsOnDemandMatchUrl = getSbsOnDemandMatchPageUrlForMatch(active);
       const isLiveActiveMatch = isActivelyPlayedMatch(active) && !state.replayMatchId;
+      const sbsOnDemandLiveStreamUrl = isLiveActiveMatch ? 'https://www.sbs.com.au/ondemand' : buildSbsOnDemandLiveStreamUrl(homeName, awayName, group, stage);
+      const sbsOnDemandMatchUrl = getSbsOnDemandMatchPageUrlForMatch(active);
       const sbsPrimaryUrl = isLiveActiveMatch ? sbsOnDemandLiveStreamUrl : sbsOnDemandMatchUrl;
       const sbsPrimaryHeading = isLiveActiveMatch ? 'SBS On Demand Live Stream:' : 'SBS On Demand Match Page:';
       const sbsPrimaryLinkText = isLiveActiveMatch ? 'Open live stream page in new tab' : 'Open match page in new tab';
@@ -7251,9 +7257,9 @@
         const away = displayTeamName(teamName(match?.Away));
         const pullTs = state.lastFifaPullAt instanceof Date ? state.lastFifaPullAt.getTime() : Number.NaN;
         const kickoffTs = new Date(match?.Date || 0).getTime();
-        const baseMinute = Number.isFinite(Number(match?.MatchTime))
-          ? Number(match.MatchTime)
-          : (Number.isFinite(Number(detail?.MatchTime)) ? Number(detail.MatchTime) : Number.NaN);
+        const baseMinute = Number.isFinite(parseLiveMinuteValue(match?.MatchTime))
+          ? parseLiveMinuteValue(match.MatchTime)
+          : (Number.isFinite(parseLiveMinuteValue(detail?.MatchTime)) ? parseLiveMinuteValue(detail.MatchTime) : Number.NaN);
         const isHalftime = isHalftimeMatch(match) || Number(detail?.MatchStatus) === 4;
         const isMatchCompleted = isCompletedMatch(match) || isCompletedMatch(detail || {});
         const isFrozenClock = isHalftime || isMatchCompleted;
