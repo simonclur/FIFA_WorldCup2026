@@ -7026,6 +7026,22 @@
       return true;
     };
 
+    const scrollToLiveMatchFocus = (behavior = 'smooth') => {
+      const liveSpotlightNode = document.querySelector('.group-live-spotlight:not([hidden])');
+      if (liveSpotlightNode) {
+        liveSpotlightNode.scrollIntoView({ behavior, block: 'start', inline: 'nearest' });
+        return true;
+      }
+
+      const liveMatchPageNode = document.querySelector('[data-page="live-match"]');
+      if (liveMatchPageNode) {
+        liveMatchPageNode.scrollIntoView({ behavior, block: 'start', inline: 'nearest' });
+        return true;
+      }
+
+      return false;
+    };
+
     const renderKnockoutPage = (gridId, stageNames, stampId, label) => {
       const matches = state.matches
         .filter((match) => stageNames.includes(stageName(match)) && !isCompletedMatch(match));
@@ -8138,7 +8154,10 @@
 
       if (shouldAutoScroll && state.shouldAutoScrollNextUp) {
         window.requestAnimationFrame(() => {
-          const didScroll = scrollToNextUpMatch('smooth');
+          const hasLiveMatch = (matches || []).some(isActivelyPlayedMatch);
+          const didScroll = hasLiveMatch
+            ? scrollToLiveMatchFocus('smooth')
+            : scrollToNextUpMatch('smooth');
           if (didScroll) {
             state.shouldAutoScrollNextUp = false;
           }

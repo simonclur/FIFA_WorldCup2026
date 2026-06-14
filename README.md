@@ -42,6 +42,7 @@ Core pages and modules include:
 
 - 60-second live-only polling when there are active matches (or replay mode)
 - Keeps scores and Live Match Centre details up to date during play
+- On first load, the page auto-scrolls to the live match spotlight when a live match is in progress; otherwise it lands on the next-up Group Stage fixture.
 
 ### Group Stage live spotlight
 
