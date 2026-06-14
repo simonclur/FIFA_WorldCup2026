@@ -6455,6 +6455,9 @@
       const preferredTeamBadge = preferredTeamLabels.length
         ? `<span class="match-header-badge preferred-team-header" title="${escapeHtml(preferredTeamLabels.join(', '))}">${escapeHtml(preferredTeamLabels.join(' & '))}</span>`
         : '';
+      const scoreText = extraClass.includes('live-spotlight-match')
+        ? scoreFormatter(match).replace(/-/g, ' - ')
+        : scoreFormatter(match);
       const timeBlock = isUpcoming
         ? `<div class="time time-upcoming">${escapeHtml(formatKickoffTimeOnly(match))}</div>
            <div class="time-date-sub">${escapeHtml(formatKickoffDateOnly(match))}</div>`
@@ -6480,7 +6483,7 @@
           <div class="teams">
             ${renderFlag(match.Home)}
             <span class="team-name">${escapeHtml(home)}</span>
-            <span class="score-inline${isLive ? ' live' : ''}${isFinished ? ' final' : ''}">${escapeHtml(scoreFormatter(match))}</span>
+            <span class="score-inline${isLive ? ' live' : ''}${isFinished ? ' final' : ''}">${escapeHtml(scoreText)}</span>
             ${renderFlag(match.Away)}
             <span class="team-name">${escapeHtml(away)}</span>
           </div>
