@@ -6084,9 +6084,7 @@
       // If frozen (HT or FT), show the base minute without advancing
       if (isFrozen) {
         if (Number.isFinite(baseMinute)) {
-          const label = formatRunningClockLabel(Math.floor(baseMinute * 60));
-          console.log(`[Clock Calc] FROZEN: baseMinute=${baseMinute}, returning: ${label}`);
-          return label;
+          return formatRunningClockLabel(Math.floor(baseMinute * 60));
         }
         return 'Live';
       }
@@ -6100,21 +6098,15 @@
         // Only interpolate a small amount between API updates (max 60 seconds)
         // This assumes API refreshes every 60 seconds during live play
         const interpolatedSeconds = Math.min(elapsedSincePullSeconds, 60);
-        const label = formatRunningClockLabel(baseSeconds + interpolatedSeconds);
-        console.log(`[Clock Calc] API_MATCHTIME: baseMinute=${baseMinute}, elapsed=${elapsedSincePullSeconds}s, interpolated=${interpolatedSeconds}s, returning: ${label}`);
-        return label;
+        return formatRunningClockLabel(baseSeconds + interpolatedSeconds);
       }
 
       // No fallback - if we don't have a valid MatchTime from API, show "Live"
       // This is preferable to showing an incorrect calculated time
       if (Number.isFinite(baseMinute)) {
-        // Should not reach here, but just in case
-        const label = formatRunningClockLabel(Math.floor(baseMinute * 60));
-        console.log(`[Clock Calc] NO_PULLTS: baseMinute=${baseMinute}, returning: ${label}`);
-        return label;
+        return formatRunningClockLabel(Math.floor(baseMinute * 60));
       }
 
-      console.log(`[Clock Calc] NO_API_MATCHTIME: returning "Live"`);
       return 'Live';
     };
 
@@ -6122,12 +6114,10 @@
       // Update spotlight clock data attributes with freshest available MatchTime
       const spotlightNode = document.getElementById('group-live-spotlight');
       if (!spotlightNode || spotlightNode.hidden) {
-        console.log(`[Clock Update] Spotlight hidden or not found`);
         return;
       }
 
       const liveMatches = (state.matches || []).filter(isActivelyPlayedMatch);
-      console.log(`[Clock Update] Found ${liveMatches.length} active matches`);
       if (liveMatches.length === 0) {
         return;
       }
@@ -6143,19 +6133,14 @@
         ? matchTimeFromMatch
         : (Number.isFinite(matchTimeFromDetail) ? matchTimeFromDetail : null);
 
-      console.log(`[Clock Update] Match ${matchId}: match.MatchTime=${match?.MatchTime} (${matchTimeFromMatch}), detail.MatchTime=${detail?.MatchTime} (${matchTimeFromDetail}), freshMatchTime=${freshMatchTime}`);
-
       // Update the clock element with fresh data
       const clockNode = spotlightNode.querySelector('.live-spotlight-clock[data-live-clock-base-minute]');
-      console.log(`[Clock Update] Clock node found: ${!!clockNode}, freshMatchTime valid: ${freshMatchTime !== null}`);
 
       if (clockNode && freshMatchTime !== null) {
         const pullTs = state.lastFifaPullAt instanceof Date ? state.lastFifaPullAt.getTime() : Number.NaN;
         const isMatchCompleted = isCompletedMatch(match) || isCompletedMatch(detail || {});
         const isHalftime = isHalftimeMatch(match) || Number(detail?.MatchStatus) === 4;
         const isFrozen = isHalftime || isMatchCompleted;
-
-        console.log(`[Clock Update] Updating: MatchTime=${freshMatchTime}', Status=${isMatchCompleted ? 'completed' : isHalftime ? 'halftime' : 'active'}`);
 
         clockNode.setAttribute('data-live-clock-base-minute', String(freshMatchTime));
         clockNode.setAttribute('data-live-clock-pull-ts', String(pullTs));
@@ -6168,8 +6153,6 @@
             labelNode.textContent = isMatchCompleted ? 'Official clock (FT)' : 'Official clock (HT)';
           }
         }
-      } else if (clockNode) {
-        console.log(`[Clock Update] MatchTime not available (match.MatchTime=${match?.MatchTime}, detail.MatchTime=${detail?.MatchTime})`);
       }
     };
 
