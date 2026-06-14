@@ -6104,6 +6104,13 @@
       return buildSbsSportYouTubeSearchUrl(home, away, stage);
     };
 
+    const getSbsOnDemandMatchPageUrlForMatch = (match) => {
+      const home = teamName(match?.Home);
+      const away = teamName(match?.Away);
+      const context = groupNameFromMatch(match) || stageName(match) || 'match';
+      return buildSbsOnDemandMatchUrl(home, away, context);
+    };
+
     const isKnownHighlightsMatch = (match) => {
       const id = String(match?.IdMatch || '').trim();
       return Boolean(id && knownHighlightsByMatchId.has(id));
@@ -6341,7 +6348,7 @@
       }).join('');
 
       const sbsOnDemandLiveStreamUrl = buildSbsOnDemandLiveStreamUrl(homeName, awayName, group, stage);
-      const sbsOnDemandMatchUrl = buildSbsOnDemandMatchUrl(homeName, awayName, group || stage || 'match');
+      const sbsOnDemandMatchUrl = getSbsOnDemandMatchPageUrlForMatch(active);
       const isLiveActiveMatch = isActivelyPlayedMatch(active) && !state.replayMatchId;
       const sbsPrimaryUrl = isLiveActiveMatch ? sbsOnDemandLiveStreamUrl : sbsOnDemandMatchUrl;
       const sbsPrimaryHeading = isLiveActiveMatch ? 'SBS On Demand Live Stream:' : 'SBS On Demand Match Page:';
@@ -6474,6 +6481,9 @@
           ${matchId ? `<button type="button" class="btn-action btn-bell${isReminderSet ? ' active' : ''}" data-match-id="${escapeHtml(matchId)}" title="${isReminderSet ? 'Reminder set – click to cancel' : 'Remind me 15 min before kickoff'}">🔔</button>` : ''}
         </div>`
         : '';
+      const replayActionButton = replayable
+        ? `<a class="btn-action btn-replay-link" href="${escapeHtml(getSbsOnDemandMatchPageUrlForMatch(match))}" target="_blank" rel="noreferrer noopener" title="Open SBS On Demand match page" aria-label="Open SBS On Demand match page">📺</a>`
+        : '';
       const badges = `
         <span class="teams-badges">
           ${replayable ? '<span class="match-badge secondary">Replay</span>' : ''}
@@ -6504,6 +6514,7 @@
           <span class="slot">${escapeHtml(stageSlot(match))}</span>
           ${matchNumberTag ? `<span class="slot">${escapeHtml(matchNumberTag)}</span>` : ''}
           ${oddsInline}
+          ${replayActionButton}
           ${actionButtons}
           ${badges}
         </div>
@@ -6747,6 +6758,11 @@
             await toggleMatchReminder(bellMatchId);
             return;
           }
+        }
+
+        if (event.target?.closest?.('.btn-replay-link')) {
+          event.stopPropagation();
+          return;
         }
 
         const replayable = String(matchNode.getAttribute('data-replayable') || '') === '1';
