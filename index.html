@@ -7109,10 +7109,10 @@
       }
 
       const anchorY = 68;
-      let activePage = pages.find((page) => {
-        const rect = page.getBoundingClientRect();
-        return rect.top <= anchorY && rect.bottom > anchorY;
-      }) || null;
+      let activePage = pages
+        .map((page) => ({ page, rect: page.getBoundingClientRect() }))
+        .filter(({ rect }) => rect.top <= anchorY && rect.bottom > anchorY)
+        .sort((left, right) => right.rect.top - left.rect.top)[0]?.page || null;
 
       if (!activePage) {
         activePage = pages.find((page) => page.getBoundingClientRect().top > anchorY) || pages[pages.length - 1];
