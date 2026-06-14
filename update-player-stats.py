@@ -130,7 +130,7 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, i
                     stats[key] = {'goals': 0, 'yellowCards': 0, 'redCards': 0}
                 stats[key]['goals'] += 1
             elif player_id in away_id_map:
-                # Own goal by away player - don't credit them
+                # Own goal by away player - don't credit
                 pass
 
     # Process away goals
@@ -146,7 +146,7 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, i
                     stats[key] = {'goals': 0, 'yellowCards': 0, 'redCards': 0}
                 stats[key]['goals'] += 1
             elif player_id in home_id_map:
-                # Own goal by home player - don't credit them
+                # Own goal by home player - don't credit
                 pass
 
     # Process home bookings

@@ -116,6 +116,7 @@ Player stats are automatically tracked from live FIFA match event data and store
 - **Assists**: `IdAssistPlayer` field is rarely populated by FIFA API
 - **Minutes played**: No granular match timing data available in live event feed
 - **Appearances**: Incomplete without full match history tracking
+- **Some goal scorers**: Rarely, a goal scorer may not be in the match roster (data inconsistency on FIFA's side)
 
 ### How it works
 

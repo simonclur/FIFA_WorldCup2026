@@ -72,8 +72,8 @@ Each player in `squad-data.json` includes a `tournamentStats` object:
 }
 ```
 
-**Populated fields**: `goals` (goals scored), `yellowCards`, `redCards`, `appearances` (count of matches started or subbed into).
-**Not available from FIFA API**: `assists` (never provided in goal events), `minutesPlayed` (no granular timing in live feed). These remain 0.
+**Tracked fields**: `goals`, `yellowCards`, `redCards`.
+**Not available from FIFA API**: `assists` (rarely populated), `minutesPlayed` (no granular timing), `appearances` (incomplete tracking). Rarely, goal scorers may not be in the match roster (data inconsistency).
 
 Stats are auto-updated by `update-player-stats.py` (GitHub Actions, daily) and manually via `python3 update-player-stats.py` locally. Do not edit `tournamentStats` manually — regenerate from FIFA API via the script.
 

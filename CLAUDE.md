@@ -80,6 +80,7 @@ Each player in `squad-data.json` includes a `tournamentStats` object with stats 
 - Assists — IdAssistPlayer is rarely populated in goal events
 - Minutes played — FIFA API provides no granular match timing
 - Appearances — Incomplete without full tournament history
+- Rarely: Goal scorers may not be in the match roster (data inconsistency on FIFA's side)
 
 Stats are auto-updated by `update-player-stats.py` (GitHub Actions, daily) and manually via `python3 update-player-stats.py` locally. Do not edit `tournamentStats` manually — regenerate from FIFA API via the script.
 
