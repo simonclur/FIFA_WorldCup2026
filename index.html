@@ -2937,8 +2937,8 @@
 
       .group-live-spotlight-list .match.live-spotlight-match {
         font-size: 9.6pt;
-        min-height: 23mm;
-        padding: 2.8mm 2.8mm 2.4mm;
+        min-height: 25mm;
+        padding: 3mm 3mm 2.6mm;
         line-height: 1.3;
       }
 
@@ -3215,6 +3215,69 @@
       .embed-frame {
         min-height: 300px;
       }
+    }
+
+    @media (max-width: 920px) and (orientation: landscape) and (pointer: coarse) {
+      .spread {
+        padding:
+          calc(8px + env(safe-area-inset-top))
+          calc(8px + env(safe-area-inset-right))
+          calc(10px + env(safe-area-inset-bottom))
+          calc(8px + env(safe-area-inset-left));
+      }
+
+      .page {
+        padding: 3.2mm 3.4mm 3mm;
+        margin-bottom: 3mm;
+      }
+
+      .page-head {
+        gap: 2.3mm;
+        padding-bottom: 2.3mm;
+        margin-bottom: 2.3mm;
+      }
+
+      .group-stage-layout {
+        grid-template-columns: minmax(0, 1fr) 50mm;
+        gap: 2mm;
+      }
+
+      .group-stage-main .groups-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .group-live-spotlight-head {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .group-live-spotlight-card {
+        gap: 1.9mm;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match {
+        min-height: 26mm;
+        padding: 3mm 3.1mm 2.7mm;
+        font-size: 9.8pt;
+        line-height: 1.28;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .match-main {
+        align-items: start;
+        gap: 1.2mm;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .meta-main {
+        margin-top: 0.4mm;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match .team-name { font-size: 11pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline { font-size: 13.6pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline.live { font-size: 15.4pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .slot { font-size: 7.4pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .status { font-size: 7.2pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .match-badge,
+      .group-live-spotlight-list .match.live-spotlight-match .match-header-badge { font-size: 6.8pt; }
     }
   </style>
 </head>
