@@ -147,22 +147,36 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, i
     # Process home goals
     for goal in home_team.get('Goals', []):
         player_id = extract_player_id(goal)
-        if player_id and player_id in home_id_map:
-            shirt = home_id_map[player_id]['shirtNumber']
-            key = (shirt, 'home')
-            if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
-            stats[key]['goals'] += 1
+        if player_id:
+            # Check if this is an own goal (player is in away team, not home team)
+            if player_id in home_id_map:
+                # Regular goal by home player
+                shirt = home_id_map[player_id]['shirtNumber']
+                key = (shirt, 'home')
+                if key not in stats:
+                    stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
+                stats[key]['goals'] += 1
+            elif player_id in away_id_map:
+                # Own goal by away player (don't credit the player, just count the appearance)
+                # Own goals are not credited to individual players in tournament stats
+                pass
 
     # Process away goals
     for goal in away_team.get('Goals', []):
         player_id = extract_player_id(goal)
-        if player_id and player_id in away_id_map:
-            shirt = away_id_map[player_id]['shirtNumber']
-            key = (shirt, 'away')
-            if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
-            stats[key]['goals'] += 1
+        if player_id:
+            # Check if this is an own goal (player is in home team, not away team)
+            if player_id in away_id_map:
+                # Regular goal by away player
+                shirt = away_id_map[player_id]['shirtNumber']
+                key = (shirt, 'away')
+                if key not in stats:
+                    stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
+                stats[key]['goals'] += 1
+            elif player_id in home_id_map:
+                # Own goal by home player (don't credit the player, just count the appearance)
+                # Own goals are not credited to individual players in tournament stats
+                pass
 
     # Process home bookings
     for booking in home_team.get('Bookings', []):
@@ -242,23 +256,25 @@ def main():
         print('❌ No squad data loaded. Exiting.', file=sys.stderr)
         sys.exit(1)
 
-    # Initialize tournamentStats for all players if not present
+    # Initialize/reset tournamentStats for all players
+    # Reset to 0 each run so we recalculate from scratch (prevents double-counting)
     init_count = 0
     for player in squad_data:
         if 'tournamentStats' not in player:
-            player['tournamentStats'] = {
-                'goals': 0,
-                'assists': 0,
-                'yellowCards': 0,
-                'redCards': 0,
-                'minutesPlayed': 0,
-                'appearances': 0,
-                'lastUpdated': datetime.utcnow().isoformat() + 'Z'
-            }
             init_count += 1
+        player['tournamentStats'] = {
+            'goals': 0,
+            'assists': 0,
+            'yellowCards': 0,
+            'redCards': 0,
+            'minutesPlayed': 0,
+            'appearances': 0,
+            'lastUpdated': datetime.utcnow().isoformat() + 'Z'
+        }
 
     if init_count > 0:
-        print(f'✅ Initialized tournamentStats for {init_count} players')
+        print(f'✅ Initialized tournamentStats for {init_count} new players')
+    print(f'🔄 Reset all tournament stats to 0 for recalculation')
 
     # Build team name -> team code mapping
     team_name_to_code: Dict[str, str] = {}
