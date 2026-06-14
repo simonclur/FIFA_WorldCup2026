@@ -3895,6 +3895,11 @@
         }
         // Store full array in state for Group Tables card aggregation
         state.squadData = squads;
+        // Re-render Group Tables now that squad data is available (if already rendered)
+        const groupTablesGrid = document.getElementById('group-tables-grid');
+        if (groupTablesGrid && groupTablesGrid.innerHTML !== '') {
+          renderGroupTablesPage();
+        }
       })
       .catch(err => console.warn('Failed to load squad-data.json for player enrichment:', err));
   </script>
@@ -3969,6 +3974,7 @@
       },
       timer: null,
       kickoffTriggerTimer: null,
+      squadData: [],
     };
 
     const worldCupTopScorers = [
