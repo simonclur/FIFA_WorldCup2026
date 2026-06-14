@@ -7606,7 +7606,7 @@
     "caps": 20,
     "goals": 2,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -11016,7 +11016,7 @@
     "caps": 58,
     "goals": 22,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 2,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -11082,7 +11082,7 @@
     "caps": 42,
     "goals": 9,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -11192,7 +11192,7 @@
     "caps": 27,
     "goals": 0,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -11258,7 +11258,7 @@
     "caps": 5,
     "goals": 0,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -11368,7 +11368,7 @@
     "caps": 8,
     "goals": 1,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -11434,7 +11434,7 @@
     "caps": 9,
     "goals": 6,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -14008,7 +14008,7 @@
     "caps": 26,
     "goals": 11,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -14052,7 +14052,7 @@
     "caps": 49,
     "goals": 12,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -16670,7 +16670,7 @@
     "caps": 92,
     "goals": 12,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "yellowCards": 0,
       "redCards": 0
     }
@@ -16803,7 +16803,7 @@
     "goals": 55,
     "tournamentStats": {
       "goals": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0
     }
   },
@@ -16913,7 +16913,7 @@
     "goals": 1,
     "tournamentStats": {
       "goals": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0
     }
   },
@@ -17110,8 +17110,8 @@
     "caps": 2,
     "goals": 0,
     "tournamentStats": {
-      "goals": 0,
-      "yellowCards": 0,
+      "goals": 1,
+      "yellowCards": 1,
       "redCards": 0
     }
   },

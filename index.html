@@ -5025,16 +5025,16 @@
         return hasProxy ? { provider: 'the-odds-api', apiKey: 'proxy' } : { provider: 'none', apiKey: '' };
       }
 
-      if (hasOddsPapi) {
-        return { provider: 'oddspapi', apiKey: oddsConfig.oddsPapi.apiKey };
+      if (hasTheOddsApi) {
+        return { provider: 'the-odds-api', apiKey: oddsConfig.theOddsApi.apiKey };
       }
 
       if (hasProxy) {
-        return { provider: 'oddspapi', apiKey: 'proxy' };
+        return { provider: 'the-odds-api', apiKey: 'proxy' };
       }
 
-      if (hasTheOddsApi) {
-        return { provider: 'the-odds-api', apiKey: oddsConfig.theOddsApi.apiKey };
+      if (hasOddsPapi) {
+        return { provider: 'oddspapi', apiKey: oddsConfig.oddsPapi.apiKey };
       }
 
       return { provider: 'none', apiKey: '' };
@@ -5043,6 +5043,44 @@
     const getOddsCacheKey = (provider, apiKey) => {
       const keySuffix = String(apiKey || 'nokey').slice(0, 12);
       return `${oddsConfig.cacheKeyBase}_${provider}_${keySuffix}`;
+    };
+
+    const getSessionOddsCacheKey = (provider, apiKey) => {
+      const keySuffix = String(apiKey || 'nokey').slice(0, 12);
+      return `fifa2026_odds_session_${provider}_${keySuffix}`;
+    };
+
+    const getCachedOddsFromSession = (provider, apiKey) => {
+      try {
+        const key = getSessionOddsCacheKey(provider, apiKey);
+        const raw = sessionStorage.getItem(key);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed.updatedAt !== 'number') return null;
+
+        const age = Date.now() - parsed.updatedAt;
+        if (age > 5 * 60 * 1000) return null;
+
+        return parsed;
+      } catch {
+        return null;
+      }
+    };
+
+    const setCachedOddsInSession = (provider, apiKey) => {
+      try {
+        const key = getSessionOddsCacheKey(provider, apiKey);
+        const snapshot = {
+          teams: [...state.contenderTeams],
+          winnerOdds: state.winnerOdds,
+          matchOdds: [...state.matchOddsByKey.entries()],
+          updatedAt: Date.now(),
+        };
+        sessionStorage.setItem(key, JSON.stringify(snapshot));
+      } catch {
+        // Ignore storage failures.
+      }
     };
 
     const getCachedOddsContenders = (provider, apiKey, options = {}) => {
@@ -5645,9 +5683,21 @@
         return;
       }
 
+      const sessionCached = getCachedOddsFromSession(providerContext.provider, providerContext.apiKey);
+      if (sessionCached) {
+        const source = providerContext.provider === 'oddspapi' ? 'oddspapi-session' : 'odds-api-session';
+        state.contenderTeams = new Set(sessionCached.teams);
+        state.winnerOdds = Array.isArray(sessionCached.winnerOdds) ? sessionCached.winnerOdds : [];
+        state.matchOddsByKey = new Map(Array.isArray(sessionCached.matchOdds) ? sessionCached.matchOdds : []);
+        state.oddsUpdatedAt = new Date(sessionCached.updatedAt);
+        state.oddsSource = source;
+        return;
+      }
+
       const cached = getCachedOddsContenders(providerContext.provider, providerContext.apiKey);
       if (cached) {
         applyCachedOdds(cached, providerContext.provider === 'oddspapi' ? 'oddspapi-cache' : 'odds-api-cache');
+        setCachedOddsInSession(providerContext.provider, providerContext.apiKey);
         return;
       }
 
@@ -5704,6 +5754,7 @@
         state.oddsUpdatedAt = new Date();
         state.oddsSource = providerContext.provider;
         setCachedOddsContenders(providerContext.provider, providerContext.apiKey, contenders);
+        setCachedOddsInSession(providerContext.provider, providerContext.apiKey);
       } else {
         const staleCached = getCachedOddsContenders(providerContext.provider, providerContext.apiKey, {
           ignoreForce: true,

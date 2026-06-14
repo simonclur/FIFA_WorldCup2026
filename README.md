@@ -94,8 +94,9 @@ Core pages and modules include:
 
 ### Odds integration
 
-- Provider fallback: OddsPAPI + The Odds API
-- Cache-aware refresh and stale fallback behavior
+- Provider fallback: The Odds API → OddsPAPI
+- Session-level caching: Odds fetched once per page load, cached in sessionStorage for 5 minutes to eliminate redundant API calls during refresh cycles
+- Cache-aware refresh and stale fallback behavior (localStorage: 60-minute TTL)
 - Top-matchup badge recalculated when contender rankings refresh
 - Embedded odds API keys are no longer hardcoded in client code.
 - Odds can run either with explicit browser keys (`oddsApiKey`, `oddspapiKey`) for local testing, or through a proxy (`proxyBase`) so secrets stay server-side.

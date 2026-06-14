@@ -48,7 +48,7 @@ Keep updates concise — one or two sentences per change is enough. Do not rewri
 - The FIFA season ID is `285023`; do not hardcode other IDs.
 - Live match polling is 60 s; base polling is 5 min; kickoff-triggered fetch fires at kickoff + 5 s.
 - Match status semantics: `MatchStatus` 2–6 = actively played; `ResultType` 1 = completed.
-- Odds provider fallback order: OddsPAPI → The Odds API.
+- Odds provider fallback order: The Odds API → OddsPAPI.
 - `isActivelyPlayedMatch()` is the single source of truth for live-state detection.
 - Multi-channel state semantics: never rely on color alone — pair with label text and border treatment.
 
