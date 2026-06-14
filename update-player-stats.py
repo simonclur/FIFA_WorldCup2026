@@ -256,8 +256,18 @@ def main():
         # Extract team codes from the match detail
         home_team = detail.get('HomeTeam', {})
         away_team = detail.get('AwayTeam', {})
-        home_team_name = str(home_team.get('Name', '')).strip().lower()
-        away_team_name = str(away_team.get('Name', '')).strip().lower()
+
+        # TeamName is a list of localized descriptions, extract English one
+        home_team_data = home_team.get('TeamName', [])
+        away_team_data = away_team.get('TeamName', [])
+        home_team_name = ''
+        away_team_name = ''
+
+        if isinstance(home_team_data, list) and len(home_team_data) > 0:
+            home_team_name = str(home_team_data[0].get('Description', '')).strip().lower()
+        if isinstance(away_team_data, list) and len(away_team_data) > 0:
+            away_team_name = str(away_team_data[0].get('Description', '')).strip().lower()
+
         home_code = team_name_to_code.get(home_team_name, '')
         away_code = team_name_to_code.get(away_team_name, '')
 

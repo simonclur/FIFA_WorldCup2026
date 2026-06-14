@@ -1550,13 +1550,13 @@
     "caps": 36,
     "goals": 1,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690727Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.631958Z"
     }
   },
   {
@@ -1784,13 +1784,13 @@
     "caps": 15,
     "goals": 5,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690733Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.631947Z"
     }
   },
   {
@@ -3632,11 +3632,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690781Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.094636Z"
     }
   },
   {
@@ -3840,11 +3840,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690786Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.094646Z"
     }
   },
   {
@@ -4020,13 +4020,13 @@
     "caps": 3,
     "goals": 0,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690790Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.094607Z"
     }
   },
   {
@@ -4178,11 +4178,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690793Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.418061Z"
     }
   },
   {
@@ -4228,13 +4228,13 @@
     "caps": 49,
     "goals": 9,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690795Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.417969Z"
     }
   },
   {
@@ -4672,11 +4672,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690805Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.418074Z"
     }
   },
   {
@@ -5452,11 +5452,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690873Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.094618Z"
     }
   },
   {
@@ -5504,11 +5504,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690874Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.094628Z"
     }
   },
   {
@@ -5632,13 +5632,13 @@
     "caps": 90,
     "goals": 30,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690878Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.094592Z"
     }
   },
   {
@@ -9636,13 +9636,13 @@
     "caps": 28,
     "goals": 6,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.690992Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.970208Z"
     }
   },
   {
@@ -14448,11 +14448,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691150Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.536443Z"
     }
   },
   {
@@ -17646,11 +17646,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691239Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.970248Z"
     }
   },
   {
@@ -17722,13 +17722,13 @@
     "caps": 74,
     "goals": 7,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691241Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.970141Z"
     }
   },
   {
@@ -18034,13 +18034,13 @@
     "caps": 28,
     "goals": 7,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691250Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.970186Z"
     }
   },
   {
@@ -18323,10 +18323,10 @@
       "goals": 0,
       "assists": 0,
       "yellowCards": 0,
-      "redCards": 0,
+      "redCards": 1,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691258Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.859038Z"
     }
   },
   {
@@ -18476,13 +18476,13 @@
     "caps": 127,
     "goals": 46,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691262Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.858964Z"
     }
   },
   {
@@ -18658,13 +18658,13 @@
     "caps": 23,
     "goals": 3,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691267Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.858918Z"
     }
   },
   {
@@ -18920,11 +18920,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691274Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.859002Z"
     }
   },
   {
@@ -19204,13 +19204,13 @@
     "caps": 30,
     "goals": 9,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691282Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.418050Z"
     }
   },
   {
@@ -22404,11 +22404,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691370Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.213055Z"
     }
   },
   {
@@ -22456,11 +22456,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691371Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.213248Z"
     }
   },
   {
@@ -22508,11 +22508,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691373Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.213158Z"
     }
   },
   {
@@ -22560,11 +22560,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691374Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.213109Z"
     }
   },
   {
@@ -22584,13 +22584,13 @@
     "caps": 3,
     "goals": 0,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691375Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.212944Z"
     }
   },
   {
@@ -22768,11 +22768,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691381Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.213204Z"
     }
   },
   {
@@ -23678,11 +23678,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691416Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.316484Z"
     }
   },
   {
@@ -23782,11 +23782,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691420Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.316535Z"
     }
   },
   {
@@ -25056,11 +25056,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691458Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.536492Z"
     }
   },
   {
@@ -25184,13 +25184,13 @@
     "caps": 86,
     "goals": 20,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691462Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.536413Z"
     }
   },
   {
@@ -25602,11 +25602,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691480Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.536602Z"
     }
   },
   {
@@ -25654,11 +25654,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691481Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.536550Z"
     }
   },
   {
@@ -26460,11 +26460,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691514Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.859112Z"
     }
   },
   {
@@ -26643,10 +26643,10 @@
       "goals": 0,
       "assists": 0,
       "yellowCards": 0,
-      "redCards": 0,
+      "redCards": 1,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691519Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.859274Z"
     }
   },
   {
@@ -26695,10 +26695,10 @@
       "goals": 0,
       "assists": 0,
       "yellowCards": 0,
-      "redCards": 0,
+      "redCards": 1,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691520Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.859163Z"
     }
   },
   {
@@ -26850,11 +26850,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691524Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:14.859217Z"
     }
   },
   {
@@ -28540,11 +28540,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691574Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.316592Z"
     }
   },
   {
@@ -28564,13 +28564,13 @@
     "caps": 86,
     "goals": 24,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691575Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.316426Z"
     }
   },
   {
@@ -30230,11 +30230,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691668Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.632083Z"
     }
   },
   {
@@ -31192,11 +31192,11 @@
     "tournamentStats": {
       "goals": 0,
       "assists": 0,
-      "yellowCards": 0,
+      "yellowCards": 1,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691694Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.213007Z"
     }
   },
   {
@@ -31268,13 +31268,13 @@
     "caps": 38,
     "goals": 9,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 1,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691696Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.212897Z"
     }
   },
   {
@@ -31606,13 +31606,13 @@
     "caps": 27,
     "goals": 9,
     "tournamentStats": {
-      "goals": 0,
+      "goals": 2,
       "assists": 0,
       "yellowCards": 0,
       "redCards": 0,
       "minutesPlayed": 0,
-      "appearances": 0,
-      "lastUpdated": "2026-06-14T13:05:47.691705Z"
+      "appearances": 1,
+      "lastUpdated": "2026-06-14T13:35:15.212834Z"
     }
   },
   {

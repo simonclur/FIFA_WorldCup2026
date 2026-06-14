@@ -503,24 +503,133 @@
     }
 
     .live-list {
-      display: grid;
-      gap: 0.6mm;
+      display: flex;
+      flex-direction: column;
       font-size: 6.7pt;
       line-height: 1.25;
-      max-height: 40mm;
+      max-height: 50mm;
       overflow: auto;
     }
 
-    .live-player-row {
-      display: flex;
-      gap: 1mm;
-      align-items: baseline;
-      word-break: break-word;
+    .live-player-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 5.8pt;
+      line-height: 1.2;
+      table-layout: fixed;
     }
 
-    .live-player-row .muted {
-      font-size: 6.2pt;
-      flex-shrink: 0;
+    .live-player-header {
+      background: rgba(20, 32, 51, 0.06);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      position: sticky;
+      top: 0;
+    }
+
+    .live-player-header th {
+      padding: 0.5mm 0.6mm;
+      text-align: left;
+      color: var(--accent-3);
+      border-bottom: 1px solid rgba(20, 32, 51, 0.12);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 5.4pt;
+    }
+
+    .live-player-header th:nth-child(1) { width: 2.5%; text-align: center; }
+    .live-player-header th:nth-child(2) { width: 20%; text-align: left; }
+    .live-player-header th:nth-child(3) { width: 4%; text-align: center; }
+    .live-player-header th:nth-child(4) { width: 4.5%; text-align: center; }
+    .live-player-header th:nth-child(5) { width: 18%; text-align: left; }
+    .live-player-header th:nth-child(6) { width: 4%; text-align: center; }
+    .live-player-header th:nth-child(7) { width: 4%; text-align: center; }
+    .live-player-header th:nth-child(8) { width: 4%; text-align: center; }
+    .live-player-header th:nth-child(9) { width: 4%; text-align: center; }
+    .live-player-header th:nth-child(10) { width: 4%; text-align: center; }
+    .live-player-header th:nth-child(11) { width: 4%; text-align: center; }
+    .live-player-header th:nth-child(12) { width: 4%; text-align: center; }
+    .live-player-header th:nth-child(13) { width: 4%; text-align: center; }
+
+    .live-player-header th:hover {
+      background: rgba(20, 32, 51, 0.10);
+    }
+
+    .live-player-header th.sorted-asc::after {
+      content: ' ↑';
+    }
+
+    .live-player-header th.sorted-desc::after {
+      content: ' ↓';
+    }
+
+    .live-player-row {
+      border-bottom: 1px solid rgba(20, 32, 51, 0.08);
+    }
+
+    .live-player-row:hover {
+      background: rgba(13, 107, 114, 0.04);
+    }
+
+    .live-player-row td {
+      padding: 0.4mm 0.6mm;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .live-player-shirt {
+      font-weight: 700;
+      text-align: center;
+      width: 2.5%;
+    }
+
+    .live-player-name {
+      font-weight: 500;
+      text-align: left;
+      width: 20%;
+    }
+
+    .live-player-pos {
+      text-align: center;
+      font-weight: 600;
+      color: var(--accent-3);
+      width: 4%;
+    }
+
+    .live-player-height {
+      text-align: center;
+      color: var(--muted);
+      width: 4.5%;
+    }
+
+    .live-player-club {
+      font-size: 5.4pt;
+      color: var(--muted);
+      text-align: left;
+      width: 18%;
+    }
+
+    .live-player-caps,
+    .live-player-goals,
+    .live-player-tournament-goals,
+    .live-player-tournament-assists,
+    .live-player-tournament-yellow,
+    .live-player-tournament-red,
+    .live-player-tournament-minutes,
+    .live-player-tournament-appearances {
+      text-align: center;
+      color: var(--muted);
+      width: 4%;
+    }
+
+    .live-player-tournament-goals {
+      font-weight: 600;
+      color: var(--accent-2);
     }
 
     .live-events {
@@ -6079,27 +6188,132 @@
           livePlayer: player,
           squadData,
           shirt,
-          goals: squadData?.tournamentStats?.goals || 0,
+          tournamentGoals: squadData?.tournamentStats?.goals || 0,
           position: Number(player.Position || 99),
           captain: Boolean(player.Captain),
         };
       });
 
       enrichedPlayers.sort((a, b) => {
-        if (a.goals !== b.goals) return b.goals - a.goals;
+        if (a.tournamentGoals !== b.tournamentGoals) return b.tournamentGoals - a.tournamentGoals;
         if (a.position !== b.position) return a.position - b.position;
         return a.shirt - b.shirt;
       });
 
-      return enrichedPlayers.map((p) => {
+      const rows = enrichedPlayers.map((p) => {
         const name = pickEnglishDescription(p.livePlayer.PlayerName) || pickEnglishDescription(p.livePlayer.ShortName) || 'Player';
-        const shirt = Number.isFinite(p.shirt) ? `#${p.shirt}` : '#-';
+        const shirt = Number.isFinite(p.shirt) ? String(p.shirt) : '-';
         const pos = positionLabel(p.livePlayer.Position);
         const cap = p.captain ? ' (C)' : '';
-        const club = p.squadData?.club ? ` • ${escapeHtml(p.squadData.club)}` : '';
-        const goalsDisplay = p.goals > 0 ? ` (${p.goals}⚽)` : '';
-        return `<div class="live-player-row">${escapeHtml(shirt)} ${escapeHtml(name)}${escapeHtml(cap)}${escapeHtml(goalsDisplay)} <span class="muted">${escapeHtml(pos)}${escapeHtml(club)}</span></div>`;
+
+        // Career stats from squad-data
+        const intlCaps = p.squadData?.caps || '-';
+        const careerGoals = p.squadData?.goals || '-';
+        const height = p.squadData?.height || '-';
+        const club = p.squadData?.club || '-';
+
+        // Tournament stats (if available)
+        const tournamentGoals = p.squadData?.tournamentStats?.goals || 0;
+        const tournamentAssists = p.squadData?.tournamentStats?.assists || 0;
+        const tournamentYellow = p.squadData?.tournamentStats?.yellowCards || 0;
+        const tournamentRed = p.squadData?.tournamentStats?.redCards || 0;
+        const tournamentMinutes = p.squadData?.tournamentStats?.minutesPlayed || 0;
+        const tournamentAppearances = p.squadData?.tournamentStats?.appearances || 0;
+
+        // Data attributes for sorting
+        const dataShirt = p.shirt;
+        const dataCaps = intlCaps === '-' ? -1 : intlCaps;
+        const dataGoals = careerGoals === '-' ? -1 : careerGoals;
+        const dataTournamentGoals = tournamentGoals;
+        const dataTournamentAssists = tournamentAssists;
+        const dataTournamentYellow = tournamentYellow;
+        const dataTournamentRed = tournamentRed;
+        const dataTournamentMinutes = tournamentMinutes;
+        const dataTournamentAppearances = tournamentAppearances;
+        const dataPos = p.position;
+        const dataName = name.toLowerCase();
+
+        const tournamentGoalsDisplay = tournamentGoals > 0 ? String(tournamentGoals) : '-';
+        const tournamentAssistsDisplay = tournamentAssists > 0 ? String(tournamentAssists) : '-';
+        const tournamentYellowDisplay = tournamentYellow > 0 ? String(tournamentYellow) : '-';
+        const tournamentRedDisplay = tournamentRed > 0 ? String(tournamentRed) : '-';
+        const tournamentMinutesDisplay = tournamentMinutes > 0 ? String(tournamentMinutes) : '-';
+        const tournamentAppearancesDisplay = tournamentAppearances > 0 ? String(tournamentAppearances) : '-';
+
+        return `<tr class="live-player-row" data-shirt="${dataShirt}" data-caps="${dataCaps}" data-goals="${dataGoals}" data-tournament-goals="${dataTournamentGoals}" data-tournament-assists="${dataTournamentAssists}" data-tournament-yellow="${dataTournamentYellow}" data-tournament-red="${dataTournamentRed}" data-tournament-minutes="${dataTournamentMinutes}" data-tournament-appearances="${dataTournamentAppearances}" data-pos="${dataPos}" data-name="${dataName}"><td class="live-player-shirt">${escapeHtml(shirt)}</td><td class="live-player-name">${escapeHtml(name)}${escapeHtml(cap)}</td><td class="live-player-pos">${escapeHtml(pos)}</td><td class="live-player-height">${escapeHtml(String(height))}</td><td class="live-player-club">${escapeHtml(club)}</td><td class="live-player-caps">${escapeHtml(String(intlCaps))}</td><td class="live-player-goals">${escapeHtml(String(careerGoals))}</td><td class="live-player-tournament-goals">${escapeHtml(tournamentGoalsDisplay)}</td><td class="live-player-tournament-assists">${escapeHtml(tournamentAssistsDisplay)}</td><td class="live-player-tournament-yellow">${escapeHtml(tournamentYellowDisplay)}</td><td class="live-player-tournament-red">${escapeHtml(tournamentRedDisplay)}</td><td class="live-player-tournament-minutes">${escapeHtml(tournamentMinutesDisplay)}</td><td class="live-player-tournament-appearances">${escapeHtml(tournamentAppearancesDisplay)}</td></tr>`;
       }).join('');
+
+      return `
+        <table class="live-player-table">
+          <thead class="live-player-header">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Pos</th>
+              <th>Height</th>
+              <th>Club</th>
+              <th>Caps</th>
+              <th>Goals</th>
+              <th>⚽</th>
+              <th>A</th>
+              <th>🟨</th>
+              <th>🟥</th>
+              <th>Min</th>
+              <th>App</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      `;
+    };
+
+    const initializePlayerTableSorting = () => {
+      document.querySelectorAll('.live-player-table').forEach((table) => {
+        const headers = table.querySelectorAll('.live-player-header th');
+        headers.forEach((th, idx) => {
+          const columnMap = ['shirt', 'name', 'pos', 'height', 'club', 'caps', 'goals', 'tournamentGoals', 'tournamentAssists', 'tournamentYellow', 'tournamentRed', 'tournamentMinutes', 'tournamentAppearances'];
+          const column = columnMap[idx];
+          if (!column) return;
+
+        th.addEventListener('click', () => {
+          const table = th.closest('.live-player-table');
+          const tbody = table.querySelector('tbody');
+          const rows = Array.from(tbody.querySelectorAll('tr.live-player-row'));
+
+          const isSorted = th.classList.contains('sorted-asc') || th.classList.contains('sorted-desc');
+          const isAsc = th.classList.contains('sorted-asc');
+
+          rows.sort((a, b) => {
+            let aVal = a.dataset[column] || '';
+            let bVal = b.dataset[column] || '';
+
+            // Convert to numbers for numeric columns
+            if (column === 'shirt' || column === 'caps' || column === 'goals' || column === 'tournamentGoals' || column === 'pos') {
+              aVal = Number(aVal) || 0;
+              bVal = Number(bVal) || 0;
+              return isAsc ? bVal - aVal : aVal - bVal;
+            }
+
+            // String comparison for name/club/etc
+            aVal = String(aVal).toLowerCase();
+            bVal = String(bVal).toLowerCase();
+            return isAsc ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
+          });
+
+          // Update header classes
+          table.querySelectorAll('.live-player-header th').forEach(h => {
+            h.classList.remove('sorted-asc', 'sorted-desc');
+          });
+          th.classList.add(isSorted ? 'sorted-desc' : 'sorted-asc');
+
+          // Re-render rows
+          tbody.innerHTML = '';
+          rows.forEach(row => tbody.appendChild(row));
+        });
+        });
+      });
     };
 
     const createLiveEventRows = (team, sideLabel, sideKey, opposingTeam = null, opposingLabel = '') => {
@@ -6616,6 +6830,9 @@
       `;
 
       stampNode.textContent = renderLiveMatchStampText();
+
+      // Initialize sorting for player tables
+      setTimeout(() => initializePlayerTableSorting(), 0);
     };
 
     const isUpcomingMatch = (match) => {
