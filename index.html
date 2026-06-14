@@ -3575,6 +3575,8 @@
       oddsBaselinePrices: new Map(),
       liveDetail: null,
       liveDetailUpdatedAt: null,
+      liveDetailByMatchId: new Map(),
+      pendingLiveDetailFetches: new Set(),
       liveTimer: null,
       scoreByMatchId: new Map(),
       hasPrimedScores: false,
@@ -6421,7 +6423,7 @@
 
       const renderSpotlightTicker = (match) => {
         const matchId = String(match?.IdMatch || '').trim();
-        const detail = String(state.liveDetail?.IdMatch || '').trim() === matchId ? state.liveDetail : null;
+        const detail = getCachedLiveDetail(matchId);
         const home = displayTeamName(teamName(match?.Home));
         const away = displayTeamName(teamName(match?.Away));
         const pullTs = state.lastFifaPullAt instanceof Date ? state.lastFifaPullAt.getTime() : Number.NaN;
@@ -6445,6 +6447,15 @@
         const subEvents     = allEvents.filter((e) => e.type === 'sub');
 
         const clockHtml = `<div class="live-spotlight-clock-row"><span class="live-spotlight-clock-label">${escapeHtml(clockHeading)}</span><span class="live-spotlight-clock" data-live-clock-base-minute="${escapeHtml(baseMinute)}" data-live-clock-pull-ts="${escapeHtml(pullTs)}" data-live-clock-kickoff-ts="${escapeHtml(kickoffTs)}" data-live-clock-freeze="${escapeHtml(freezeAttr)}">${escapeHtml(clockLabel)}</span></div>`;
+
+        if (!detail && matchId) {
+          fetchLiveDetailByMatchId(matchId).then(() => {
+            renderGroupStage();
+            if (String(state.liveDetail?.IdMatch || '').trim() === matchId) {
+              renderLiveMatchPage();
+            }
+          }).catch(() => {});
+        }
 
         if (!allEvents.length) {
           return `<div class="live-spotlight-ticker">${clockHtml}<div class="live-spotlight-ticker-label">Match events</div><div class="live-spotlight-ticker-empty">Awaiting detailed live events feed.</div></div>`;
@@ -6494,7 +6505,7 @@
           </h3>
           <div class="group-live-spotlight-list">
             ${liveMatches.map((match) => {
-              const detail = String(state.liveDetail?.IdMatch || '').trim() === String(match?.IdMatch || '').trim() ? state.liveDetail : null;
+              const detail = getCachedLiveDetail(String(match?.IdMatch || '').trim());
               const liveDetailStatus = Number(detail?.MatchStatus);
               return `<div class="group-live-spotlight-item">${renderMatch(match, { extraClass: 'live-spotlight-match', statusOverride: liveDetailStatus })}${renderSpotlightTicker(match)}</div>`;
             }).join('')}
@@ -7898,6 +7909,72 @@
       return response.json();
     }
 
+    const getCachedLiveDetail = (matchId) => {
+      const id = String(matchId || '').trim();
+      if (!id) {
+        return null;
+      }
+
+      if (String(state.liveDetail?.IdMatch || '').trim() === id) {
+        return state.liveDetail;
+      }
+
+      return state.liveDetailByMatchId instanceof Map ? state.liveDetailByMatchId.get(id) || null : null;
+    };
+
+    const storeLiveDetail = (matchId, detail, { promoteToCurrent = false } = {}) => {
+      const id = String(matchId || '').trim();
+      if (!id) {
+        return;
+      }
+
+      if (!(state.liveDetailByMatchId instanceof Map)) {
+        state.liveDetailByMatchId = new Map();
+      }
+
+      state.liveDetailByMatchId.set(id, detail || null);
+      if (promoteToCurrent) {
+        state.liveDetail = detail || null;
+        state.liveDetailUpdatedAt = new Date();
+      }
+    };
+
+    const fetchLiveDetailByMatchId = async (matchId, { promoteToCurrent = false } = {}) => {
+      const id = String(matchId || '').trim();
+      if (!id) {
+        return null;
+      }
+
+      const cached = getCachedLiveDetail(id);
+      if (cached) {
+        if (promoteToCurrent) {
+          state.liveDetail = cached;
+          state.liveDetailUpdatedAt = new Date();
+        }
+        return cached;
+      }
+
+      if (!(state.pendingLiveDetailFetches instanceof Set)) {
+        state.pendingLiveDetailFetches = new Set();
+      }
+
+      if (state.pendingLiveDetailFetches.has(id)) {
+        return null;
+      }
+
+      state.pendingLiveDetailFetches.add(id);
+      try {
+        const detail = await fetchJson(buildFifaApiUrl(`/live/football/${encodeURIComponent(id)}`, { language: 'en' }));
+        storeLiveDetail(id, detail, { promoteToCurrent });
+        return detail;
+      } catch {
+        storeLiveDetail(id, null, { promoteToCurrent: false });
+        return null;
+      } finally {
+        state.pendingLiveDetailFetches.delete(id);
+      }
+    };
+
     async function loadLiveMatchDetails(activeMatch) {
       if (!activeMatch?.IdMatch) {
         state.liveDetail = null;
@@ -7912,11 +7989,8 @@
         return;
       }
 
-      try {
-        const detail = await fetchJson(buildFifaApiUrl(`/live/football/${encodeURIComponent(id)}`, { language: 'en' }));
-        state.liveDetail = detail;
-        state.liveDetailUpdatedAt = new Date();
-      } catch {
+      const detail = await fetchLiveDetailByMatchId(id, { promoteToCurrent: true });
+      if (!detail) {
         state.liveDetail = null;
         state.liveDetailUpdatedAt = new Date();
       }
@@ -7947,6 +8021,14 @@
 
       const focusedMatch = resolveLiveFocusMatch(matches);
       await loadLiveMatchDetails(focusedMatch || null);
+
+      const activeLiveMatchIds = [...new Set((matches || [])
+        .filter(isActivelyPlayedMatch)
+        .map((match) => String(match?.IdMatch || '').trim())
+        .filter(Boolean))];
+      if (activeLiveMatchIds.length) {
+        await Promise.all(activeLiveMatchIds.map((matchId) => fetchLiveDetailByMatchId(matchId).catch(() => null)));
+      }
 
       if (goalsDetected > 0) {
         playGoalAlert();
