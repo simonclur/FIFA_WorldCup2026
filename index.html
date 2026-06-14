@@ -7109,8 +7109,12 @@
       }
 
       const anchorY = 68;
-      let activePage = pages
-        .map((page) => ({ page, rect: page.getBoundingClientRect() }))
+      const pageRects = pages.map((page) => ({ page, rect: page.getBoundingClientRect() }));
+      const nearTopUpcoming = pageRects
+        .filter(({ rect }) => rect.top > 0 && rect.top <= 180)
+        .sort((left, right) => left.rect.top - right.rect.top)[0]?.page || null;
+
+      let activePage = nearTopUpcoming || pageRects
         .filter(({ rect }) => rect.top <= anchorY && rect.bottom > anchorY)
         .sort((left, right) => right.rect.top - left.rect.top)[0]?.page || null;
 
