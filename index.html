@@ -100,14 +100,18 @@
       margin-bottom: 0;
     }
 
-    .page[data-sticky-name]::before {
-      content: attr(data-sticky-name);
-      display: block;
-      position: sticky;
+    .page-sticky-marker {
+      position: fixed;
       top: calc(env(safe-area-inset-top) + 6px);
-      z-index: 40;
-      margin: -2mm -2mm 2.6mm;
-      padding: 1.4mm 2mm;
+      left: 50%;
+      z-index: 80;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      max-width: min(68vw, 300px);
+      padding: 1.4mm 2.2mm;
       border: 1px solid rgba(20, 32, 51, 0.2);
       border-radius: 10px;
       background: rgba(246, 241, 232, 0.96);
@@ -119,6 +123,14 @@
       text-transform: uppercase;
       color: var(--accent-3);
       box-shadow: 0 4px 12px rgba(20, 32, 51, 0.12);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    .page-sticky-marker[data-visible="true"] {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     .page-head {
@@ -2301,7 +2313,7 @@
         border-color: rgba(173, 201, 236, 0.22);
       }
 
-      .page[data-sticky-name]::before {
+      .page-sticky-marker {
         border-color: rgba(173, 201, 236, 0.34);
         background: rgba(9, 18, 31, 0.92);
         color: #c9def8;
@@ -2697,7 +2709,7 @@
     }
 
     @media print {
-      .page[data-sticky-name]::before {
+      .page-sticky-marker {
         display: none;
       }
 
@@ -3012,11 +3024,11 @@
     }
 
     @media (max-width: 430px) {
-      .page[data-sticky-name]::before {
+      .page-sticky-marker {
         top: calc(env(safe-area-inset-top) + 5px);
-        margin: -1.4mm -1.4mm 2.2mm;
         padding: 1.5mm 1.8mm;
         font-size: 8.8pt;
+        max-width: calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));
       }
 
       .spread {
@@ -3303,6 +3315,7 @@
   </style>
 </head>
 <body>
+  <div id="page-sticky-marker" class="page-sticky-marker" aria-live="polite" data-visible="false"></div>
   <main class="spread">
     <div id="file-origin-warning" class="runtime-notice" role="status" aria-live="polite">
       Open this tracker over local HTTP to avoid file-origin security limits:
@@ -7082,6 +7095,40 @@
       return false;
     };
 
+    const updateStickyPageMarker = () => {
+      const markerNode = document.getElementById('page-sticky-marker');
+      if (!markerNode) {
+        return;
+      }
+
+      const pages = [...document.querySelectorAll('.page[data-sticky-name]')];
+      if (!pages.length) {
+        markerNode.textContent = '';
+        markerNode.setAttribute('data-visible', 'false');
+        return;
+      }
+
+      const anchorY = 68;
+      let activePage = pages.find((page) => {
+        const rect = page.getBoundingClientRect();
+        return rect.top <= anchorY && rect.bottom > anchorY;
+      }) || null;
+
+      if (!activePage) {
+        activePage = pages.find((page) => page.getBoundingClientRect().top > anchorY) || pages[pages.length - 1];
+      }
+
+      const label = String(activePage?.getAttribute('data-sticky-name') || '').trim();
+      if (!label) {
+        markerNode.textContent = '';
+        markerNode.setAttribute('data-visible', 'false');
+        return;
+      }
+
+      markerNode.textContent = label;
+      markerNode.setAttribute('data-visible', 'true');
+    };
+
     const renderKnockoutPage = (gridId, stageNames, stampId, label) => {
       const matches = state.matches
         .filter((match) => stageNames.includes(stageName(match)) && !isCompletedMatch(match));
@@ -8343,6 +8390,9 @@
     }
 
     loadMatchReminders();
+    updateStickyPageMarker();
+    document.addEventListener('scroll', updateStickyPageMarker, { passive: true });
+    window.addEventListener('resize', updateStickyPageMarker);
     window.setInterval(checkMatchReminders, 60 * 1000);
     window.setInterval(updateNextUpCountdowns, 30 * 1000);
     updateRefreshCountdownViews();

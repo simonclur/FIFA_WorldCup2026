@@ -63,6 +63,7 @@ Core pages and modules include:
 - On the phone breakpoint, match metadata keeps the kickoff time and date in a right-aligned column instead of wrapping under the team names.
 - The live spotlight card is given a little extra vertical breathing room on phones so the time/date column stays clear of the team rows.
 - Phone landscape mode now has its own coarse-pointer breakpoint that restores a denser two-column layout while keeping the spotlight card tall enough for the time/date column.
+- Section stage labels now use a single viewport-fixed marker that updates as you scroll, so the current stage remains visible when moving down the page.
 - On touch devices, match-card hover affordances now support tap-to-focus, second tap to clear, and tap-outside-to-clear so odds hover context works on iPhone.
 - The World Cup winners Sankey now supports touch parity: tap year/champion/link to lock highlight, tap again to toggle off, and tap outside the chart to clear.
 
