@@ -128,6 +128,16 @@ To run the updater locally:
 python3 update-player-stats.py
 ```
 
+### Live Match Centre integration
+
+The Live Match Centre now displays enriched player data:
+
+- **Squad roster** shows: shirt # | name (C) | goals scored | club | position
+- **Default sort order**: Goals scored (descending) → Position → Shirt number
+- Loads `squad-data.json` on page load to enrich live players with tournament stats and club information
+- Players with tournament goals display goal count with ⚽ emoji
+- Club name pulled from `squad-data.json` and displayed in muted text
+
 ## Special Interest: Squad Sunburst Pipeline
 
 The squad footprint module is fully local and does not depend on external chart libraries.

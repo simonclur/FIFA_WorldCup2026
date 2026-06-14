@@ -58,6 +58,7 @@ Each player in `squad-data.json` now includes a `tournamentStats` object:
   "nationalTeam": "Algeria",
   "jersey": 1,
   "playerName": "MASTIL Melvin",
+  "club": "FC Stade Nyonnais",
   ...
   "tournamentStats": {
     "goals": 0,
@@ -72,3 +73,14 @@ Each player in `squad-data.json` now includes a `tournamentStats` object:
 ```
 
 Stats are auto-updated by `update-player-stats.py` (GitHub Actions, daily) and manually via `python3 update-player-stats.py` locally. Do not edit `tournamentStats` manually — regenerate from FIFA API via the script.
+
+## Live Match Centre: Player Enrichment
+
+The Live Match Centre loads `squad-data.json` and enriches the live roster with:
+
+- **Sort order**: Goals scored (desc) → Position → Shirt number
+- **Display**: Shirt # | Name (C) | Goals (⚽) | Club | Position
+- Enhanced player rows styled with `.live-player-row` class
+- Graceful fallback if `squad-data.json` is unavailable (shows position only)
+
+Function `renderLivePlayerList(team, teamName)` takes team detail and team name, looks up team code from squad data, enriches players, and renders sorted roster.

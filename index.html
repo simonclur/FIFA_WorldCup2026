@@ -511,6 +511,18 @@
       overflow: auto;
     }
 
+    .live-player-row {
+      display: flex;
+      gap: 1mm;
+      align-items: baseline;
+      word-break: break-word;
+    }
+
+    .live-player-row .muted {
+      font-size: 6.2pt;
+      flex-shrink: 0;
+    }
+
     .live-events {
       border: 1px solid var(--line);
       border-radius: 11px;
@@ -3748,6 +3760,20 @@
 
   <script src="./squad-sunburst-data.js"></script>
   <script>
+    // Load squad-data.json for Live Match Centre enrichment
+    let squadDataMap = null;
+    fetch('./squad-data.json')
+      .then(r => r.json())
+      .then(squads => {
+        squadDataMap = new Map();
+        for (const player of squads) {
+          const key = `${player.nationalTeamCode}|${player.jersey}`;
+          squadDataMap.set(key, player);
+        }
+      })
+      .catch(err => console.warn('Failed to load squad-data.json for player enrichment:', err));
+  </script>
+  <script>
     const timezone = 'Australia/Brisbane';
     const seasonId = '285023';
     const apiBase = 'https://api.fifa.com/api/v3';
@@ -6021,19 +6047,58 @@
       return map[Number(position)] || 'UNK';
     };
 
-    const renderLivePlayerList = (team) => {
+    const findTeamCodeFromSquadData = (teamName) => {
+      if (!squadDataMap || !teamName) return null;
+      for (const [key] of squadDataMap) {
+        const player = squadDataMap.get(key);
+        if (player && player.nationalTeam && player.nationalTeam.toLowerCase() === teamName.toLowerCase()) {
+          return player.nationalTeamCode;
+        }
+      }
+      return null;
+    };
+
+    const enrichPlayerFromSquadData = (livePlayer, teamCode) => {
+      if (!squadDataMap || !teamCode) return null;
+      const shirt = Number(livePlayer.ShirtNumber);
+      const key = `${teamCode}|${shirt}`;
+      return squadDataMap.get(key) || null;
+    };
+
+    const renderLivePlayerList = (team, teamName = '') => {
       const players = Array.isArray(team?.Players) ? [...team.Players] : [];
       if (!players.length) {
         return '<div class="empty">Player list unavailable from the current live feed.</div>';
       }
 
-      players.sort((a, b) => Number(a.Position || 99) - Number(b.Position || 99) || Number(a.ShirtNumber || 99) - Number(b.ShirtNumber || 99));
-      return players.map((player) => {
-        const name = pickEnglishDescription(player.PlayerName) || pickEnglishDescription(player.ShortName) || 'Player';
-        const shirt = Number.isFinite(Number(player.ShirtNumber)) ? `#${Number(player.ShirtNumber)}` : '#-';
-        const pos = positionLabel(player.Position);
-        const cap = player.Captain ? ' (C)' : '';
-        return `<div>${escapeHtml(shirt)} ${escapeHtml(name)}${escapeHtml(cap)} <span class="muted">${escapeHtml(pos)}</span></div>`;
+      const teamCode = findTeamCodeFromSquadData(teamName);
+      const enrichedPlayers = players.map((player) => {
+        const squadData = teamCode ? enrichPlayerFromSquadData(player, teamCode) : null;
+        const shirt = Number(player.ShirtNumber);
+        return {
+          livePlayer: player,
+          squadData,
+          shirt,
+          goals: squadData?.tournamentStats?.goals || 0,
+          position: Number(player.Position || 99),
+          captain: Boolean(player.Captain),
+        };
+      });
+
+      enrichedPlayers.sort((a, b) => {
+        if (a.goals !== b.goals) return b.goals - a.goals;
+        if (a.position !== b.position) return a.position - b.position;
+        return a.shirt - b.shirt;
+      });
+
+      return enrichedPlayers.map((p) => {
+        const name = pickEnglishDescription(p.livePlayer.PlayerName) || pickEnglishDescription(p.livePlayer.ShortName) || 'Player';
+        const shirt = Number.isFinite(p.shirt) ? `#${p.shirt}` : '#-';
+        const pos = positionLabel(p.livePlayer.Position);
+        const cap = p.captain ? ' (C)' : '';
+        const club = p.squadData?.club ? ` • ${escapeHtml(p.squadData.club)}` : '';
+        const goalsDisplay = p.goals > 0 ? ` (${p.goals}⚽)` : '';
+        return `<div class="live-player-row">${escapeHtml(shirt)} ${escapeHtml(name)}${escapeHtml(cap)}${escapeHtml(goalsDisplay)} <span class="muted">${escapeHtml(pos)}${escapeHtml(club)}</span></div>`;
       }).join('');
     };
 
@@ -6530,11 +6595,11 @@
           <div class="live-columns">
             <section class="live-column">
               <h4>${escapeHtml(homeName)} Squad</h4>
-              <div class="live-list">${renderLivePlayerList(detail?.HomeTeam)}</div>
+              <div class="live-list">${renderLivePlayerList(detail?.HomeTeam, homeName)}</div>
             </section>
             <section class="live-column">
               <h4>${escapeHtml(awayName)} Squad</h4>
-              <div class="live-list">${renderLivePlayerList(detail?.AwayTeam)}</div>
+              <div class="live-list">${renderLivePlayerList(detail?.AwayTeam, awayName)}</div>
             </section>
           </div>
 
