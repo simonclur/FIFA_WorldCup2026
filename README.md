@@ -57,6 +57,7 @@ Core pages and modules include:
 - During half-time (`MatchStatus` 4), spotlight status shows `HT` and the official clock is frozen at time played (rather than continuing to increment).
 - The odds sidebar remains sticky in the right column for non-live fixtures, and now begins below the spotlight panel.
 - The live spotlight increases spacing between the team names and the score so the scoreboard reads more cleanly at a glance.
+- The live spotlight now uses much larger team names and score text, with extra spacing around the live score separator, so the featured match is easier to scan at a glance.
 - A dedicated phone breakpoint (`max-width: 430px`) optimizes iPhone-sized screens with safe-area padding, larger tap targets, and rebalanced card/spotlight typography for one-handed readability.
 - On the phone breakpoint, match metadata keeps the kickoff time and date in a right-aligned column instead of wrapping under the team names.
 - The live spotlight card is given a little extra vertical breathing room on phones so the time/date column stays clear of the team rows.
