@@ -58,6 +58,7 @@ Core pages and modules include:
 - The live spotlight increases spacing between the team names and the score so the scoreboard reads more cleanly at a glance.
 - A dedicated phone breakpoint (`max-width: 430px`) optimizes iPhone-sized screens with safe-area padding, larger tap targets, and rebalanced card/spotlight typography for one-handed readability.
 - On the phone breakpoint, match metadata keeps the kickoff time and date in a right-aligned column instead of wrapping under the team names.
+- The live spotlight card is given a little extra vertical breathing room on phones so the time/date column stays clear of the team rows.
 - On touch devices, match-card hover affordances now support tap-to-focus, second tap to clear, and tap-outside-to-clear so odds hover context works on iPhone.
 - The World Cup winners Sankey now supports touch parity: tap year/champion/link to lock highlight, tap again to toggle off, and tap outside the chart to clear.
 
