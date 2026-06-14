@@ -1,5 +1,7 @@
 # FIFA World Cup 2026 Tracker - Style and Print Guidelines
 
+**See also:** [README.md](README.md) (feature behavior), [CLAUDE.md](CLAUDE.md) (agent directives), [.github/copilot-instructions.md](.github/copilot-instructions.md) (GitHub Copilot directives)
+
 ## Purpose
 
 This document defines visual and interaction rules for the tracker, with emphasis on:
@@ -29,8 +31,8 @@ This document defines visual and interaction rules for the tracker, with emphasi
 ## Current Screen Intent
 
 Screen page order:
-1. Completed Matches
-2. Group Stage
+1. Group Stage
+2. Completed Matches
 3. Live Match Centre
 4. Group Tables
 5. Round of 32
@@ -61,6 +63,7 @@ Required clarity:
 - Top matchup must be obvious and labeled
 - Live must have a clear status indicator and score prominence
 - FT/completed must be explicit
+- Group Stage live spotlight cards must preserve strong text/background contrast in both light and dark mode (`prefers-color-scheme`) states
 
 ## Typography and Density
 

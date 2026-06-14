@@ -4,8 +4,9 @@ Single-file World Cup tracker focused on live operations, print output, and loca
 
 ## Documentation
 
-- Runtime and feature behavior: [README.md](README.md)
+- Runtime and feature behavior: [README.md](README.md) (this file)
 - Styling, hierarchy, print, and accessibility rules: [STYLE_GUIDELINES.md](STYLE_GUIDELINES.md)
+- AI agent workflow directives: [CLAUDE.md](CLAUDE.md) (Claude Code) and [.github/copilot-instructions.md](.github/copilot-instructions.md) (GitHub Copilot)
 
 ## Current Build Summary
 
@@ -58,12 +59,17 @@ Core pages and modules include:
 - The odds sidebar remains sticky in the right column for non-live fixtures, and now begins below the spotlight panel.
 - The live spotlight increases spacing between the team names and the score so the scoreboard reads more cleanly at a glance.
 - The live spotlight now keeps the kickoff time/date smaller while using larger team names and score text, with extra spacing around the live score separator, so the featured match is easier to scan at a glance.
+- Live spotlight cards now include the TV-style SBS icon as a direct link to the SBS On Demand live stream page in a new tab.
+- Live spotlight cards now include a browser-aware Listen Live action for talkSPORT that prefers the HLS stream and falls back to MP3 when HLS playback is unavailable.
+- Live Match Centre substitution events now show explicit directional markers: green up-arrow for players coming on and red down-arrow for players coming off.
+- Completed Matches now appears directly after Group Stage and uses an accordion control so the archive can be expanded or collapsed on demand.
+- The Completed Matches accordion control now uses higher-contrast button styling and a double-chevron icon to clearly signal expand/collapse affordance.
 - Completed match cards now include a small TV-style replay icon that opens the SBS On Demand match page for quick replay access in a new tab.
 - A dedicated phone breakpoint (`max-width: 430px`) optimizes iPhone-sized screens with safe-area padding, larger tap targets, and rebalanced card/spotlight typography for one-handed readability.
 - On the phone breakpoint, match metadata keeps the kickoff time and date in a right-aligned column instead of wrapping under the team names.
 - The live spotlight card is given a little extra vertical breathing room on phones so the time/date column stays clear of the team rows.
 - Phone landscape mode now has its own coarse-pointer breakpoint that restores a denser two-column layout while keeping the spotlight card tall enough for the time/date column.
-- Section stage labels now use a single viewport-fixed marker that updates as you scroll, so the current stage remains visible when moving down the page.
+- Section stage labels now use a single viewport-fixed top banner that spans the page width and updates with the incoming section in both scroll directions.
 - On touch devices, match-card hover affordances now support tap-to-focus, second tap to clear, and tap-outside-to-clear so odds hover context works on iPhone.
 - The World Cup winners Sankey now supports touch parity: tap year/champion/link to lock highlight, tap again to toggle off, and tap outside the chart to clear.
 
@@ -93,6 +99,34 @@ Core pages and modules include:
 - Top-matchup badge recalculated when contender rankings refresh
 - Embedded odds API keys are no longer hardcoded in client code.
 - Odds can run either with explicit browser keys (`oddsApiKey`, `oddspapiKey`) for local testing, or through a proxy (`proxyBase`) so secrets stay server-side.
+
+## Player Tournament Statistics
+
+Player stats are automatically tracked from live FIFA match event data and stored in `squad-data.json`.
+
+### Stats tracking
+
+- Each player record includes a `tournamentStats` object with career tournament stats
+- Stats updated: goals, assists, yellow cards, red cards, appearance count
+- Data source: FIFA live event feed (goals, bookings, substitutions)
+- Update frequency: Daily via GitHub Actions (configured in `.github/workflows/update-tournament-stats.yml`)
+
+### How it works
+
+1. **update-player-stats.py** runs on schedule (daily at 2 AM UTC)
+2. Fetches all completed World Cup 2026 matches from FIFA API
+3. Processes live event data to extract per-player stats
+4. Joins events with squad records by team code + shirt number
+5. Accumulates stats and commits changes to `squad-data.json`
+6. Workflow auto-commits with message "Update player tournament statistics from FIFA API"
+
+### Manual refresh
+
+To run the updater locally:
+
+```bash
+python3 update-player-stats.py
+```
 
 ## Special Interest: Squad Sunburst Pipeline
 
@@ -135,8 +169,8 @@ Inside the Special Interest page, card order is:
 
 Current screen order:
 
-1. Completed Matches
-2. Group Stage
+1. Group Stage
+2. Completed Matches
 3. Live Match Centre
 4. Group Tables
 5. Round of 32
@@ -144,7 +178,7 @@ Current screen order:
 7. Finals
 8. Special Interest
 
-Each key screen page now exposes a sticky page-name label at the top while scrolling (`Completed Matches`, `Group Stage`, `Live Match Centre`, `Group Tables`, `Round of 32`, `Round of 16`, `Finals`, `Special Interest Stats`) so section context remains visible through long content.
+Each key screen page now exposes a sticky page-name banner at the top while scrolling (`Group Stage`, `Completed Matches`, `Live Match Centre`, `Group Tables`, `Round of 32`, `Round of 16`, `Finals`, `Special Interest Stats`) so section context remains visible through long content in either scroll direction.
 
 ## Print Scope
 
@@ -205,6 +239,7 @@ Included deployment assets:
 
 - Running as file:// works for local modules and static data files.
 - Browser security may still limit remote API behavior in some environments.
+- The tracker no longer shows a startup banner for file-origin access; use a local HTTP server only when your browser blocks the remote APIs you need.
 - Use a local HTTP server for full network consistency if needed.
 
 For a public/mobile deployment, prefer HTTPS hosting plus `proxyBase` so API secrets are not exposed in browser source.

@@ -77,7 +77,7 @@
     .spread {
       width: min(100%, 283mm);
       margin: 0 auto;
-      padding: 6mm 5mm 4mm;
+      padding: calc(6mm + env(safe-area-inset-top) + 38px) 5mm 4mm;
     }
 
     .page {
@@ -102,36 +102,36 @@
 
     .page-sticky-marker {
       position: fixed;
-      top: calc(env(safe-area-inset-top) + 4px);
-      left: 50%;
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 80;
-      transform: translateX(-50%);
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      width: min(calc(100vw - 10mm), 283mm);
-      min-width: 0;
-      padding: 2.2mm 4.2mm;
-      border: 1px solid rgba(20, 32, 51, 0.16);
-      border-radius: 16px;
+      min-height: calc(34px + env(safe-area-inset-top));
+      padding: calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 16px) 8px calc(env(safe-area-inset-left) + 16px);
+      border-bottom: 1px solid rgba(20, 32, 51, 0.16);
       background: linear-gradient(180deg, rgba(246, 241, 232, 0.98) 0%, rgba(239, 229, 215, 0.96) 100%);
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(10px);
+      box-sizing: border-box;
       font-family: "Unbounded", "Barlow", "Avenir Next", "Segoe UI", sans-serif;
       font-size: 11pt;
       font-weight: 700;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       color: var(--accent-3);
-      box-shadow: 0 10px 22px rgba(20, 32, 51, 0.14);
+      box-shadow: 0 7px 16px rgba(20, 32, 51, 0.08);
       pointer-events: none;
       opacity: 0;
       text-align: left;
+      transform: translateY(-8px);
       transition: opacity 160ms ease, transform 160ms ease;
     }
 
     .page-sticky-marker[data-visible="true"] {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
+      transform: translateY(0);
     }
 
     .page-head {
@@ -241,6 +241,70 @@
       margin: 0;
       font-size: 7.55pt;
       color: var(--muted);
+    }
+
+    .section-note-with-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.4mm;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .completed-accordion-toggle {
+      appearance: none;
+      border: 1px solid rgba(20, 32, 51, 0.34);
+      border-radius: 999px;
+      background: #173553;
+      color: #f6f1e8;
+      font-size: 6.6pt;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 1.1mm 2.2mm;
+      cursor: pointer;
+      line-height: 1;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 1mm;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.22) inset;
+      transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
+    }
+
+    .completed-accordion-toggle:hover,
+    .completed-accordion-toggle:focus-visible {
+      background: #0f2a44;
+      border-color: rgba(20, 32, 51, 0.55);
+      color: #ffffff;
+      transform: translateY(-0.2px);
+      outline: none;
+    }
+
+    .completed-accordion-toggle-label {
+      line-height: 1;
+    }
+
+    .completed-accordion-toggle-icon {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+      color: currentColor;
+      transition: transform 160ms ease;
+      transform-origin: 50% 50%;
+      flex-shrink: 0;
+    }
+
+    .completed-accordion-toggle[aria-expanded="false"] .completed-accordion-toggle-icon {
+      transform: rotate(0deg);
+    }
+
+    .completed-accordion-toggle[aria-expanded="true"] .completed-accordion-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .completed-accordion-content[hidden] {
+      display: none;
     }
 
     .preferences-bar {
@@ -558,6 +622,49 @@
       overflow: hidden;
       text-overflow: ellipsis;
       min-width: 0;
+    }
+
+    .et-sub-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25mm;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .et-sub-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7mm;
+      max-width: 100%;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    .et-sub-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+
+    .et-sub-line-on {
+      color: #1e7e34;
+      font-weight: 700;
+    }
+
+    .et-sub-line-off {
+      color: #c62828;
+      font-weight: 700;
+    }
+
+    .et-home .et-sub-stack {
+      align-items: flex-end;
+      text-align: right;
+    }
+
+    .et-away .et-sub-stack {
+      align-items: flex-start;
+      text-align: left;
     }
 
     /* CSS-drawn card icons */
@@ -1614,6 +1721,13 @@
       height: 15px;
     }
 
+    .status-link-cluster {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.4mm;
+      flex-wrap: wrap;
+    }
+
     @media print {
       .match-actions .btn-action {
         display: none;
@@ -2268,25 +2382,6 @@
       background: rgba(255, 255, 255, 0.6);
     }
 
-    .runtime-notice {
-      display: none;
-      margin: 0 0 4mm;
-      padding: 2mm 2.6mm;
-      border: 1px solid rgba(122, 77, 0, 0.35);
-      border-radius: 10px;
-      background: rgba(122, 77, 0, 0.08);
-      color: #7a4d00;
-      font-size: 7.2pt;
-      line-height: 1.35;
-    }
-
-    .runtime-notice a {
-      color: #0d4f8b;
-      font-weight: 700;
-      text-decoration: underline;
-      text-underline-offset: 1px;
-    }
-
     @media (prefers-color-scheme: dark) {
       :root {
         color-scheme: dark;
@@ -2315,10 +2410,10 @@
       }
 
       .page-sticky-marker {
-        border-color: rgba(173, 201, 236, 0.34);
+        border-bottom-color: rgba(173, 201, 236, 0.34);
         background: linear-gradient(180deg, rgba(9, 18, 31, 0.96) 0%, rgba(12, 22, 38, 0.94) 100%);
         color: #c9def8;
-        box-shadow: 0 10px 24px rgba(2, 7, 16, 0.58);
+        box-shadow: 0 8px 18px rgba(2, 7, 16, 0.42);
       }
 
       .card,
@@ -3026,17 +3121,15 @@
 
     @media (max-width: 430px) {
       .page-sticky-marker {
-        top: calc(env(safe-area-inset-top) + 5px);
-        width: calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right));
-        padding: 2mm 3mm;
+        min-height: calc(30px + env(safe-area-inset-top));
+        padding: calc(env(safe-area-inset-top) + 7px) calc(env(safe-area-inset-right) + 12px) 7px calc(env(safe-area-inset-left) + 12px);
         font-size: 9.4pt;
-        border-radius: 14px;
       }
 
       .spread {
         width: 100%;
         padding:
-          calc(10px + env(safe-area-inset-top))
+          calc(52px + env(safe-area-inset-top))
           calc(10px + env(safe-area-inset-right))
           calc(14px + env(safe-area-inset-bottom))
           calc(10px + env(safe-area-inset-left));
@@ -3062,11 +3155,6 @@
       .page-subtitle {
         font-size: 8.7pt;
         line-height: 1.45;
-      }
-
-      .runtime-notice {
-        font-size: 8.2pt;
-        padding: 2.6mm 2.8mm;
       }
 
       .chip {
@@ -3254,7 +3342,7 @@
     @media (max-width: 920px) and (orientation: landscape) and (max-height: 480px) {
       .spread {
         padding:
-          calc(8px + env(safe-area-inset-top))
+          calc(46px + env(safe-area-inset-top))
           calc(8px + env(safe-area-inset-right))
           calc(10px + env(safe-area-inset-bottom))
           calc(8px + env(safe-area-inset-left));
@@ -3319,11 +3407,6 @@
 <body>
   <div id="page-sticky-marker" class="page-sticky-marker" aria-live="polite" data-visible="false"></div>
   <main class="spread">
-    <div id="file-origin-warning" class="runtime-notice" role="status" aria-live="polite">
-      Open this tracker over local HTTP to avoid file-origin security limits:
-      <a id="local-http-link" href="http://127.0.0.1:8080/index.html" target="_blank" rel="noreferrer noopener">http://127.0.0.1:8080/index.html</a>
-    </div>
-
     <section class="page" data-page="group-stage" data-sticky-name="Group Stage">
       <header class="page-head">
         <div>
@@ -3546,13 +3629,25 @@
 
       <div class="section-head">
         <h2 class="section-title">Archive</h2>
-        <p class="section-note">Most recently completed fixtures appear first.</p>
+        <div class="section-note-with-control">
+          <p class="section-note">Most recently completed fixtures appear first.</p>
+          <button type="button" id="completed-accordion-toggle" class="completed-accordion-toggle" aria-controls="completed-accordion-content" aria-expanded="true">
+            <span class="completed-accordion-toggle-label">Collapse archive</span>
+            <svg class="completed-accordion-toggle-icon" viewBox="0 0 10 10" aria-hidden="true" focusable="false">
+              <path d="M2 3.3 5 6.1 8 3.3" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 1.5 5 4.3 8 1.5" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="grid groups-grid" id="completed-grid"></div>
 
-      <div class="footer">
-        <div><strong>Purpose:</strong> keep active pages focused on live and upcoming fixtures.</div>
-        <div id="completed-rendered-at"></div>
+      <div id="completed-accordion-content" class="completed-accordion-content">
+        <div class="grid groups-grid" id="completed-grid"></div>
+
+        <div class="footer">
+          <div><strong>Purpose:</strong> keep active pages focused on live and upcoming fixtures.</div>
+          <div id="completed-rendered-at"></div>
+        </div>
       </div>
     </section>
 
@@ -4514,19 +4609,6 @@
           <span class="odds-status-pill ${theOdds.className}">The Odds API: ${theOdds.label} (${escapeHtml(formatProviderSuccess('the-odds-api'))}) | ${escapeHtml(formatProviderQuota('the-odds-api'))}</span>
         </div>
       `;
-    };
-
-    const updateFileOriginWarning = () => {
-      const warningNode = document.getElementById('file-origin-warning');
-      const linkNode = document.getElementById('local-http-link');
-      if (!warningNode || !linkNode) {
-        return;
-      }
-
-      const targetUrl = `http://127.0.0.1:8080/index.html${window.location.search || ''}`;
-      linkNode.href = targetUrl;
-      linkNode.textContent = targetUrl;
-      warningNode.style.display = window.location.protocol === 'file:' ? 'block' : 'none';
     };
 
     const isContenderMatch = (match) => {
@@ -6027,7 +6109,7 @@
       if (type === 'yellow') return '<span class="et-card et-card-yellow" title="Yellow card"></span>';
       if (type === 'second-yellow') return '<span class="et-card et-card-second-yellow" title="Second yellow / Red"></span>';
       if (type === 'red') return '<span class="et-card et-card-red" title="Red card"></span>';
-      if (type === 'sub') return '<span class="et-sub-on" aria-hidden="true">↑</span><span class="et-sub-off" aria-hidden="true">↓</span>';
+      if (type === 'sub') return '';
       return '';
     };
 
@@ -6055,6 +6137,30 @@
         const player = `<span class="et-player">${escapeHtml(event.player)}</span>`;
         const detail = event.detail ? `<span class="et-sub-detail">${escapeHtml(event.detail)}</span>` : '';
         const badgeCell = `<div class="et-node et-${escapeHtml(event.type)}"><span class="et-badge">${escapeHtml(formatEventMinute(event.minute))}</span></div>`;
+
+        if (event.type === 'sub') {
+          const offName = String(event.detail || '').replace(/^off:\s*/i, '').trim() || 'Unknown player';
+          const subStack = [
+            `<div class="et-sub-stack">`,
+            `<span class="et-sub-line et-sub-line-on"><span class="et-sub-on" aria-hidden="true">↑</span><span class="et-sub-name">${escapeHtml(event.player)}</span></span>`,
+            `<span class="et-sub-line et-sub-line-off"><span class="et-sub-off" aria-hidden="true">↓</span><span class="et-sub-name">${escapeHtml(offName)}</span></span>`,
+            `</div>`,
+          ].join('');
+
+          if (event.sideKey === 'home') {
+            return [
+              `<div class="et-home et-sub">${subStack}</div>`,
+              badgeCell,
+              `<div class="et-away"></div>`,
+            ].join('');
+          }
+
+          return [
+            `<div class="et-home"></div>`,
+            badgeCell,
+            `<div class="et-away et-sub">${subStack}</div>`,
+          ].join('');
+        }
 
         if (event.sideKey === 'home') {
           return [
@@ -6113,6 +6219,18 @@
 
     const sbsSportYouTubeChannelUrl = 'https://www.youtube.com/@SBSSportau';
     const sbsSportYouTubeChannelSearchBase = 'https://www.youtube.com/@SBSSportau/search';
+    const novaTalkSportHlsStreamUrl = 'https://playerservices.streamtheworld.com/api/livestream-redirect/NOVA_TALKSPORT_1AAC.m3u8';
+    const novaTalkSportMp3StreamUrl = 'https://playerservices.streamtheworld.com/api/livestream-redirect/NOVA_TALKSPORT_1.mp3';
+
+    const getNovaTalkSportLiveStreamUrl = () => {
+      const audio = typeof document !== 'undefined' ? document.createElement('audio') : null;
+      const canPlayHls = audio && (
+        audio.canPlayType('application/vnd.apple.mpegurl') ||
+        audio.canPlayType('application/x-mpegURL') ||
+        audio.canPlayType('audio/mpegurl')
+      );
+      return canPlayHls ? novaTalkSportHlsStreamUrl : novaTalkSportMp3StreamUrl;
+    };
 
     const buildSbsSportYouTubeSearchUrl = (home, away, stageLabel = '') => {
       // Title pattern confirmed: "{Home} v {Away} Highlights: FIFA World Cup 2026 {Group/Stage}"
@@ -6137,6 +6255,14 @@
       const away = teamName(match?.Away);
       const context = groupNameFromMatch(match) || stageName(match) || 'match';
       return buildSbsOnDemandMatchUrl(home, away, context);
+    };
+
+    const getSbsOnDemandLiveStreamUrlForMatch = (match) => {
+      const home = teamName(match?.Home);
+      const away = teamName(match?.Away);
+      const group = groupNameFromMatch(match);
+      const stage = stageName(match);
+      return buildSbsOnDemandLiveStreamUrl(home, away, group, stage);
     };
 
     const isKnownHighlightsMatch = (match) => {
@@ -6488,7 +6614,6 @@
       const oddsInline = renderMatchOddsInline(match);
       const liveSyncBadge = isLive ? `<span class="match-badge data-refresh" data-live-refresh-badge="1">${escapeHtml(getLiveMatchSyncBadgeText())}</span>` : '';
       const statusText = formatStatus(displayMatch);
-      const statusMarkup = statusText === 'Scheduled' ? '' : `<div class="${statusClass(displayMatch)}">${escapeHtml(statusText)}</div>`;
       const matchNumberTag = matchNumberLabel(match);
       const topMatchupBadge = isContenderMatch(match) ? `<span class="match-header-badge top-matchup-header">Top matchup</span>` : '';
       const preferredTeamLabels = getPreferredTeamsForMatch(match);
@@ -6509,6 +6634,20 @@
           ${matchId ? `<button type="button" class="btn-action btn-bell${isReminderSet ? ' active' : ''}" data-match-id="${escapeHtml(matchId)}" title="${isReminderSet ? 'Reminder set – click to cancel' : 'Remind me 15 min before kickoff'}">🔔</button>` : ''}
         </div>`
         : '';
+      const showSpotlightLiveStreamButton = isLive && extraClass.includes('live-spotlight-match');
+      const showSpotlightListenLiveButton = isLive && extraClass.includes('live-spotlight-match');
+      const spotlightListenLiveActionButton = showSpotlightListenLiveButton
+        ? `<a class="btn-action btn-listen-link" href="${escapeHtml(getNovaTalkSportLiveStreamUrl())}" target="_blank" rel="noreferrer noopener" title="Listen to talkSPORT live (HLS with MP3 fallback)" aria-label="Listen to talkSPORT live (HLS with MP3 fallback)"><svg class="btn-action-icon listen-live-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M7 5.5 14 10 7 14.5Z" fill="currentColor"/><circle cx="5" cy="10" r="1.1" fill="currentColor"/><path d="M3.2 7.1a5.5 5.5 0 0 0 0 5.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M16.8 7.1a5.5 5.5 0 0 1 0 5.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></a>`
+        : '';
+      const spotlightLiveStreamActionButton = showSpotlightLiveStreamButton
+        ? `<a class="btn-action btn-stream-link" href="${escapeHtml(getSbsOnDemandLiveStreamUrlForMatch(match))}" target="_blank" rel="noreferrer noopener" title="Open SBS On Demand live stream page" aria-label="Open SBS On Demand live stream page"><svg class="btn-action-icon replay-tv-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect x="2.25" y="2.5" width="15.5" height="10.25" rx="1.75" ry="1.75" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.3 6.15 12.4 8.95 8.3 11.75Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 16.15h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>`
+        : '';
+      const statusMarkup = statusText === 'Scheduled'
+        ? ''
+        : `<div class="${statusClass(displayMatch)}">${escapeHtml(statusText)}</div>`;
+      const statusClusterMarkup = statusMarkup && (spotlightListenLiveActionButton || spotlightLiveStreamActionButton)
+        ? `<div class="status-link-cluster">${statusMarkup}${spotlightListenLiveActionButton}${spotlightLiveStreamActionButton}</div>`
+        : `${statusMarkup}${spotlightListenLiveActionButton}${spotlightLiveStreamActionButton}`;
       const replayActionButton = replayable
         ? `<a class="btn-action btn-replay-link" href="${escapeHtml(getSbsOnDemandMatchPageUrlForMatch(match))}" target="_blank" rel="noreferrer noopener" title="Open SBS On Demand match page" aria-label="Open SBS On Demand match page"><svg class="btn-action-icon replay-tv-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect x="2.25" y="2.5" width="15.5" height="10.25" rx="1.75" ry="1.75" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.3 6.15 12.4 8.95 8.3 11.75Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 16.15h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>`
         : '';
@@ -6532,7 +6671,7 @@
           </div>
           <div class="meta-main">
             ${timeBlock}
-            ${statusMarkup}
+            ${statusClusterMarkup}
             ${topMatchupBadge}
             ${preferredTeamBadge}
           </div>
@@ -6788,7 +6927,7 @@
           }
         }
 
-        if (event.target?.closest?.('.btn-replay-link')) {
+        if (event.target?.closest?.('.btn-replay-link, .btn-stream-link, .btn-listen-link')) {
           event.stopPropagation();
           return;
         }
@@ -7110,18 +7249,18 @@
         return;
       }
 
-      const anchorY = 68;
-      const pageRects = pages.map((page) => ({ page, rect: page.getBoundingClientRect() }));
-      const nearTopUpcoming = pageRects
-        .filter(({ rect }) => rect.top > 0 && rect.top <= 180)
-        .sort((left, right) => left.rect.top - right.rect.top)[0]?.page || null;
+      const markerHeight = markerNode.getBoundingClientRect().height || 0;
+      const anchorY = Math.max(markerHeight + 110, 180);
+      const pageRects = pages
+        .map((page) => ({ page, rect: page.getBoundingClientRect() }))
+        .sort((left, right) => left.rect.top - right.rect.top);
 
-      let activePage = nearTopUpcoming || pageRects
-        .filter(({ rect }) => rect.top <= anchorY && rect.bottom > anchorY)
+      let activePage = pageRects
+        .filter(({ rect }) => rect.top <= anchorY)
         .sort((left, right) => right.rect.top - left.rect.top)[0]?.page || null;
 
       if (!activePage) {
-        activePage = pages.find((page) => page.getBoundingClientRect().top > anchorY) || pages[pages.length - 1];
+        activePage = pageRects.find(({ rect }) => rect.bottom > anchorY)?.page || pageRects[pageRects.length - 1]?.page || null;
       }
 
       const label = String(activePage?.getAttribute('data-sticky-name') || '').trim();
@@ -8320,21 +8459,69 @@
 
     window.refreshWorldCup = refreshAll;
 
-    // Keep completed fixtures as the first printable/view page.
+    const completedAccordionStorageKey = 'fifa2026_completed_accordion_expanded_v1';
+
+    const loadCompletedAccordionExpanded = () => {
+      try {
+        const rawValue = localStorage.getItem(completedAccordionStorageKey);
+        if (rawValue === null) {
+          return false;
+        }
+        return rawValue === '1';
+      } catch {
+        return false;
+      }
+    };
+
+    const applyCompletedAccordionExpanded = (expanded, { persist = true } = {}) => {
+      const toggleNode = document.getElementById('completed-accordion-toggle');
+      const contentNode = document.getElementById('completed-accordion-content');
+      if (!toggleNode || !contentNode) {
+        return;
+      }
+
+      const isExpanded = Boolean(expanded);
+      toggleNode.setAttribute('aria-expanded', String(isExpanded));
+      const labelNode = toggleNode.querySelector('.completed-accordion-toggle-label');
+      if (labelNode) {
+        labelNode.textContent = isExpanded ? 'Collapse archive' : 'Expand archive';
+      }
+      contentNode.hidden = !isExpanded;
+
+      if (persist) {
+        try {
+          localStorage.setItem(completedAccordionStorageKey, isExpanded ? '1' : '0');
+        } catch {
+          // Ignore storage failures.
+        }
+      }
+    };
+
+    const setupCompletedAccordion = () => {
+      const toggleNode = document.getElementById('completed-accordion-toggle');
+      if (!toggleNode) {
+        return;
+      }
+
+      applyCompletedAccordionExpanded(loadCompletedAccordionExpanded(), { persist: false });
+
+      toggleNode.addEventListener('click', () => {
+        const currentlyExpanded = toggleNode.getAttribute('aria-expanded') === 'true';
+        applyCompletedAccordionExpanded(!currentlyExpanded);
+      });
+    };
+
+    // Keep completed fixtures directly after Group Stage in the screen flow.
     const spreadNode = document.querySelector('.spread');
     const completedPageNode = document.querySelector('[data-page="completed-matches"]');
-    if (spreadNode && completedPageNode) {
-      const warningNode = document.getElementById('file-origin-warning');
-      if (warningNode && warningNode.nextSibling) {
-        spreadNode.insertBefore(completedPageNode, warningNode.nextSibling);
-      } else {
-        spreadNode.prepend(completedPageNode);
-      }
+    const groupStagePageNode = document.querySelector('[data-page="group-stage"]');
+    if (spreadNode && completedPageNode && groupStagePageNode) {
+      groupStagePageNode.insertAdjacentElement('afterend', completedPageNode);
     }
 
+    setupCompletedAccordion();
     loadOddsProviderStatus();
     applyPreferredTeamSelection(loadStoredPreferredTeams(), { persist: false });
-    updateFileOriginWarning();
     attachMatchHoverHandlers();
     renderWorldCupWinnersSankey();
     renderSquadClubSunburst();
