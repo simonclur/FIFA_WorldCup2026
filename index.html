@@ -6246,9 +6246,9 @@
         const dataPos = p.position;
         const dataName = name.toLowerCase();
 
-        const tournamentGoalsDisplay = tournamentGoals > 0 ? String(tournamentGoals) : '-';
-        const tournamentYellowDisplay = tournamentYellow > 0 ? String(tournamentYellow) : '-';
-        const tournamentRedDisplay = tournamentRed > 0 ? String(tournamentRed) : '-';
+        const tournamentGoalsDisplay = tournamentGoals > 0 ? String(tournamentGoals) : '';
+        const tournamentYellowDisplay = tournamentYellow > 0 ? String(tournamentYellow) : '';
+        const tournamentRedDisplay = tournamentRed > 0 ? String(tournamentRed) : '';
 
         return `<tr class="live-player-row" data-shirt="${dataShirt}" data-caps="${dataCaps}" data-goals="${dataGoals}" data-tournament-goals="${dataTournamentGoals}" data-tournament-yellow="${dataTournamentYellow}" data-tournament-red="${dataTournamentRed}" data-pos="${dataPos}" data-name="${dataName}"><td class="live-player-shirt">${escapeHtml(shirt)}</td><td class="live-player-name">${escapeHtml(name)}${escapeHtml(cap)}</td><td class="live-player-pos">${escapeHtml(pos)}</td><td class="live-player-height">${escapeHtml(String(height))}</td><td class="live-player-club">${escapeHtml(club)}</td><td class="live-player-caps">${escapeHtml(String(intlCaps))}</td><td class="live-player-goals">${escapeHtml(String(careerGoals))}</td><td class="live-player-tournament-goals">${escapeHtml(tournamentGoalsDisplay)}</td><td class="live-player-tournament-yellow">${escapeHtml(tournamentYellowDisplay)}</td><td class="live-player-tournament-red">${escapeHtml(tournamentRedDisplay)}</td></tr>`;
       }).join('');
