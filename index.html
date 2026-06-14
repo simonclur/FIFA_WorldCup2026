@@ -913,6 +913,20 @@
       color: var(--accent-3);
     }
 
+    .group-table th:nth-child(9),
+    .group-table td:nth-child(9) {
+      text-align: center;
+      color: #f59e0b;
+      font-weight: 600;
+    }
+
+    .group-table th:nth-child(10),
+    .group-table td:nth-child(10) {
+      text-align: center;
+      color: #ef4444;
+      font-weight: 600;
+    }
+
     .team-cell {
       display: inline-flex;
       align-items: center;
@@ -7327,6 +7341,8 @@
             ga: 0,
             gd: 0,
             pts: 0,
+            yc: 0,
+            rc: 0,
           });
         }
 
@@ -7381,6 +7397,31 @@
           away.d += 1;
           home.pts += 1;
           away.pts += 1;
+        }
+      }
+
+      // Aggregate tournament cards from player stats
+      if (state.squadData && Array.isArray(state.squadData)) {
+        for (const player of state.squadData) {
+          const teamName = player.nationalTeam;
+          const canonical = canonicalTeamName(teamName);
+          if (!canonical) {
+            continue;
+          }
+
+          const tournamentStats = player.tournamentStats || {};
+          const yc = Number(tournamentStats.yellowCards || 0);
+          const rc = Number(tournamentStats.redCards || 0);
+
+          // Find team in groups and add cards
+          for (const group of groups.values()) {
+            const team = group.teams.get(canonical);
+            if (team) {
+              team.yc += yc;
+              team.rc += rc;
+              break;
+            }
+          }
         }
       }
 
@@ -7445,6 +7486,8 @@
             <td>${row.gf}</td>
             <td>${row.ga}</td>
             <td>${row.gd}</td>
+            <td>${row.yc}</td>
+            <td>${row.rc}</td>
             <td class="pts-col">${row.pts}</td>
           </tr>
         `).join('');
@@ -7463,6 +7506,8 @@
                   <th>GF</th>
                   <th>GA</th>
                   <th>GD</th>
+                  <th title="Yellow Cards">🟨</th>
+                  <th title="Red Cards">🟥</th>
                   <th class="pts-col">Pts</th>
                 </tr>
                 ${rows}

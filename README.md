@@ -197,6 +197,20 @@ Current screen order:
 
 Each key screen page now exposes a sticky page-name banner at the top while scrolling (`Group Stage`, `Completed Matches`, `Live Match Centre`, `Group Tables`, `Round of 32`, `Round of 16`, `Finals`, `Special Interest Stats`) so section context remains visible through long content in either scroll direction.
 
+## Group Tables
+
+The Group Tables page displays standings for each group with the following columns:
+
+- **Team**: Flag and team name
+- **P**: Matches played
+- **W/D/L**: Wins, draws, losses
+- **GF/GA**: Goals for/against
+- **GD**: Goal difference
+- **🟨/🟥**: Tournament yellow/red cards (aggregated from player stats)
+- **Pts**: Points
+
+The card columns are updated automatically from player tournament statistics (`squad-data.json`), providing a comprehensive view of team discipline across the tournament.
+
 ## Print Scope
 
 Printed pages include:
