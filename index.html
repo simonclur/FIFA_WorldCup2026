@@ -1588,6 +1588,19 @@
       color: #664c00;
     }
 
+    .btn-action-icon {
+      display: block;
+      width: 14px;
+      height: 14px;
+      color: currentColor;
+      flex: 0 0 auto;
+    }
+
+    .btn-action-icon.replay-tv-icon {
+      width: 15px;
+      height: 15px;
+    }
+
     @media print {
       .match-actions .btn-action {
         display: none;
@@ -6482,7 +6495,7 @@
         </div>`
         : '';
       const replayActionButton = replayable
-        ? `<a class="btn-action btn-replay-link" href="${escapeHtml(getSbsOnDemandMatchPageUrlForMatch(match))}" target="_blank" rel="noreferrer noopener" title="Open SBS On Demand match page" aria-label="Open SBS On Demand match page">📺</a>`
+        ? `<a class="btn-action btn-replay-link" href="${escapeHtml(getSbsOnDemandMatchPageUrlForMatch(match))}" target="_blank" rel="noreferrer noopener" title="Open SBS On Demand match page" aria-label="Open SBS On Demand match page"><svg class="btn-action-icon replay-tv-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect x="2.25" y="2.5" width="15.5" height="10.25" rx="1.75" ry="1.75" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.3 6.15 12.4 8.95 8.3 11.75Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 16.15h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>`
         : '';
       const badges = `
         <span class="teams-badges">

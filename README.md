@@ -58,7 +58,7 @@ Core pages and modules include:
 - The odds sidebar remains sticky in the right column for non-live fixtures, and now begins below the spotlight panel.
 - The live spotlight increases spacing between the team names and the score so the scoreboard reads more cleanly at a glance.
 - The live spotlight now keeps the kickoff time/date smaller while using larger team names and score text, with extra spacing around the live score separator, so the featured match is easier to scan at a glance.
-- Completed match cards now include a small TV-link button that opens the SBS On Demand match page for quick replay access in a new tab.
+- Completed match cards now include a small TV-style replay icon that opens the SBS On Demand match page for quick replay access in a new tab.
 - A dedicated phone breakpoint (`max-width: 430px`) optimizes iPhone-sized screens with safe-area padding, larger tap targets, and rebalanced card/spotlight typography for one-handed readability.
 - On the phone breakpoint, match metadata keeps the kickoff time and date in a right-aligned column instead of wrapping under the team names.
 - The live spotlight card is given a little extra vertical breathing room on phones so the time/date column stays clear of the team rows.
