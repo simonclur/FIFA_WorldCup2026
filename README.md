@@ -106,11 +106,16 @@ Player stats are automatically tracked from live FIFA match event data and store
 
 ### Stats tracking
 
-- Each player record includes a `tournamentStats` object with career tournament stats
-- **Tracked stats**: goals, yellow cards, red cards, appearances (starting lineup or substituted on)
-- **Not available from FIFA API**: assists (IdAssistPlayer is always null), minutes played (no granular event timing)
-- Data source: FIFA live event feed (goals, bookings, starting lineup, substitutions)
-- Update frequency: Daily via GitHub Actions (configured in `.github/workflows/update-tournament-stats.yml`)
+- Each player record includes a `tournamentStats` object with tournament performance data
+- **Tracked stats**: goals, yellow cards, red cards
+- **Data source**: FIFA live event feed (goal events and booking events)
+- **Update frequency**: Daily via GitHub Actions (configured in `.github/workflows/update-tournament-stats.yml`)
+
+### What's NOT tracked (FIFA API limitations)
+
+- **Assists**: `IdAssistPlayer` field is rarely populated by FIFA API
+- **Minutes played**: No granular match timing data available in live event feed
+- **Appearances**: Incomplete without full match history tracking
 
 ### How it works
 
@@ -118,14 +123,15 @@ Player stats are automatically tracked from live FIFA match event data and store
 2. Loads processed match cache (`tournament-stats-cache.json`) to identify new matches
 3. Fetches all completed World Cup 2026 matches from FIFA API
 4. Filters to only new/unprocessed matches (avoids re-processing)
-5. For each new match: extracts per-player events (goals, yellow/red cards) and playing status (lineup + subs)
-6. Joins with squad records by team code + shirt number
-7. Accumulates stats (does not reset previous data)
-8. Records processed match IDs in cache
-9. Commits changes to `squad-data.json` and `tournament-stats-cache.json`
-10. Workflow auto-commits with message "Update player tournament statistics from FIFA API"
+5. For each new match: extracts goal and booking events with player IDs
+6. Identifies own goals and excludes them from player stats
+7. Joins with squad records by team code + shirt number
+8. Accumulates stats (does not reset previous data)
+9. Records processed match IDs in cache
+10. Commits changes to `squad-data.json` and `tournament-stats-cache.json`
+11. Workflow auto-commits with message "Update player tournament statistics from FIFA API"
 
-The cache prevents redundant processing: once a match is processed, it's never re-processed even if the script runs multiple times.
+The cache prevents redundant processing: once a match is processed, it's never re-processed.
 
 ### Manual refresh
 
