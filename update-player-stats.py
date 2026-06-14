@@ -3,13 +3,16 @@
 FIFA 2026 Player Tournament Stats Updater
 
 Fetches completed matches from FIFA API, processes live event data to extract
-player statistics (goals, yellow/red cards, appearances), and updates squad-data.json.
+player statistics (goals, yellow/red cards), and updates squad-data.json.
 
-NOTE: The FIFA API live feed does not provide:
-  - Assists (IdAssistPlayer is always null in goal events)
-  - Minutes played (no minute-level tracking in the event feed)
+NOTE: The FIFA API live feed provides only:
+  - Goals scored (with player ID)
+  - Yellow/red cards (with player ID)
 
-These fields are populated with 0/empty and cannot be extracted from the available API.
+NOT available from FIFA API:
+  - Assists (IdAssistPlayer is rarely populated)
+  - Minutes played (no granular timing data)
+  - Appearances (incomplete without full tournament history)
 
 Run locally: python3 update-player-stats.py
 Run via CI: GitHub Actions workflow calls this with required env vars
@@ -83,11 +86,6 @@ def extract_player_id_from_booking(booking: Dict[str, Any]) -> str:
     return str(booking.get('IdPlayer', ''))
 
 
-def extract_player_id_from_sub(sub: Dict[str, Any], key: str) -> str:
-    """Extract player ID from substitution record (PlayerOnId or PlayerOffId)."""
-    return str(sub.get(key, ''))
-
-
 def build_player_id_map(team: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     """
     Build a map from IdPlayer -> {shirtNumber, playerName} for a team roster.
@@ -107,9 +105,8 @@ def build_player_id_map(team: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
 def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, int]]:
     """
     Process a match's live event data and extract per-player stats.
-    Tracks: goals, yellowCards, redCards, appearances (from lineup + substitutions).
-    Note: FIFA API does not provide assist data or minute-by-minute tracking.
-    Returns a dict mapping (shirtNumber, side) -> {goals, assists, yellowCards, redCards, appeared}
+    Tracks only: goals, yellowCards, redCards (reliable FIFA API data).
+    Returns a dict mapping (shirtNumber, side) -> {goals, yellowCards, redCards}
     where side is 'home' or 'away'.
     """
     stats: Dict[tuple, Dict[str, int]] = {}
@@ -119,33 +116,6 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, i
 
     home_id_map = build_player_id_map(home_team)
     away_id_map = build_player_id_map(away_team)
-
-    # Track which players appeared (either started or came on as sub)
-    home_appeared = set()
-    away_appeared = set()
-
-    # Add all starting players to appeared set
-    for player in home_team.get('Players', []):
-        player_id = str(player.get('IdPlayer', ''))
-        if player_id:
-            home_appeared.add(player_id)
-
-    for player in away_team.get('Players', []):
-        player_id = str(player.get('IdPlayer', ''))
-        if player_id:
-            away_appeared.add(player_id)
-
-    # Track substitution appearances (players who came on)
-    home_subs = home_team.get('Substitutions', [])
-    away_subs = away_team.get('Substitutions', [])
-    for sub in home_subs:
-        player_on_id = extract_player_id_from_sub(sub, 'PlayerOnId')
-        if player_on_id:
-            home_appeared.add(player_on_id)
-    for sub in away_subs:
-        player_on_id = extract_player_id_from_sub(sub, 'PlayerOnId')
-        if player_on_id:
-            away_appeared.add(player_on_id)
 
     # Process home goals
     for goal in home_team.get('Goals', []):
@@ -157,11 +127,10 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, i
                 shirt = home_id_map[player_id]['shirtNumber']
                 key = (shirt, 'home')
                 if key not in stats:
-                    stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
+                    stats[key] = {'goals': 0, 'yellowCards': 0, 'redCards': 0}
                 stats[key]['goals'] += 1
             elif player_id in away_id_map:
-                # Own goal by away player (don't credit the player, just count the appearance)
-                # Own goals are not credited to individual players in tournament stats
+                # Own goal by away player - don't credit them
                 pass
 
     # Process away goals
@@ -174,11 +143,10 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, i
                 shirt = away_id_map[player_id]['shirtNumber']
                 key = (shirt, 'away')
                 if key not in stats:
-                    stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
+                    stats[key] = {'goals': 0, 'yellowCards': 0, 'redCards': 0}
                 stats[key]['goals'] += 1
             elif player_id in home_id_map:
-                # Own goal by home player (don't credit the player, just count the appearance)
-                # Own goals are not credited to individual players in tournament stats
+                # Own goal by home player - don't credit them
                 pass
 
     # Process home bookings
@@ -188,7 +156,7 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, i
             shirt = home_id_map[player_id]['shirtNumber']
             key = (shirt, 'home')
             if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
+                stats[key] = {'goals': 0, 'yellowCards': 0, 'redCards': 0}
             card_type = booking.get('Card')
             if card_type == 1:
                 stats[key]['yellowCards'] += 1
@@ -202,29 +170,12 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, i
             shirt = away_id_map[player_id]['shirtNumber']
             key = (shirt, 'away')
             if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
+                stats[key] = {'goals': 0, 'yellowCards': 0, 'redCards': 0}
             card_type = booking.get('Card')
             if card_type == 1:
                 stats[key]['yellowCards'] += 1
             elif card_type == 2:
                 stats[key]['redCards'] += 1
-
-    # Record appearances for all players who appeared
-    for player_id in home_appeared:
-        if player_id in home_id_map:
-            shirt = home_id_map[player_id]['shirtNumber']
-            key = (shirt, 'home')
-            if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
-            stats[key]['appeared'] = 1
-
-    for player_id in away_appeared:
-        if player_id in away_id_map:
-            shirt = away_id_map[player_id]['shirtNumber']
-            key = (shirt, 'away')
-            if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
-            stats[key]['appeared'] = 1
 
     return stats
 
@@ -304,12 +255,8 @@ def main():
         if 'tournamentStats' not in player:
             player['tournamentStats'] = {
                 'goals': 0,
-                'assists': 0,
                 'yellowCards': 0,
                 'redCards': 0,
-                'minutesPlayed': 0,
-                'appearances': 0,
-                'lastUpdated': datetime.utcnow().isoformat() + 'Z'
             }
             init_count += 1
 
@@ -381,13 +328,8 @@ def main():
                 if player.get('nationalTeamCode') == team_code and player.get('jersey') == shirt:
                     ts = player['tournamentStats']
                     ts['goals'] += stat_deltas.get('goals', 0)
-                    ts['assists'] += stat_deltas.get('assists', 0)
                     ts['yellowCards'] += stat_deltas.get('yellowCards', 0)
                     ts['redCards'] += stat_deltas.get('redCards', 0)
-                    # Increment appearances if player appeared in this match
-                    if stat_deltas.get('appeared', 0) > 0:
-                        ts['appearances'] += 1
-                    ts['lastUpdated'] = datetime.utcnow().isoformat() + 'Z'
                     break
 
         # Mark this match as processed
