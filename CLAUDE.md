@@ -18,13 +18,14 @@ Do not rely on scanning `index.html` to infer project structure. The README is t
 
 This is a **single-file project**. All runtime logic, rendering, styles, and page structure live in `index.html`. Supporting files:
 
-| File | Purpose |
-|------|---------|
+| File/Directory | Purpose |
+|---|---|
 | `squad-sunburst-data.js` | Pre-aggregated squad club-footprint data, loaded as a script |
 | `squad-data.json` | Player-level squad records with tournament stats |
 | `tournament-stats-cache.json` | Tracks which matches have been processed (prevents re-processing) |
+| `match-details/` | Cached FIFA API live match detail responses (one JSON per match) |
 | `parse-squads-v2.py` | Script that produces squad data files from PDF |
-| `update-player-stats.py` | Fetches FIFA API match data and updates tournament stats |
+| `update-player-stats.py` | Fetches FIFA API match data, updates stats, saves match details |
 | `README.md` | Feature and behavior documentation |
 | `STYLE_GUIDELINES.md` | Visual and print design rules |
 
@@ -89,3 +90,12 @@ The Live Match Centre loads `squad-data.json` and enriches the live roster with:
 - Graceful fallback if `squad-data.json` is unavailable (shows position only)
 
 Function `renderLivePlayerList(team, teamName)` takes team detail and team name, looks up team code from squad data, enriches players, and renders sorted roster.
+
+## Match Detail Caching
+
+The Live Match Centre loads match details via `fetchLiveDetailByMatchId()` which:
+1. Checks in-memory cache first (session)
+2. Tries local cache: `match-details/{matchId}.json`
+3. Falls back to FIFA API if local cache unavailable
+
+This reduces API load and speeds up subsequent page views. The local cache is populated daily by `update-player-stats.py`.

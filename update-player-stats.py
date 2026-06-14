@@ -17,6 +17,7 @@ Run via CI: GitHub Actions workflow calls this with required env vars
 
 import json
 import sys
+import os
 from datetime import datetime
 from typing import Any, Dict, List
 from urllib.request import urlopen
@@ -24,6 +25,7 @@ from urllib.error import URLError, HTTPError
 
 SQUAD_DATA_FILE = 'squad-data.json'
 PROCESSED_MATCHES_FILE = 'tournament-stats-cache.json'
+MATCH_DETAILS_DIR = 'match-details'
 FIFA_API_BASE = 'https://api.fifa.com/api/v3'
 SEASON_ID = '285023'  # FIFA 2026 World Cup
 
@@ -267,6 +269,17 @@ def save_processed_matches(cache: Dict[str, Any]) -> None:
         sys.exit(1)
 
 
+def save_match_detail(match_id: str, detail: Dict[str, Any]) -> None:
+    """Save match detail to match-details/{match_id}.json."""
+    try:
+        os.makedirs(MATCH_DETAILS_DIR, exist_ok=True)
+        filepath = os.path.join(MATCH_DETAILS_DIR, f'{match_id}.json')
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(detail, f, indent=2, ensure_ascii=False)
+    except IOError as e:
+        print(f'Warning: Could not save match detail {match_id}: {e}', file=sys.stderr)
+
+
 def main():
     print('🔄 FIFA 2026 Player Tournament Stats Updater')
     print(f'📅 Run timestamp: {datetime.utcnow().isoformat()}Z')
@@ -332,6 +345,9 @@ def main():
         if not detail:
             print('⚠️  (no detail)')
             continue
+
+        # Save match detail to cache
+        save_match_detail(match_id, detail)
 
         # Extract team codes from the match detail
         home_team = detail.get('HomeTeam', {})

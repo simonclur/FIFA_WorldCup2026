@@ -208,13 +208,24 @@ Printed pages include:
 
 Screen-only operational pages (completed archive, live centre, group tables, special interest) remain excluded from print.
 
-## Data Sources
+## Data Sources and Caching
 
-- FIFA API (fixtures, statuses, scores, live detail)
+### FIFA Data
+- **Matches**: FIFA API (fixtures, statuses, scores)
+- **Live details**: `match-details/` cache (local) → FIFA API (fallback)
+- **Live events**: Real-time polling for actively played matches
+
+### Match Detail Cache
+- Location: `match-details/{matchId}.json`
+- Updated: Daily via `update-player-stats.py` during tournament stats processing
+- Strategy: Browser checks local cache first, falls back to FIFA API if not found
+- Benefits: Faster page loads, reduced API calls, offline access to completed matches
+
+### Other Sources
 - OddsPAPI
 - The Odds API
 - The Guardian atom embed (special-interest card)
-- Wikipedia-derived local datasets for winners/top-scorers modules
+- Wikipedia-derived local datasets (winners/top-scorers)
 
 When `proxyBase` is configured, FIFA and odds calls are routed through that proxy endpoint instead of direct browser-to-provider calls.
 
