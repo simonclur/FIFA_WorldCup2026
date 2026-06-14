@@ -3077,11 +3077,29 @@
       }
 
       .match-main {
-        gap: 0.9mm;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1mm;
+        align-items: center;
       }
 
       .teams {
         gap: 1.3mm;
+      }
+
+      .meta-main {
+        align-items: flex-end;
+        text-align: right;
+        white-space: nowrap;
+        justify-self: end;
+      }
+
+      .time {
+        text-align: right;
+      }
+
+      .time-date-sub {
+        margin-top: 0.25mm;
+        text-align: right;
       }
 
       .team-name {
