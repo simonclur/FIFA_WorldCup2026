@@ -51,7 +51,7 @@ Keep updates concise — one or two sentences per change is enough. Do not rewri
 
 ## Player Tournament Stats Schema
 
-Each player in `squad-data.json` now includes a `tournamentStats` object:
+Each player in `squad-data.json` includes a `tournamentStats` object:
 
 ```json
 {
@@ -66,11 +66,14 @@ Each player in `squad-data.json` now includes a `tournamentStats` object:
     "yellowCards": 0,
     "redCards": 0,
     "minutesPlayed": 0,
-    "appearances": 0,
+    "appearances": 1,
     "lastUpdated": "2026-06-14T00:00:00Z"
   }
 }
 ```
+
+**Populated fields**: `goals` (goals scored), `yellowCards`, `redCards`, `appearances` (count of matches started or subbed into).
+**Not available from FIFA API**: `assists` (never provided in goal events), `minutesPlayed` (no granular timing in live feed). These remain 0.
 
 Stats are auto-updated by `update-player-stats.py` (GitHub Actions, daily) and manually via `python3 update-player-stats.py` locally. Do not edit `tournamentStats` manually — regenerate from FIFA API via the script.
 

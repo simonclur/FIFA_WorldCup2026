@@ -3,7 +3,13 @@
 FIFA 2026 Player Tournament Stats Updater
 
 Fetches completed matches from FIFA API, processes live event data to extract
-player statistics (goals, assists, cards, minutes), and updates squad-data.json.
+player statistics (goals, yellow/red cards, appearances), and updates squad-data.json.
+
+NOTE: The FIFA API live feed does not provide:
+  - Assists (IdAssistPlayer is always null in goal events)
+  - Minutes played (no minute-level tracking in the event feed)
+
+These fields are populated with 0/empty and cannot be extracted from the available API.
 
 Run locally: python3 update-player-stats.py
 Run via CI: GitHub Actions workflow calls this with required env vars
@@ -95,10 +101,12 @@ def build_player_id_map(team: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     return id_map
 
 
-def process_match_stats(match_detail: Dict[str, Any]) -> Dict[str, Dict[str, int]]:
+def process_match_stats(match_detail: Dict[str, Any]) -> Dict[tuple, Dict[str, int]]:
     """
     Process a match's live event data and extract per-player stats.
-    Returns a dict mapping (shirtNumber, side) -> {goals, assists, yellowCards, redCards}
+    Tracks: goals, yellowCards, redCards, appearances (from lineup + substitutions).
+    Note: FIFA API does not provide assist data or minute-by-minute tracking.
+    Returns a dict mapping (shirtNumber, side) -> {goals, assists, yellowCards, redCards, appeared}
     where side is 'home' or 'away'.
     """
     stats: Dict[tuple, Dict[str, int]] = {}
@@ -109,6 +117,33 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[str, Dict[str, int
     home_id_map = build_player_id_map(home_team)
     away_id_map = build_player_id_map(away_team)
 
+    # Track which players appeared (either started or came on as sub)
+    home_appeared = set()
+    away_appeared = set()
+
+    # Add all starting players to appeared set
+    for player in home_team.get('Players', []):
+        player_id = str(player.get('IdPlayer', ''))
+        if player_id:
+            home_appeared.add(player_id)
+
+    for player in away_team.get('Players', []):
+        player_id = str(player.get('IdPlayer', ''))
+        if player_id:
+            away_appeared.add(player_id)
+
+    # Track substitution appearances (players who came on)
+    home_subs = home_team.get('Substitutions', [])
+    away_subs = away_team.get('Substitutions', [])
+    for sub in home_subs:
+        player_on_id = extract_player_id_from_sub(sub, 'PlayerOnId')
+        if player_on_id:
+            home_appeared.add(player_on_id)
+    for sub in away_subs:
+        player_on_id = extract_player_id_from_sub(sub, 'PlayerOnId')
+        if player_on_id:
+            away_appeared.add(player_on_id)
+
     # Process home goals
     for goal in home_team.get('Goals', []):
         player_id = extract_player_id(goal)
@@ -116,18 +151,8 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[str, Dict[str, int
             shirt = home_id_map[player_id]['shirtNumber']
             key = (shirt, 'home')
             if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0}
+                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
             stats[key]['goals'] += 1
-
-            # Process assist (can come from either team)
-            assist_id = str(goal.get('IdAssistPlayer', ''))
-            if assist_id and assist_id != '0':
-                if assist_id in home_id_map:
-                    assist_shirt = home_id_map[assist_id]['shirtNumber']
-                    assist_key = (assist_shirt, 'home')
-                    if assist_key not in stats:
-                        stats[assist_key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0}
-                    stats[assist_key]['assists'] += 1
 
     # Process away goals
     for goal in away_team.get('Goals', []):
@@ -136,17 +161,8 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[str, Dict[str, int
             shirt = away_id_map[player_id]['shirtNumber']
             key = (shirt, 'away')
             if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0}
+                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
             stats[key]['goals'] += 1
-
-            assist_id = str(goal.get('IdAssistPlayer', ''))
-            if assist_id and assist_id != '0':
-                if assist_id in away_id_map:
-                    assist_shirt = away_id_map[assist_id]['shirtNumber']
-                    assist_key = (assist_shirt, 'away')
-                    if assist_key not in stats:
-                        stats[assist_key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0}
-                    stats[assist_key]['assists'] += 1
 
     # Process home bookings
     for booking in home_team.get('Bookings', []):
@@ -155,7 +171,7 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[str, Dict[str, int
             shirt = home_id_map[player_id]['shirtNumber']
             key = (shirt, 'home')
             if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0}
+                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
             card_type = booking.get('Card')
             if card_type == 1:
                 stats[key]['yellowCards'] += 1
@@ -169,12 +185,29 @@ def process_match_stats(match_detail: Dict[str, Any]) -> Dict[str, Dict[str, int
             shirt = away_id_map[player_id]['shirtNumber']
             key = (shirt, 'away')
             if key not in stats:
-                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0}
+                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
             card_type = booking.get('Card')
             if card_type == 1:
                 stats[key]['yellowCards'] += 1
             elif card_type == 2:
                 stats[key]['redCards'] += 1
+
+    # Record appearances for all players who appeared
+    for player_id in home_appeared:
+        if player_id in home_id_map:
+            shirt = home_id_map[player_id]['shirtNumber']
+            key = (shirt, 'home')
+            if key not in stats:
+                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
+            stats[key]['appeared'] = 1
+
+    for player_id in away_appeared:
+        if player_id in away_id_map:
+            shirt = away_id_map[player_id]['shirtNumber']
+            key = (shirt, 'away')
+            if key not in stats:
+                stats[key] = {'goals': 0, 'assists': 0, 'yellowCards': 0, 'redCards': 0, 'appeared': 0}
+            stats[key]['appeared'] = 1
 
     return stats
 
@@ -288,7 +321,8 @@ def main():
                     ts['assists'] += stat_deltas.get('assists', 0)
                     ts['yellowCards'] += stat_deltas.get('yellowCards', 0)
                     ts['redCards'] += stat_deltas.get('redCards', 0)
-                    if stat_deltas.get('goals', 0) > 0 or stat_deltas.get('yellowCards', 0) > 0 or stat_deltas.get('redCards', 0) > 0:
+                    # Increment appearances if player appeared in this match
+                    if stat_deltas.get('appeared', 0) > 0:
                         ts['appearances'] += 1
                     ts['lastUpdated'] = datetime.utcnow().isoformat() + 'Z'
                     break

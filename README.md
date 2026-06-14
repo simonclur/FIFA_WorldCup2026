@@ -107,16 +107,17 @@ Player stats are automatically tracked from live FIFA match event data and store
 ### Stats tracking
 
 - Each player record includes a `tournamentStats` object with career tournament stats
-- Stats updated: goals, assists, yellow cards, red cards, appearance count
-- Data source: FIFA live event feed (goals, bookings, substitutions)
+- **Tracked stats**: goals, yellow cards, red cards, appearances (starting lineup or substituted on)
+- **Not available from FIFA API**: assists (IdAssistPlayer is always null), minutes played (no granular event timing)
+- Data source: FIFA live event feed (goals, bookings, starting lineup, substitutions)
 - Update frequency: Daily via GitHub Actions (configured in `.github/workflows/update-tournament-stats.yml`)
 
 ### How it works
 
 1. **update-player-stats.py** runs on schedule (daily at 2 AM UTC)
 2. Fetches all completed World Cup 2026 matches from FIFA API
-3. Processes live event data to extract per-player stats
-4. Joins events with squad records by team code + shirt number
+3. Extracts per-player events (goals, yellow/red cards) and playing status (lineup + subs)
+4. Joins with squad records by team code + shirt number
 5. Accumulates stats and commits changes to `squad-data.json`
 6. Workflow auto-commits with message "Update player tournament statistics from FIFA API"
 
