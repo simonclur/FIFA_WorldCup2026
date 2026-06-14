@@ -23,6 +23,7 @@ from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
 SQUAD_DATA_FILE = 'squad-data.json'
+PROCESSED_MATCHES_FILE = 'tournament-stats-cache.json'
 FIFA_API_BASE = 'https://api.fifa.com/api/v3'
 SEASON_ID = '285023'  # FIFA 2026 World Cup
 
@@ -236,6 +237,16 @@ def load_squad_data() -> List[Dict[str, Any]]:
         return []
 
 
+def load_processed_matches() -> Dict[str, Any]:
+    """Load tournament-stats-cache.json tracking which matches have been processed."""
+    try:
+        with open(PROCESSED_MATCHES_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Initialize empty cache on first run
+        return {'processed_matches': [], 'lastUpdated': None}
+
+
 def save_squad_data(squad_data: List[Dict[str, Any]]) -> None:
     """Save updated squad-data.json."""
     try:
@@ -246,35 +257,51 @@ def save_squad_data(squad_data: List[Dict[str, Any]]) -> None:
         sys.exit(1)
 
 
+def save_processed_matches(cache: Dict[str, Any]) -> None:
+    """Save tournament-stats-cache.json."""
+    try:
+        with open(PROCESSED_MATCHES_FILE, 'w', encoding='utf-8') as f:
+            json.dump(cache, f, indent=2, ensure_ascii=False)
+    except IOError as e:
+        print(f'Error saving {PROCESSED_MATCHES_FILE}: {e}', file=sys.stderr)
+        sys.exit(1)
+
+
 def main():
     print('🔄 FIFA 2026 Player Tournament Stats Updater')
     print(f'📅 Run timestamp: {datetime.utcnow().isoformat()}Z')
 
-    # Load squad data
+    # Load squad data and processed matches cache
     squad_data = load_squad_data()
     if not squad_data:
         print('❌ No squad data loaded. Exiting.', file=sys.stderr)
         sys.exit(1)
 
-    # Initialize/reset tournamentStats for all players
-    # Reset to 0 each run so we recalculate from scratch (prevents double-counting)
+    cache = load_processed_matches()
+    processed_match_ids = set(cache.get('processed_matches', []))
+
+    if processed_match_ids:
+        print(f'✅ Loaded cache: {len(processed_match_ids)} matches already processed')
+    else:
+        print(f'📝 Starting fresh: no cached matches')
+
+    # Initialize tournamentStats for players that don't have it yet
     init_count = 0
     for player in squad_data:
         if 'tournamentStats' not in player:
+            player['tournamentStats'] = {
+                'goals': 0,
+                'assists': 0,
+                'yellowCards': 0,
+                'redCards': 0,
+                'minutesPlayed': 0,
+                'appearances': 0,
+                'lastUpdated': datetime.utcnow().isoformat() + 'Z'
+            }
             init_count += 1
-        player['tournamentStats'] = {
-            'goals': 0,
-            'assists': 0,
-            'yellowCards': 0,
-            'redCards': 0,
-            'minutesPlayed': 0,
-            'appearances': 0,
-            'lastUpdated': datetime.utcnow().isoformat() + 'Z'
-        }
 
     if init_count > 0:
         print(f'✅ Initialized tournamentStats for {init_count} new players')
-    print(f'🔄 Reset all tournament stats to 0 for recalculation')
 
     # Build team name -> team code mapping
     team_name_to_code: Dict[str, str] = {}
@@ -290,8 +317,12 @@ def main():
     completed_matches = [m for m in matches if is_completed_match(m)]
     print(f'📊 Found {len(completed_matches)} completed matches')
 
+    # Filter to only unprocessed matches
+    new_matches = [m for m in completed_matches if str(m.get('IdMatch', '')) not in processed_match_ids]
+    print(f'🆕 {len(new_matches)} new matches to process')
+
     processed_count = 0
-    for match in completed_matches:
+    for match in new_matches:
         match_id = str(match.get('IdMatch', ''))
         if not match_id:
             continue
@@ -343,13 +374,20 @@ def main():
                     ts['lastUpdated'] = datetime.utcnow().isoformat() + 'Z'
                     break
 
+        # Mark this match as processed
+        processed_match_ids.add(match_id)
         print('✓')
         processed_count += 1
 
-    print(f'\n✅ Processed {processed_count} completed matches')
-    print(f'📝 Saving updated squad-data.json...')
+    # Update cache with newly processed matches
+    cache['processed_matches'] = list(processed_match_ids)
+    cache['lastUpdated'] = datetime.utcnow().isoformat() + 'Z'
+
+    print(f'\n✅ Processed {processed_count} new matches')
+    print(f'📝 Saving updated squad-data.json and tournament-stats-cache.json...')
     save_squad_data(squad_data)
-    print(f'✅ Complete. {len(squad_data)} players in squad database.')
+    save_processed_matches(cache)
+    print(f'✅ Complete. {len(squad_data)} players, {len(processed_match_ids)} matches processed.')
 
 
 if __name__ == '__main__':

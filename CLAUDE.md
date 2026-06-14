@@ -21,8 +21,10 @@ This is a **single-file project**. All runtime logic, rendering, styles, and pag
 | File | Purpose |
 |------|---------|
 | `squad-sunburst-data.js` | Pre-aggregated squad club-footprint data, loaded as a script |
-| `squad-data.json` | Player-level squad records |
-| `parse-squads-v2.py` | Script that produces the two squad data files above |
+| `squad-data.json` | Player-level squad records with tournament stats |
+| `tournament-stats-cache.json` | Tracks which matches have been processed (prevents re-processing) |
+| `parse-squads-v2.py` | Script that produces squad data files from PDF |
+| `update-player-stats.py` | Fetches FIFA API match data and updates tournament stats |
 | `README.md` | Feature and behavior documentation |
 | `STYLE_GUIDELINES.md` | Visual and print design rules |
 

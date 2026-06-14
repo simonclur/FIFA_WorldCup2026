@@ -115,11 +115,17 @@ Player stats are automatically tracked from live FIFA match event data and store
 ### How it works
 
 1. **update-player-stats.py** runs on schedule (daily at 2 AM UTC)
-2. Fetches all completed World Cup 2026 matches from FIFA API
-3. Extracts per-player events (goals, yellow/red cards) and playing status (lineup + subs)
-4. Joins with squad records by team code + shirt number
-5. Accumulates stats and commits changes to `squad-data.json`
-6. Workflow auto-commits with message "Update player tournament statistics from FIFA API"
+2. Loads processed match cache (`tournament-stats-cache.json`) to identify new matches
+3. Fetches all completed World Cup 2026 matches from FIFA API
+4. Filters to only new/unprocessed matches (avoids re-processing)
+5. For each new match: extracts per-player events (goals, yellow/red cards) and playing status (lineup + subs)
+6. Joins with squad records by team code + shirt number
+7. Accumulates stats (does not reset previous data)
+8. Records processed match IDs in cache
+9. Commits changes to `squad-data.json` and `tournament-stats-cache.json`
+10. Workflow auto-commits with message "Update player tournament statistics from FIFA API"
+
+The cache prevents redundant processing: once a match is processed, it's never re-processed even if the script runs multiple times.
 
 ### Manual refresh
 
