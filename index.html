@@ -6237,13 +6237,69 @@
       return 'Waiting for FIFA response';
     };
 
-    const getEstimatedGameTimeRemainingLabel = (match) => {
+    const getEstimatedGameTimeRemainingLabel = (match, detail = null) => {
       if (!match) {
         return 'Unavailable';
       }
 
-      if (isCompletedMatch(match)) {
+      const effectiveMatch = getEffectiveMatchState(match, detail);
+
+      if (isCompletedMatch(effectiveMatch)) {
         return '00:00 (full-time)';
+      }
+
+      const regulationMinutes = 90;
+      const firstHydrationBreakMinute = 22;
+      const secondHydrationBreakMinute = 67;
+      const hydrationBreakSeconds = 3 * 60;
+      const halftimeBreakSeconds = 15 * 60;
+      const isHalftime = isHalftimeMatch(effectiveMatch);
+      const officialMinute = resolveOfficialClockMinute(effectiveMatch, detail, { preferFrozenMinute: isHalftime });
+
+      if (Number.isFinite(officialMinute)) {
+        let remainingSeconds = 0;
+        let phase = '2nd half';
+
+        if (isHalftime) {
+          phase = 'half-time';
+          remainingSeconds = halftimeBreakSeconds + (45 * 60) + hydrationBreakSeconds;
+        } else if (officialMinute < firstHydrationBreakMinute) {
+          phase = '1st half';
+          remainingSeconds = Math.max(0,
+            Math.floor((firstHydrationBreakMinute - officialMinute) * 60)
+            + hydrationBreakSeconds
+            + Math.floor((45 - firstHydrationBreakMinute) * 60)
+            + halftimeBreakSeconds
+            + Math.floor((secondHydrationBreakMinute - 45) * 60)
+            + hydrationBreakSeconds
+            + Math.floor((regulationMinutes - secondHydrationBreakMinute) * 60),
+          );
+        } else if (officialMinute < 45) {
+          phase = '1st half';
+          remainingSeconds = Math.max(0,
+            Math.floor((45 - officialMinute) * 60)
+            + halftimeBreakSeconds
+            + Math.floor((secondHydrationBreakMinute - 45) * 60)
+            + hydrationBreakSeconds
+            + Math.floor((regulationMinutes - secondHydrationBreakMinute) * 60),
+          );
+        } else if (officialMinute < secondHydrationBreakMinute) {
+          phase = '2nd half';
+          remainingSeconds = Math.max(0,
+            Math.floor((secondHydrationBreakMinute - officialMinute) * 60)
+            + hydrationBreakSeconds
+            + Math.floor((regulationMinutes - secondHydrationBreakMinute) * 60),
+          );
+        } else if (officialMinute < regulationMinutes) {
+          phase = '2nd half';
+          remainingSeconds = Math.max(0, Math.floor((regulationMinutes - officialMinute) * 60));
+        } else {
+          return '00:00 (expected FT)';
+        }
+
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} (${phase})`;
       }
 
       const kickoffTs = new Date(match.Date || 0).getTime();
@@ -6258,9 +6314,12 @@
       }
 
       const firstHalfSeconds = 45 * 60;
-      const halftimeSeconds = 10 * 60;
+      const firstHydrationPlaySeconds = 22 * 60;
+      const secondHydrationPlaySeconds = 22 * 60;
+      const hydrationBreakSeconds = 3 * 60;
+      const halftimeSeconds = 15 * 60;
       const secondHalfSeconds = 45 * 60;
-      const expectedDurationSeconds = firstHalfSeconds + halftimeSeconds + secondHalfSeconds;
+      const expectedDurationSeconds = firstHalfSeconds + halftimeSeconds + secondHalfSeconds + hydrationBreakSeconds + hydrationBreakSeconds;
 
       if (elapsedSeconds >= expectedDurationSeconds) {
         return '00:00 (expected FT)';
@@ -6269,12 +6328,31 @@
       let phase = '2nd half';
       let remainingSeconds = Math.max(0, expectedDurationSeconds - elapsedSeconds);
 
-      if (elapsedSeconds < firstHalfSeconds) {
+      const firstHydrationStart = firstHydrationPlaySeconds;
+      const firstHydrationEnd = firstHydrationStart + hydrationBreakSeconds;
+      const firstHalfEnd = firstHalfSeconds + hydrationBreakSeconds;
+      const halftimeEnd = firstHalfEnd + halftimeSeconds;
+      const secondHydrationStart = halftimeEnd + secondHydrationPlaySeconds;
+      const secondHydrationEnd = secondHydrationStart + hydrationBreakSeconds;
+
+      if (elapsedSeconds < firstHydrationStart) {
         phase = '1st half';
-        remainingSeconds = firstHalfSeconds - elapsedSeconds;
-      } else if (elapsedSeconds < (firstHalfSeconds + halftimeSeconds)) {
+        remainingSeconds = expectedDurationSeconds - elapsedSeconds;
+      } else if (elapsedSeconds < firstHydrationEnd) {
+        phase = 'hydration break';
+        remainingSeconds = expectedDurationSeconds - elapsedSeconds;
+      } else if (elapsedSeconds < firstHalfEnd) {
+        phase = '1st half';
+        remainingSeconds = expectedDurationSeconds - elapsedSeconds;
+      } else if (elapsedSeconds < halftimeEnd) {
         phase = 'half-time';
-        remainingSeconds = (firstHalfSeconds + halftimeSeconds) - elapsedSeconds;
+        remainingSeconds = expectedDurationSeconds - elapsedSeconds;
+      } else if (elapsedSeconds < secondHydrationStart) {
+        phase = '2nd half';
+        remainingSeconds = expectedDurationSeconds - elapsedSeconds;
+      } else if (elapsedSeconds < secondHydrationEnd) {
+        phase = 'hydration break';
+        remainingSeconds = expectedDurationSeconds - elapsedSeconds;
       }
 
       const minutes = Math.floor(remainingSeconds / 60);
@@ -6455,7 +6533,9 @@
       }
 
       const focusedMatch = resolveLiveFocusMatch(state.matches);
-      node.textContent = getEstimatedGameTimeRemainingLabel(focusedMatch);
+      const focusedMatchId = String(focusedMatch?.IdMatch || '').trim();
+      const detail = focusedMatchId ? getCachedLiveDetail(focusedMatchId) : null;
+      node.textContent = getEstimatedGameTimeRemainingLabel(focusedMatch, detail);
     };
 
     const renderLiveMatchStampText = () => {
@@ -7343,7 +7423,7 @@
           <div class="live-meta">
             ${replayModeActive ? '<span class="chip"><strong>Mode</strong> Demo replay</span>' : ''}
             <span class="chip"><strong>Official clock</strong> ${escapeHtml(matchClock)}</span>
-            <span class="chip"><strong>Est. time left*</strong> <span id="live-match-time-remaining">${escapeHtml(getEstimatedGameTimeRemainingLabel(active))}</span></span>
+            <span class="chip"><strong>Est. time left*</strong> <span id="live-match-time-remaining">${escapeHtml(getEstimatedGameTimeRemainingLabel(active, detail))}</span></span>
             <span class="chip"><strong>Status</strong> ${escapeHtml(formatStatus(effectiveActive))}</span>
             <span class="chip"><strong>Stage</strong> ${escapeHtml(stage)}</span>
             <span class="chip"><strong>Group</strong> ${escapeHtml(group)}</span>
@@ -7370,7 +7450,7 @@
 
           <section class="live-stream">
             <div><strong>${escapeHtml(sbsPrimaryHeading)}</strong> <a href="${escapeHtml(sbsPrimaryUrl)}" target="_blank" rel="noreferrer noopener">${escapeHtml(sbsPrimaryLinkText)}</a></div>
-            <div class="muted">* Official clock comes from FIFA MatchTime. Estimated time left is calculated from kickoff using 45m + 10m + 45m (stoppage time excluded).</div>
+            <div class="muted">* Official clock comes from FIFA MatchTime. Estimated time left uses official match time when available, with a 45m + 15m + 45m baseline plus two mandatory 3-minute hydration breaks (stoppage time excluded).</div>
           </section>
         </div>
       `;
