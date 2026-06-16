@@ -145,6 +145,30 @@ Before merging style/UI changes, verify:
 - Badge/chip conventions are preserved
 - State label language remains consistent
 
+## Responsive Regression Checklist
+
+Verify these view classes after layout changes:
+
+1. iPhone portrait (`375`, `390`, `430` px wide)
+- No page-level horizontal scrolling
+- Live spotlight row fits within card width
+- Special Interest cards stay inside the page gutter
+
+2. iPhone landscape (`667x375`, `844x390`, `932x430`)
+- Match cards remain dense but readable
+- Spotlight metadata clears the score row
+- Sidebar/secondary columns do not collapse awkwardly
+
+3. iPad/tablet (`768`, `820`, `1024`, `1180` widths)
+- Group Stage uses the tablet layout rather than phone collapse
+- Two-column grids stay balanced and readable
+- Embedded charts and tables remain contained without clipping
+
+4. Desktop (`1280`, `1440`, `1600+`, `1920+`)
+- No excessive unused side margins on wide screens
+- Spotlight scale feels proportional to the expanded canvas
+- Special Interest cards distribute cleanly across available width
+
 ## Suggested Next Improvements
 
 1. Add optional pagination controls for table rows beyond the 26-row cap.

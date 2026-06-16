@@ -59,6 +59,11 @@ Core pages and modules include:
 - The odds sidebar remains sticky in the right column for non-live fixtures, and now begins below the spotlight panel.
 - The live spotlight increases spacing between the team names and the score so the scoreboard reads more cleanly at a glance.
 - The live spotlight now keeps the kickoff time/date smaller while using larger team names and score text, with extra spacing around the live score separator, so the featured match is easier to scan at a glance.
+- Live spotlight cards use a single-column layout where team names and score occupy the full width (row 1), with time/date and badges displayed below (row 2), preventing team names from being obscured by adjacent badges.
+- Team names and live match scores now use responsive sizing that scales appropriately based on container width, preventing text overflow and clipping on narrow viewports.
+- Team-name spans in the live spotlight scoreboard now shrink and wrap within the score row, preventing long country names from spilling outside the featured card on narrow screens.
+- Live spotlight typography, flag size, and score spacing now scale fluidly across iPhone portrait, iPhone landscape, and desktop widths, and the Guardian Golden Boot embed is constrained so Special Interest content no longer causes horizontal page overflow on phones.
+- A dedicated tablet band now restores denser two-column match layouts and sidebar behavior for iPad-class widths, while a wide-desktop band expands the page canvas and promotes more three-column/dual-card layouts on larger monitors.
 - Live spotlight cards now include the TV-style SBS icon as a direct link to the SBS On Demand homepage for live matches (users navigate from there); for replays it links to the specific match page.
 - Live spotlight cards now include a browser-aware Listen Live action for talkSPORT that prefers the HLS stream and falls back to MP3 when HLS playback is unavailable.
 - Live Match Centre substitution events now show explicit directional markers: green up-arrow for players coming on and red down-arrow for players coming off.

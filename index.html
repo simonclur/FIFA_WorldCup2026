@@ -1089,19 +1089,28 @@
     }
 
     .group-live-spotlight-list {
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 2.2mm;
-      justify-items: center;
-      /* Prevent doubled ticker content from expanding the grid track */
-      overflow: hidden;
+      align-items: stretch;
       min-width: 0;
     }
 
     .group-live-spotlight-item {
-      width: min(100%, 180mm);
-      /* Must not grow beyond its column — doubled ticker uses max-content */
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
       min-width: 0;
-      overflow: hidden;
+      overflow: visible;
+    }
+
+    .group-live-spotlight-item .match {
+      flex-shrink: 0;
+    }
+
+    .group-live-spotlight-item .live-spotlight-ticker {
+      flex-shrink: 0;
     }
 
     /* Spotlight cards are intentionally enlarged for rapid live scanning. */
@@ -1112,7 +1121,7 @@
       background: var(--spotlight-match-bg);
       box-shadow: inset 0 0 0 0.8px var(--spotlight-match-inner);
       color: var(--spotlight-match-text);
-      font-size: 14pt;
+      font-size: clamp(11pt, 0.55vw + 0.7rem, 14pt);
       line-height: 1.25;
     }
 
@@ -1122,52 +1131,62 @@
     }
 
     .group-live-spotlight-list .match.live-spotlight-match .team-name {
-      font-size: 24pt;
+      font-size: clamp(16pt, 0.95vw + 0.8rem, 19pt);
       font-weight: 900;
+      text-wrap: balance;
+      line-height: 1.08;
+      min-width: 0;
+      flex: 1 1 0;
+      overflow-wrap: anywhere;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .match-main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
     }
 
     .group-live-spotlight-list .match.live-spotlight-match .teams {
-      gap: 2.4mm;
+      gap: clamp(1.2mm, 0.45vw, 2.4mm);
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+    }
+
+    .group-live-spotlight-list .match.live-spotlight-match .meta-main {
+      grid-column: 1;
+      grid-row: 2;
+      align-items: flex-start;
+      text-align: left;
+      margin-top: 1.2mm;
+      gap: 0.6mm;
     }
 
     .group-live-spotlight-list .match.live-spotlight-match .score-inline {
-      margin: 0 1.8mm;
-      font-size: 28pt;
+      margin: 0 1.2mm;
+      font-size: clamp(17pt, 1.1vw + 0.85rem, 22pt);
       letter-spacing: 0.02em;
-      word-spacing: 0.45em;
+      word-spacing: clamp(0.12em, 0.2vw, 0.35em);
     }
 
     .group-live-spotlight-list .match.live-spotlight-match .score-inline.live {
-      font-size: 32pt;
+      font-size: clamp(19pt, 1.35vw + 0.95rem, 25pt);
       color: #cb3b00;
     }
 
     .group-live-spotlight-list .match.live-spotlight-match .flag {
-      width: 5.6mm;
-      height: 5.6mm;
+      width: clamp(15px, 0.75vw + 11px, 21px);
+      height: clamp(15px, 0.75vw + 11px, 21px);
     }
 
     .group-live-spotlight-list .match.live-spotlight-match .time {
-      font-size: 10.5pt;
+      font-size: clamp(8pt, 0.45vw + 0.45rem, 10.5pt);
       font-weight: 700;
       color: var(--spotlight-muted-text);
     }
 
-      gap: 2.2mm;
-      font-size: 10.2pt;
-      padding: 0.45mm 2mm;
-    }
-      margin: 0 1.8mm;
-      font-size: 52.8pt;
-      letter-spacing: 0.03em;
-      word-spacing: 0.45em;
-      font-size: 10.5pt;
-      padding: 0.45mm 1.8mm;
-    }
-      font-size: 57pt;
     .group-live-spotlight-list .match.live-spotlight-match .match-badge,
     .group-live-spotlight-list .match.live-spotlight-match .match-header-badge {
-      font-size: 9.6pt;
+      font-size: clamp(6.8pt, 0.38vw + 0.38rem, 9.6pt);
       padding: 0.45mm 1.8mm;
     }
 
@@ -1313,7 +1332,10 @@
     .live-spotlight-ticker-empty {
       font-size: 8pt;
       color: var(--spotlight-muted-text);
-      border: 1px dashed rgba(20, 32, 51, 0.24);
+      line-height: 1.08;
+      min-width: 0;
+      flex: 1 1 0;
+      overflow-wrap: anywhere;
       border-radius: 9px;
       padding: 0.9mm 1.2mm;
       background: rgba(20, 32, 51, 0.04);
@@ -1992,6 +2014,8 @@
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.84);
       padding: 2.2mm;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .embed-card h3 {
@@ -2014,6 +2038,25 @@
       border: 1px solid var(--line);
       border-radius: 10px;
       background: #fff;
+    }
+
+    .guardian-atom-card {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #gv-atom-world-cup-2026 {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #gv-atom-world-cup-2026 .atom,
+    #gv-atom-world-cup-2026 .gv-gb,
+    #gv-atom-world-cup-2026 table.gv-gb-players {
+      max-width: 100%;
     }
 
     .top-scorers-card {
@@ -3316,6 +3359,60 @@
       }
     }
 
+    @media (min-width: 700px) and (max-width: 1199px) {
+      .group-stage-layout {
+        grid-template-columns: minmax(0, 1fr) 56mm;
+        gap: 2.6mm;
+      }
+
+      .group-stage-main .groups-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .live-columns {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .match-main {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.9mm;
+        align-items: center;
+      }
+
+      .meta-main {
+        align-items: flex-end;
+        text-align: right;
+        white-space: nowrap;
+        justify-self: end;
+      }
+
+      .teams {
+        flex-wrap: nowrap;
+      }
+
+      .group-live-spotlight-head {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .group-live-spotlight-list .match.live-spotlight-match {
+        min-height: 24mm;
+        padding: 2.8mm 2.9mm 2.4mm;
+      }
+
+      .special-interest-grid {
+        gap: 2.6mm;
+      }
+
+      .embed-frame {
+        min-height: 380px;
+      }
+
+      .squad-sunburst-layout {
+        grid-template-columns: minmax(0, 1.25fr) minmax(44mm, 56mm);
+      }
+    }
+
     @media (max-width: 430px) {
       .page-sticky-marker {
         min-height: calc(30px + env(safe-area-inset-top));
@@ -3467,27 +3564,27 @@
       }
 
       .group-live-spotlight-list .match.live-spotlight-match .team-name {
-        font-size: 18pt;
+        font-size: clamp(14pt, 4.9vw, 16pt);
       }
 
       .group-live-spotlight-list .match.live-spotlight-match .teams {
-        gap: 2.1mm;
+        gap: 1.2mm;
         flex-wrap: nowrap;
       }
 
       .group-live-spotlight-list .match.live-spotlight-match .score-inline {
-        font-size: 20pt;
-        margin: 0 1.8mm;
-        word-spacing: 0.45em;
+        font-size: clamp(15pt, 5.3vw, 17pt);
+        margin: 0 0.8mm;
+        word-spacing: 0.18em;
       }
 
       .group-live-spotlight-list .match.live-spotlight-match .score-inline.live {
-        font-size: 23pt;
+        font-size: clamp(16pt, 5.8vw, 18.5pt);
       }
 
       .group-live-spotlight-list .match.live-spotlight-match .flag {
-        width: 4.8mm;
-        height: 4.8mm;
+        width: 4mm;
+        height: 4mm;
       }
 
       .group-live-spotlight-list .match.live-spotlight-match .time {
@@ -3533,6 +3630,24 @@
 
       .embed-frame {
         min-height: 300px;
+      }
+
+      .guardian-atom-card {
+        padding: 1.6mm;
+      }
+
+      #gv-atom-world-cup-2026 table.gv-gb-players {
+        font-size: 6.3pt;
+      }
+
+      #gv-atom-world-cup-2026 .gv-gb-table-header-row th,
+      #gv-atom-world-cup-2026 td {
+        padding: 0.9mm 1mm;
+      }
+
+      #gv-atom-world-cup-2026 .gv-gb-player-country,
+      #gv-atom-world-cup-2026 .gv-gb-player-position {
+        font-size: 5.4pt;
       }
     }
 
@@ -3590,14 +3705,58 @@
         margin-top: 0.4mm;
       }
 
-      .group-live-spotlight-list .match.live-spotlight-match .team-name { font-size: 18pt; }
-      .group-live-spotlight-list .match.live-spotlight-match .score-inline { font-size: 21pt; }
-      .group-live-spotlight-list .match.live-spotlight-match .score-inline.live { font-size: 24pt; }
+      .group-live-spotlight-list .match.live-spotlight-match .team-name { font-size: clamp(15pt, 2.25vw, 18pt); }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline { font-size: clamp(17pt, 2.5vw, 21pt); }
+      .group-live-spotlight-list .match.live-spotlight-match .score-inline.live { font-size: clamp(19pt, 2.8vw, 24pt); }
       .group-live-spotlight-list .match.live-spotlight-match .time { font-size: 7.6pt; }
       .group-live-spotlight-list .match.live-spotlight-match .slot { font-size: 7.4pt; }
       .group-live-spotlight-list .match.live-spotlight-match .status { font-size: 7.2pt; }
       .group-live-spotlight-list .match.live-spotlight-match .match-badge,
       .group-live-spotlight-list .match.live-spotlight-match .match-header-badge { font-size: 6.8pt; }
+    }
+
+    @media (min-width: 900px) and (max-width: 1199px) {
+      .special-interest-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+      }
+    }
+
+    @media (min-width: 1500px) {
+      .spread {
+        width: min(100%, 360mm);
+        padding: calc(6mm + env(safe-area-inset-top) + 38px) 6mm 5mm;
+      }
+
+      .page {
+        padding: 8.5mm 8.8mm 7.6mm;
+      }
+
+      .page-head {
+        gap: 9mm;
+      }
+
+      .group-stage-layout {
+        grid-template-columns: minmax(0, 1fr) 72mm;
+        gap: 4mm;
+      }
+
+      .group-stage-main .groups-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .special-interest-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+      }
+
+      .live-columns {
+        gap: 2.6mm;
+      }
+
+      .group-live-spotlight-card {
+        padding: 3mm;
+      }
     }
   </style>
 </head>
