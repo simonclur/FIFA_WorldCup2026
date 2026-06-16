@@ -180,6 +180,8 @@ The Live Match Centre now displays enriched player data:
 - During active Group Stage matches, a `Live Group Table Snapshot` card is injected above the `Live Match Spotlight`, showing only the two currently playing teams' standings rows for that live group game. The snapshot is removed automatically once no Group Stage match is actively live.
 - The World Cup Top Scorers card now uses a shrink-safe scoreline layout so goals totals stay inside the card bounds on narrow/mobile widths.
 - Special Interest cards now render as a single full-width stacked column across breakpoints (instead of side-by-side), and the World Cup winners Sankey expands with container width while scaling label text and link thickness for improved readability.
+- Live Match Centre now includes a `Highlights` badge next to the `Match Detail` heading that opens a dynamic per-match SBS On Demand match-page URL in a new tab (format: `https://www.sbs.com.au/ondemand/fifa-world-cup-2026-{home}-v-{away}-{group-or-stage}`), including replay-loaded matches.
+- The `Switch to Live Game` badge is now styled as a stronger call-to-action with a blue-violet fill and green glow edge highlight to make live-return navigation more prominent.
 
 ## Special Interest: Squad Sunburst Pipeline
 

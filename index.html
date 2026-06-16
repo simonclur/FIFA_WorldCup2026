@@ -223,22 +223,51 @@
 
     .chip.live-switch-chip {
       appearance: none;
-      border-color: rgba(16, 115, 71, 0.38);
-      background: rgba(16, 115, 71, 0.12);
-      color: #0f5f3c;
+      border-color: rgba(92, 83, 242, 0.72);
+      background: linear-gradient(135deg, rgba(58, 110, 244, 0.95), rgba(112, 77, 224, 0.95));
+      color: #f7fbff;
       font-weight: 800;
       cursor: pointer;
-      transition: background 0.16s ease, border-color 0.16s ease;
+      box-shadow: 0 0 0 1px rgba(34, 201, 120, 0.4), 0 0 9px rgba(34, 201, 120, 0.35);
+      transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
     }
 
     .chip.live-switch-chip:hover {
-      background: rgba(16, 115, 71, 0.18);
-      border-color: rgba(16, 115, 71, 0.56);
+      background: linear-gradient(135deg, rgba(75, 126, 248, 1), rgba(126, 88, 236, 1));
+      border-color: rgba(138, 130, 255, 0.9);
+      box-shadow: 0 0 0 1px rgba(46, 223, 141, 0.55), 0 0 12px rgba(46, 223, 141, 0.45);
+      transform: translateY(-0.2mm);
     }
 
     .chip.live-switch-chip:focus-visible {
-      outline: 2px solid rgba(16, 115, 71, 0.45);
+      outline: 2px solid rgba(46, 223, 141, 0.62);
       outline-offset: 1px;
+    }
+
+    .chip.live-highlights-chip {
+      text-decoration: none;
+      border-color: rgba(31, 77, 122, 0.34);
+      background: rgba(31, 77, 122, 0.12);
+      color: var(--accent-3);
+      font-weight: 800;
+      transition: background 0.16s ease, border-color 0.16s ease;
+    }
+
+    .chip.live-highlights-chip:hover {
+      background: rgba(31, 77, 122, 0.19);
+      border-color: rgba(31, 77, 122, 0.52);
+    }
+
+    .chip.live-highlights-chip:focus-visible {
+      outline: 2px solid rgba(31, 77, 122, 0.42);
+      outline-offset: 1px;
+    }
+
+    .live-match-detail-head {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.2mm;
+      flex-wrap: wrap;
     }
 
     .section-head {
@@ -4037,7 +4066,10 @@
 
       <div class="section-head">
         <div>
-          <h2 class="section-title">Match Detail</h2>
+          <div class="live-match-detail-head">
+            <h2 class="section-title">Match Detail</h2>
+            <a id="live-match-highlights-link" class="chip live-highlights-chip" href="#" target="_blank" rel="noreferrer noopener" title="Open match page in new tab" hidden>Highlights</a>
+          </div>
         </div>
         <button type="button" id="live-match-accordion-toggle" class="accordion-toggle" aria-controls="live-match-accordion-content" aria-expanded="true">
           <span class="accordion-toggle-label">Collapse</span>
@@ -7681,12 +7713,17 @@
     const renderLiveMatchPage = () => {
       const contentNode = document.getElementById('live-match-content');
       const stampNode = document.getElementById('live-match-rendered-at');
+      const headingHighlightsLinkNode = document.getElementById('live-match-highlights-link');
       if (!contentNode || !stampNode) {
         return;
       }
 
       const focusedMatch = resolveLiveFocusMatch(state.matches);
       if (!focusedMatch) {
+        if (headingHighlightsLinkNode) {
+          headingHighlightsLinkNode.hidden = true;
+          headingHighlightsLinkNode.setAttribute('href', '#');
+        }
         contentNode.innerHTML = '<div class="empty">No active match right now. This page will auto-populate when kickoff is live.</div>';
         stampNode.textContent = renderLiveMatchStampText();
         return;
@@ -7718,7 +7755,7 @@
         ...createLiveEventRows(detail?.AwayTeam, awayName, 'away', detail?.HomeTeam, homeName),
       ].sort((a, b) => a.order - b.order || a.side.localeCompare(b.side));
 
-      const currentHighlightsUrl = getHighlightsUrlForMatch(active);
+      const currentHighlightsUrl = getSbsOnDemandMatchPageUrlForMatch(active);
       const playedMatches = [...(state.matches || [])]
         .filter(isCompletedMatch)
         .sort(sortByDate);
@@ -7750,6 +7787,10 @@
       const switchToLiveBadge = showSwitchToLiveBadge
         ? '<button type="button" id="live-centre-switch-to-live" class="chip live-switch-chip">Switch to Live Game</button>'
         : '';
+      if (headingHighlightsLinkNode) {
+        headingHighlightsLinkNode.hidden = false;
+        headingHighlightsLinkNode.setAttribute('href', currentHighlightsUrl);
+      }
       const shouldApplyLiveDeltas = Boolean(detail && (isLiveActiveMatch || replayModeActive));
       const sbsOnDemandLiveStreamUrl = isLiveActiveMatch ? 'https://www.sbs.com.au/ondemand' : buildSbsOnDemandLiveStreamUrl(homeName, awayName, group, stage);
       const sbsOnDemandMatchUrl = getSbsOnDemandMatchPageUrlForMatch(active);
