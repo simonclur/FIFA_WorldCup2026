@@ -4253,6 +4253,7 @@
         'the-odds-api': null,
       },
       replayMatchId: null,
+      replaySelectionSource: null,
       hoveredTeams: new Map(),
       hoveredMatchKey: null,
       oddsUpdatedAt: null,
@@ -4382,6 +4383,7 @@
     const configuredSbsMatchId = String(queryParams.get('sbsMatchId') || '4tcpns1nwyc0jtpucgzj9dp90').trim();
     const configuredDemoMatchId = String(queryParams.get('demoMatchId') || '').trim();
     state.replayMatchId = configuredDemoMatchId || null;
+    state.replaySelectionSource = configuredDemoMatchId ? 'query' : null;
     const oddsApiKeysStorageKey = 'fifa2026_odds_api_keys_v1';
 
     function loadStoredOddsApiKeys() {
@@ -6079,8 +6081,22 @@
       return resultType === 1 || status === 0;
     };
 
+    const isReplayModeActive = (matches = state.matches) => {
+      const replayId = String(state.replayMatchId || '').trim();
+      if (!replayId) {
+        return false;
+      }
+
+      if (state.replaySelectionSource === 'user') {
+        return true;
+      }
+
+      const list = Array.isArray(matches) ? matches : [];
+      return !list.some(isActivelyPlayedMatch);
+    };
+
     const hasActiveLiveRefreshMode = () => {
-      if (state.replayMatchId) {
+      if (isReplayModeActive()) {
         return true;
       }
 
@@ -6443,7 +6459,7 @@
     };
 
     const renderLiveMatchStampText = () => {
-      const basePrefix = state.replayMatchId ? 'Demo match updated' : 'Live match updated';
+      const basePrefix = isReplayModeActive() ? 'Demo match updated' : 'Live match updated';
       const updatedAt = state.liveDetailUpdatedAt ? updateFormatter.format(state.liveDetailUpdatedAt) : (state.updatedAt ? updateFormatter.format(state.updatedAt) : 'waiting for data');
       return `${basePrefix} ${updatedAt} - next FIFA data update ${getNextUpdateCountdownLabel()} (${getCadenceLabel()}) - ${getLastPullHealthLabel()}`;
     };
@@ -7241,7 +7257,7 @@
 
     const resolveLiveFocusMatch = (matches) => {
       const list = Array.isArray(matches) ? matches : [];
-      if (state.replayMatchId) {
+      if (isReplayModeActive(list)) {
         return list.find((match) => String(match?.IdMatch || '').trim() === String(state.replayMatchId)) || null;
       }
 
@@ -7309,7 +7325,8 @@
         `;
       }).join('');
 
-      const isLiveActiveMatch = isActivelyPlayedMatch(effectiveActive) && !state.replayMatchId;
+      const replayModeActive = isReplayModeActive(state.matches);
+      const isLiveActiveMatch = isActivelyPlayedMatch(effectiveActive) && !replayModeActive;
       const sbsOnDemandLiveStreamUrl = isLiveActiveMatch ? 'https://www.sbs.com.au/ondemand' : buildSbsOnDemandLiveStreamUrl(homeName, awayName, group, stage);
       const sbsOnDemandMatchUrl = getSbsOnDemandMatchPageUrlForMatch(active);
       const sbsPrimaryUrl = isLiveActiveMatch ? sbsOnDemandLiveStreamUrl : sbsOnDemandMatchUrl;
@@ -7324,7 +7341,7 @@
           </div>
 
           <div class="live-meta">
-            ${state.replayMatchId ? '<span class="chip"><strong>Mode</strong> Demo replay</span>' : ''}
+            ${replayModeActive ? '<span class="chip"><strong>Mode</strong> Demo replay</span>' : ''}
             <span class="chip"><strong>Official clock</strong> ${escapeHtml(matchClock)}</span>
             <span class="chip"><strong>Est. time left*</strong> <span id="live-match-time-remaining">${escapeHtml(getEstimatedGameTimeRemainingLabel(active))}</span></span>
             <span class="chip"><strong>Status</strong> ${escapeHtml(formatStatus(effectiveActive))}</span>
@@ -7755,6 +7772,7 @@
         }
 
         state.replayMatchId = matchId;
+        state.replaySelectionSource = 'user';
         syncReplayMatchInUrl(matchId);
         syncRefreshSchedule();
         updateRefreshCountdownViews();
@@ -9272,7 +9290,7 @@
         return;
       }
 
-      if (state.replayMatchId) {
+      if (isReplayModeActive()) {
         try {
           await loadMatches({ autoScrollNextUp: false });
           updateSpotlightLiveClockDataAttributes();

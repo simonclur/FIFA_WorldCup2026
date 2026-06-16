@@ -72,6 +72,7 @@ Core pages and modules include:
 - Live spotlight cards now include the TV-style SBS icon as a direct link to the SBS On Demand homepage for live matches (users navigate from there); for replays it links to the specific match page.
 - Live spotlight cards now include a browser-aware Listen Live action for talkSPORT that prefers the HLS stream and falls back to MP3 when HLS playback is unavailable.
 - Live Match Centre substitution events now show explicit directional markers: green up-arrow for players coming on and red down-arrow for players coming off.
+- A `demoMatchId` in the URL now acts as a replay fallback only when no live fixture is active; an explicitly user-selected completed match still overrides the live default in the Live Match Centre.
 - Completed Matches now appears directly after Group Stage and uses an accordion control so the archive can be expanded or collapsed on demand.
 - The Completed Matches accordion control now uses higher-contrast button styling and a double-chevron icon to clearly signal expand/collapse affordance.
 - Completed match cards now include a small TV-style replay icon that opens the SBS On Demand match page for quick replay access in a new tab.
