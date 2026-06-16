@@ -666,6 +666,57 @@
       font-weight: 500;
       text-align: left;
       width: 20%;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      line-height: 1.15;
+    }
+
+    .live-player-live-events {
+      margin-top: 0.28mm;
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 0.32mm;
+      align-items: center;
+    }
+
+    .live-player-live-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2mm;
+      font-size: 5.1pt;
+      line-height: 1;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 0.18mm 0.5mm;
+      border: 1px solid rgba(20, 32, 51, 0.22);
+      background: rgba(20, 32, 51, 0.06);
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .live-player-live-chip.goal {
+      border-color: rgba(16, 115, 71, 0.35);
+      background: rgba(16, 115, 71, 0.12);
+      color: #0f5f3c;
+    }
+
+    .live-player-live-chip.card {
+      border-color: rgba(158, 108, 0, 0.34);
+      background: rgba(196, 139, 11, 0.18);
+      color: #6c4a00;
+    }
+
+    .live-player-live-chip.red {
+      border-color: rgba(155, 38, 38, 0.42);
+      background: rgba(179, 43, 43, 0.16);
+      color: #812020;
+    }
+
+    .live-player-live-chip.sub {
+      border-color: rgba(20, 32, 51, 0.26);
+      background: rgba(20, 32, 51, 0.1);
+      color: var(--muted);
     }
 
     .live-player-pos {
@@ -6768,6 +6819,60 @@
       return squadDataMap.get(key) || null;
     };
 
+    const buildLivePlayerEventStatsMap = (team) => {
+      const stats = new Map();
+      const ensure = (playerId) => {
+        const id = String(playerId || '').trim();
+        if (!id) {
+          return null;
+        }
+
+        if (!stats.has(id)) {
+          stats.set(id, { goals: 0, yellow: 0, red: 0, subOn: false, subOff: false });
+        }
+
+        return stats.get(id);
+      };
+
+      for (const goal of (Array.isArray(team?.Goals) ? team.Goals : [])) {
+        const entry = ensure(goal?.IdPlayer);
+        if (entry) {
+          entry.goals += 1;
+        }
+      }
+
+      for (const booking of (Array.isArray(team?.Bookings) ? team.Bookings : [])) {
+        const entry = ensure(booking?.IdPlayer);
+        if (!entry) {
+          continue;
+        }
+
+        const card = Number(booking?.Card);
+        if (card === 1) {
+          entry.yellow += 1;
+        } else if (card === 2) {
+          entry.yellow += 1;
+          entry.red += 1;
+        } else if (card === 3) {
+          entry.red += 1;
+        }
+      }
+
+      for (const sub of (Array.isArray(team?.Substitutions) ? team.Substitutions : [])) {
+        const onEntry = ensure(sub?.IdPlayerOn);
+        if (onEntry) {
+          onEntry.subOn = true;
+        }
+
+        const offEntry = ensure(sub?.IdPlayerOff);
+        if (offEntry) {
+          offEntry.subOff = true;
+        }
+      }
+
+      return stats;
+    };
+
     const renderLivePlayerList = (team, teamName = '') => {
       const players = Array.isArray(team?.Players) ? [...team.Players] : [];
       if (!players.length) {
@@ -6775,14 +6880,18 @@
       }
 
       const teamCode = findTeamCodeFromSquadData(teamName);
+      const liveEventStatsByPlayerId = buildLivePlayerEventStatsMap(team);
       const enrichedPlayers = players.map((player) => {
         const squadData = teamCode ? enrichPlayerFromSquadData(player, teamCode) : null;
         const shirt = Number(player.ShirtNumber);
+        const playerId = String(player.IdPlayer || '').trim();
+        const liveEventStats = playerId ? (liveEventStatsByPlayerId.get(playerId) || null) : null;
         return {
           livePlayer: player,
           squadData,
           shirt,
           tournamentGoals: squadData?.tournamentStats?.goals || 0,
+          liveEventStats,
           position: Number(player.Position || 99),
           captain: Boolean(player.Captain),
         };
@@ -6825,8 +6934,33 @@
         const tournamentYellowDisplay = tournamentYellow > 0 ? String(tournamentYellow) : '';
         const tournamentRedDisplay = tournamentRed > 0 ? String(tournamentRed) : '';
 
+        const liveGoals = Number(p.liveEventStats?.goals || 0);
+        const liveYellow = Number(p.liveEventStats?.yellow || 0);
+        const liveRed = Number(p.liveEventStats?.red || 0);
+        const liveSubOn = Boolean(p.liveEventStats?.subOn);
+        const liveSubOff = Boolean(p.liveEventStats?.subOff);
+        const liveEventChips = [];
+
+        if (liveGoals > 0) {
+          liveEventChips.push(`<span class="live-player-live-chip goal" title="Live goals">⚽ +${escapeHtml(String(liveGoals))}</span>`);
+        }
+        if (liveYellow > 0) {
+          liveEventChips.push(`<span class="live-player-live-chip card" title="Live yellow cards">🟨 +${escapeHtml(String(liveYellow))}</span>`);
+        }
+        if (liveRed > 0) {
+          liveEventChips.push(`<span class="live-player-live-chip red" title="Live red cards">🟥 +${escapeHtml(String(liveRed))}</span>`);
+        }
+        if (liveSubOn || liveSubOff) {
+          const subLabel = `${liveSubOn ? '↑' : ''}${liveSubOn && liveSubOff ? ' ' : ''}${liveSubOff ? '↓' : ''}`;
+          liveEventChips.push(`<span class="live-player-live-chip sub" title="Live substitutions">${escapeHtml(subLabel)}</span>`);
+        }
+
+        const liveEventsMarkup = liveEventChips.length
+          ? `<div class="live-player-live-events">${liveEventChips.join('')}</div>`
+          : '';
+
         const alternatingClass = i % 2 === 0 ? 'live-player-row-odd' : 'live-player-row-even';
-        return `<tr class="live-player-row ${alternatingClass}" data-shirt="${dataShirt}" data-caps="${dataCaps}" data-goals="${dataGoals}" data-tournament-goals="${dataTournamentGoals}" data-tournament-yellow="${dataTournamentYellow}" data-tournament-red="${dataTournamentRed}" data-pos="${dataPos}" data-name="${dataName}"><td class="live-player-shirt">${escapeHtml(shirt)}</td><td class="live-player-name">${escapeHtml(name)}${escapeHtml(cap)}</td><td class="live-player-pos">${escapeHtml(pos)}</td><td class="live-player-height">${escapeHtml(String(height))}</td><td class="live-player-club">${escapeHtml(club)}</td><td class="live-player-caps">${escapeHtml(String(intlCaps))}</td><td class="live-player-goals">${escapeHtml(String(careerGoals))}</td><td class="live-player-tournament-goals">${escapeHtml(tournamentGoalsDisplay)}</td><td class="live-player-tournament-yellow">${escapeHtml(tournamentYellowDisplay)}</td><td class="live-player-tournament-red">${escapeHtml(tournamentRedDisplay)}</td></tr>`;
+        return `<tr class="live-player-row ${alternatingClass}" data-shirt="${dataShirt}" data-caps="${dataCaps}" data-goals="${dataGoals}" data-tournament-goals="${dataTournamentGoals}" data-tournament-yellow="${dataTournamentYellow}" data-tournament-red="${dataTournamentRed}" data-pos="${dataPos}" data-name="${dataName}"><td class="live-player-shirt">${escapeHtml(shirt)}</td><td class="live-player-name">${escapeHtml(name)}${escapeHtml(cap)}${liveEventsMarkup}</td><td class="live-player-pos">${escapeHtml(pos)}</td><td class="live-player-height">${escapeHtml(String(height))}</td><td class="live-player-club">${escapeHtml(club)}</td><td class="live-player-caps">${escapeHtml(String(intlCaps))}</td><td class="live-player-goals">${escapeHtml(String(careerGoals))}</td><td class="live-player-tournament-goals">${escapeHtml(tournamentGoalsDisplay)}</td><td class="live-player-tournament-yellow">${escapeHtml(tournamentYellowDisplay)}</td><td class="live-player-tournament-red">${escapeHtml(tournamentRedDisplay)}</td></tr>`;
       }).join('');
 
       return `

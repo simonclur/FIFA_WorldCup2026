@@ -167,6 +167,7 @@ The Live Match Centre now displays enriched player data:
 - Loads `squad-data.json` on page load to enrich live players with tournament stats and club information
 - Players with tournament goals display goal count with ⚽ emoji
 - Club name pulled from `squad-data.json` and displayed in muted text
+- During active matches, squad rows now also show live-event chips (goals, yellow/red cards, substitutions on/off) sourced from the current FIFA live detail payload, so in-game updates appear immediately alongside cached tournament totals.
 
 ## Special Interest: Squad Sunburst Pipeline
 
