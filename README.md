@@ -66,6 +66,7 @@ Core pages and modules include:
 - A dedicated tablet band now restores denser two-column match layouts and sidebar behavior for iPad-class widths, while a wide-desktop band expands the page canvas and promotes more three-column/dual-card layouts on larger monitors.
 - Live spotlight official-clock parsing now accepts only plausible football clock formats and rejects malformed `MatchTime` values, preventing absurd multi-hundred-minute clock labels from rendering.
 - Half-time/full-time live status now prefers the detailed match payload, and official clocks freeze on the best available detail-derived minute when FIFA resets `MatchTime` to `0` during interval states.
+- If FIFA does not provide a trustworthy frozen-state minute, spotlight official clocks now fall back to explicit `HT`/`FT` labels instead of a generic `Live` label.
 - Live spotlight cards now include the TV-style SBS icon as a direct link to the SBS On Demand homepage for live matches (users navigate from there); for replays it links to the specific match page.
 - Live spotlight cards now include a browser-aware Listen Live action for talkSPORT that prefers the HLS stream and falls back to MP3 when HLS playback is unavailable.
 - Live Match Centre substitution events now show explicit directional markers: green up-arrow for players coming on and red down-arrow for players coming off.

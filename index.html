@@ -6342,7 +6342,7 @@
       return `${minutes}:${String(seconds).padStart(2, '0')}'`;
     };
 
-    const getSpotlightLiveClockLabel = (baseMinuteValue, pullTs, kickoffTs, isFrozen = false) => {
+    const getSpotlightLiveClockLabel = (baseMinuteValue, pullTs, kickoffTs, isFrozen = false, frozenFallbackLabel = 'Live') => {
       const baseMinute = parseLiveMinuteValue(baseMinuteValue);
       const nowTs = Date.now();
       const pullTimeTs = Number(pullTs);
@@ -6352,7 +6352,7 @@
         if (Number.isFinite(baseMinute)) {
           return formatRunningClockLabel(Math.floor(baseMinute * 60));
         }
-        return 'Live';
+        return String(frozenFallbackLabel || 'Live');
       }
 
       // Use only API MatchTime - no fallback calculation from kickoff time
@@ -6398,16 +6398,18 @@
       const isHalftime = isHalftimeMatch(effectiveMatch);
       const isFrozen = isHalftime || isMatchCompleted;
       const freshMatchTime = resolveOfficialClockMinute(effectiveMatch, detail, { preferFrozenMinute: isFrozen });
+      const frozenFallbackLabel = isMatchCompleted ? 'FT' : isHalftime ? 'HT' : 'Live';
 
       // Update the clock element with fresh data
       const clockNode = spotlightNode.querySelector('.live-spotlight-clock[data-live-clock-base-minute]');
 
-      if (clockNode && Number.isFinite(freshMatchTime)) {
+      if (clockNode) {
         const pullTs = state.lastFifaPullAt instanceof Date ? state.lastFifaPullAt.getTime() : Number.NaN;
 
-        clockNode.setAttribute('data-live-clock-base-minute', String(freshMatchTime));
+        clockNode.setAttribute('data-live-clock-base-minute', Number.isFinite(freshMatchTime) ? String(freshMatchTime) : '');
         clockNode.setAttribute('data-live-clock-pull-ts', String(pullTs));
         clockNode.setAttribute('data-live-clock-freeze', isFrozen ? '1' : '0');
+        clockNode.setAttribute('data-live-clock-fallback-label', frozenFallbackLabel);
 
         // Update label if frozen
         if (isFrozen) {
@@ -6425,7 +6427,8 @@
         const pullTs = Number(node.getAttribute('data-live-clock-pull-ts') || Number.NaN);
         const kickoffTs = Number(node.getAttribute('data-live-clock-kickoff-ts') || Number.NaN);
         const isFrozen = node.getAttribute('data-live-clock-freeze') === '1';
-        node.textContent = getSpotlightLiveClockLabel(baseMinute, pullTs, kickoffTs, isFrozen);
+        const frozenFallbackLabel = node.getAttribute('data-live-clock-fallback-label') || 'Live';
+        node.textContent = getSpotlightLiveClockLabel(baseMinute, pullTs, kickoffTs, isFrozen, frozenFallbackLabel);
       });
     };
 
@@ -7523,7 +7526,8 @@
         const isMatchCompleted = isCompletedMatch(effectiveMatch);
         const isFrozenClock = isHalftime || isMatchCompleted;
         const baseMinute = resolveOfficialClockMinute(effectiveMatch, detail, { preferFrozenMinute: isFrozenClock });
-        const clockLabel = getSpotlightLiveClockLabel(baseMinute, pullTs, kickoffTs, isFrozenClock);
+        const frozenFallbackLabel = isMatchCompleted ? 'FT' : isHalftime ? 'HT' : 'Live';
+        const clockLabel = getSpotlightLiveClockLabel(baseMinute, pullTs, kickoffTs, isFrozenClock, frozenFallbackLabel);
         const clockHeading = isMatchCompleted ? 'Official clock (FT)' : isHalftime ? 'Official clock (HT)' : 'Official clock';
         const freezeAttr = isFrozenClock ? '1' : '0';
 
@@ -7537,7 +7541,7 @@
         const primaryEvents = allEvents.filter((e) => e.type !== 'sub');
         const subEvents     = allEvents.filter((e) => e.type === 'sub');
 
-        const clockHtml = `<div class="live-spotlight-clock-row"><span class="live-spotlight-clock-label">${escapeHtml(clockHeading)}</span><span class="live-spotlight-clock" data-live-clock-base-minute="${escapeHtml(baseMinute)}" data-live-clock-pull-ts="${escapeHtml(pullTs)}" data-live-clock-kickoff-ts="${escapeHtml(kickoffTs)}" data-live-clock-freeze="${escapeHtml(freezeAttr)}">${escapeHtml(clockLabel)}</span></div>`;
+        const clockHtml = `<div class="live-spotlight-clock-row"><span class="live-spotlight-clock-label">${escapeHtml(clockHeading)}</span><span class="live-spotlight-clock" data-live-clock-base-minute="${Number.isFinite(baseMinute) ? escapeHtml(baseMinute) : ''}" data-live-clock-pull-ts="${escapeHtml(pullTs)}" data-live-clock-kickoff-ts="${escapeHtml(kickoffTs)}" data-live-clock-freeze="${escapeHtml(freezeAttr)}" data-live-clock-fallback-label="${escapeHtml(frozenFallbackLabel)}">${escapeHtml(clockLabel)}</span></div>`;
 
         if (!detail && matchId) {
           fetchLiveDetailByMatchId(matchId).then(() => {
