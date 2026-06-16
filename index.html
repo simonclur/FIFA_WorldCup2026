@@ -722,15 +722,19 @@
     }
 
     .live-player-live-chip.card {
-      border-color: rgba(158, 108, 0, 0.34);
-      background: rgba(196, 139, 11, 0.18);
+      border: none;
+      background: transparent;
       color: #6c4a00;
+      padding: 0;
+      border-radius: 0;
     }
 
     .live-player-live-chip.red {
-      border-color: rgba(155, 38, 38, 0.42);
-      background: rgba(179, 43, 43, 0.16);
+      border: none;
+      background: transparent;
       color: #812020;
+      padding: 0;
+      border-radius: 0;
     }
 
     .live-player-live-chip .chip-icon {
@@ -2306,7 +2310,7 @@
 
     .top-scorers-row {
       display: grid;
-      grid-template-columns: 8mm minmax(34mm, 52mm) minmax(0, 1fr);
+      grid-template-columns: 8mm minmax(0, 52mm) minmax(0, 1fr);
       gap: 0.25mm 0.3mm;
       align-items: center;
       padding: 0.45mm 0 0.55mm;
@@ -2354,21 +2358,22 @@
       color: var(--accent);
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+      min-width: 5.5mm;
     }
 
     .top-scorers-scoreline {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
-      justify-content: flex-start;
       gap: 0.3mm;
       min-width: 0;
       width: 100%;
     }
 
     .top-scorers-bar-track {
-      flex: 1 1 0;
-      min-width: 48mm;
-      max-width: 84mm;
+      width: 100%;
+      min-width: 0;
+      max-width: none;
       height: 2mm;
       border-radius: 999px;
       overflow: hidden;
@@ -2658,7 +2663,7 @@
       border: 1px solid var(--line);
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.9);
-      min-height: 320px;
+      min-height: clamp(360px, 52vw, 620px);
       padding: 1mm;
       overflow: hidden;
     }
@@ -3885,7 +3890,7 @@
 
     @media (min-width: 900px) and (max-width: 1199px) {
       .special-interest-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
         align-items: start;
       }
     }
@@ -3914,7 +3919,7 @@
       }
 
       .special-interest-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
         align-items: start;
       }
 
@@ -8917,7 +8922,11 @@
         return;
       }
 
-      const width = Math.max(640, Math.floor(chartNode.clientWidth || 0));
+      const width = Math.max(680, Math.floor(chartNode.clientWidth || 0));
+      const sankeyScale = Math.min(1.65, Math.max(1, width / 900));
+      const labelFontSize = Math.max(10.5, Math.min(15.8, width * 0.0152));
+      const baseLinkStroke = Math.max(3.4, Math.min(6.2, width * 0.0056));
+      const activeLinkStroke = Math.max(6.2, Math.min(10.5, width * 0.0092));
       const years = [...worldCupChampionByYear].sort((left, right) => left.year - right.year);
       const championCounts = years.reduce((acc, entry) => {
         acc.set(entry.champion, (acc.get(entry.champion) || 0) + 1);
@@ -8928,18 +8937,23 @@
         .map(([name, wins]) => ({ name, wins }));
       const champions = championEntries.map((entry) => entry.name);
 
-      const rowHeight = 12;
-      const margin = { top: 12, right: 78, bottom: 12, left: 152 };
-      const nodeWidth = 12;
-      const linkBand = 4;
-      const championGap = 4;
-      const championNodePadding = 1;
+      const rowHeight = Math.round(12 * sankeyScale);
+      const margin = {
+        top: Math.round(12 * sankeyScale),
+        right: Math.round(78 * sankeyScale),
+        bottom: Math.round(14 * sankeyScale),
+        left: Math.round(152 * sankeyScale),
+      };
+      const nodeWidth = Math.round(12 * sankeyScale);
+      const linkBand = Math.round(4 * sankeyScale);
+      const championGap = Math.round(4 * sankeyScale);
+      const championNodePadding = Math.max(1, Math.round(1 * sankeyScale));
       const leftHeight = championEntries.reduce((total, entry, index) => {
         const nodeHeight = (entry.wins * linkBand) + (championNodePadding * 2);
         return total + nodeHeight + (index === championEntries.length - 1 ? 0 : championGap);
       }, 0);
       const rightHeight = years.length * rowHeight;
-      const minChampionLaneHeight = championEntries.length * 24;
+      const minChampionLaneHeight = championEntries.length * Math.round(24 * sankeyScale);
       const contentHeight = Math.max(leftHeight, rightHeight, minChampionLaneHeight);
       const height = margin.top + contentHeight + margin.bottom;
       const championLayout = new Map();
@@ -8979,7 +8993,7 @@
           : margin.top;
         const y2 = yearY.get(String(entry.year)) || y1;
         const color = colorByChampion.get(entry.champion) || '#0d6b72';
-        return `<path class="winners-sankey-link" data-year="${escapeHtml(entry.year)}" data-champion="${escapeHtml(entry.champion)}" d="M ${leftX + nodeWidth} ${y1} C ${curveX1} ${y1}, ${curveX2} ${y2}, ${rightX} ${y2}" stroke="${escapeHtml(color)}" />`;
+        return `<path class="winners-sankey-link" data-year="${escapeHtml(entry.year)}" data-champion="${escapeHtml(entry.champion)}" d="M ${leftX + nodeWidth} ${y1} C ${curveX1} ${y1}, ${curveX2} ${y2}, ${rightX} ${y2}" stroke="${escapeHtml(color)}" style="stroke-width:${baseLinkStroke.toFixed(2)}" />`;
       }).join('');
 
       const leftNodesSvg = championEntries.map((entry) => {
@@ -8992,7 +9006,7 @@
         return `
           <g class="winners-sankey-champion" data-champion="${escapeHtml(name)}">
             <rect class="winners-sankey-node" x="${leftX}" y="${y}" width="${nodeWidth}" height="${nodeHeight}" fill="${escapeHtml(fill)}" />
-            <text class="winners-sankey-label" x="${leftX - 6}" y="${y + (nodeHeight / 2)}" text-anchor="end">${escapeHtml(name)} (${escapeHtml(wins)})</text>
+            <text class="winners-sankey-label" x="${leftX - Math.max(6, Math.round(8 * sankeyScale))}" y="${y + (nodeHeight / 2)}" text-anchor="end" style="font-size:${labelFontSize.toFixed(2)}px">${escapeHtml(name)} (${escapeHtml(wins)})</text>
           </g>
         `;
       }).join('');
@@ -9003,7 +9017,7 @@
         return `
           <g class="winners-sankey-year" data-year="${escapeHtml(entry.year)}">
             <rect class="winners-sankey-node" x="${rightX}" y="${y}" width="${nodeWidth}" height="${rowHeight - 2}" fill="${escapeHtml(fill)}" />
-            <text class="winners-sankey-label" x="${rightX + nodeWidth + 6}" y="${y + ((rowHeight - 2) / 2)}" text-anchor="start">${escapeHtml(entry.year)}</text>
+            <text class="winners-sankey-label" x="${rightX + nodeWidth + Math.max(6, Math.round(8 * sankeyScale))}" y="${y + ((rowHeight - 2) / 2)}" text-anchor="start" style="font-size:${labelFontSize.toFixed(2)}px">${escapeHtml(entry.year)}</text>
           </g>
         `;
       }).join('');
@@ -9044,7 +9058,7 @@
           link.classList.remove('is-active');
           link.classList.remove('is-dim');
           link.style.strokeOpacity = '0.84';
-          link.style.strokeWidth = '3.4';
+          link.style.strokeWidth = `${baseLinkStroke.toFixed(2)}`;
         });
         yearNodes.forEach((node) => applyNodeState(node, 'normal'));
         championNodes.forEach((node) => applyNodeState(node, 'normal'));
@@ -9074,7 +9088,7 @@
           link.classList.toggle('is-active', isActive);
           link.classList.toggle('is-dim', !isActive);
           link.style.strokeOpacity = isActive ? '1' : '0.1';
-          link.style.strokeWidth = isActive ? '6.2' : '3.4';
+          link.style.strokeWidth = isActive ? `${activeLinkStroke.toFixed(2)}` : `${baseLinkStroke.toFixed(2)}`;
         });
 
         yearNodes.forEach((node) => {

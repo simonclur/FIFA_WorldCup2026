@@ -175,8 +175,11 @@ The Live Match Centre now displays enriched player data:
 - Substitution chips now also include the substitution minute for each direction (for example, ↑ 61' and ↓ 78') when FIFA provides it in live detail events.
 - When both on/off markers are present for a player, a centered dot separator is shown (↑ 61' • ↓ 78') for clearer readability.
 - Yellow/red card glyphs inside squad-row live chips were reduced slightly to improve legibility and table density.
+- Yellow/red card markers in squad rows are now shown without padded pill containers (icon/count only) to reduce horizontal space.
 - When viewing a completed replay in Live Match Centre while another match is actively live, a `Switch to Live Game` badge appears and returns the panel to the active live match in one click.
 - During active Group Stage matches, a `Live Group Table Snapshot` card is injected above the `Live Match Spotlight`, showing only the two currently playing teams' standings rows for that live group game. The snapshot is removed automatically once no Group Stage match is actively live.
+- The World Cup Top Scorers card now uses a shrink-safe scoreline layout so goals totals stay inside the card bounds on narrow/mobile widths.
+- Special Interest cards now render as a single full-width stacked column across breakpoints (instead of side-by-side), and the World Cup winners Sankey expands with container width while scaling label text and link thickness for improved readability.
 
 ## Special Interest: Squad Sunburst Pipeline
 
