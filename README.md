@@ -52,7 +52,9 @@ Core pages and modules include:
 - Live spotlight matches are removed from the day-grouped fixture cards while they are in-play; non-live fixtures remain in the regular grouped layout.
 - Spotlight uses explicit high-contrast text/surface tokens and includes dark-mode overrides via `prefers-color-scheme: dark` so enlarged live cards remain readable.
 - Each spotlight card includes a horizontal match-events ticker (latest events first) using the live-detail feed; if detailed events are unavailable it shows an "awaiting feed" placeholder.
+- Once live detail is loaded, spotlight cards distinguish a genuinely empty event sheet (`No goals, cards, or substitutions yet.`) from a still-pending detail fetch.
 - Spotlight match cards now fetch and cache their own live-detail payloads on demand, so the ticker can populate even when the focused live match is different from the spotlighted fixture.
+- Concurrent live-detail requests are now coalesced so spotlight match events render as soon as the shared FIFA detail fetch resolves, without waiting for a manual page refresh.
 - Spotlight cards also include a running official clock badge sourced from FIFA `MatchTime`; between data pulls it advances locally with a seconds counter from the last pull timestamp, with kickoff-elapsed fallback if `MatchTime` is unavailable.
 - In spotlight cards, the live sync/next sync badge cluster is right-justified within the match details row for faster scan.
 - During half-time (`MatchStatus` 4), spotlight status shows `HT` and the official clock is frozen at time played (rather than continuing to increment).

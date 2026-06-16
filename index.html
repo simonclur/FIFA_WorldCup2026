@@ -4262,7 +4262,7 @@
       liveDetail: null,
       liveDetailUpdatedAt: null,
       liveDetailByMatchId: new Map(),
-      pendingLiveDetailFetches: new Set(),
+      pendingLiveDetailFetches: new Map(),
       liveTimer: null,
       scoreByMatchId: new Map(),
       hasPrimedScores: false,
@@ -7553,7 +7553,10 @@
         }
 
         if (!allEvents.length) {
-          return `<div class="live-spotlight-ticker">${clockHtml}<div class="live-spotlight-ticker-label">Match events</div><div class="live-spotlight-ticker-empty">Awaiting detailed live events feed.</div></div>`;
+          const emptyMessage = detail
+            ? 'No goals, cards, or substitutions yet.'
+            : 'Awaiting detailed live events feed.';
+          return `<div class="live-spotlight-ticker">${clockHtml}<div class="live-spotlight-ticker-label">Match events</div><div class="live-spotlight-ticker-empty">${emptyMessage}</div></div>`;
         }
 
         const renderEventChip = (event) => {
@@ -9139,15 +9142,20 @@
         return cached;
       }
 
-      if (!(state.pendingLiveDetailFetches instanceof Set)) {
-        state.pendingLiveDetailFetches = new Set();
+      if (!(state.pendingLiveDetailFetches instanceof Map)) {
+        state.pendingLiveDetailFetches = new Map();
       }
 
       if (state.pendingLiveDetailFetches.has(id)) {
-        return null;
+        const pendingDetail = await state.pendingLiveDetailFetches.get(id);
+        if (promoteToCurrent && pendingDetail) {
+          state.liveDetail = pendingDetail;
+          state.liveDetailUpdatedAt = new Date();
+        }
+        return pendingDetail;
       }
 
-      state.pendingLiveDetailFetches.add(id);
+      const pendingRequest = (async () => {
       try {
         // Try loading from local cache first (match-details/{id}.json)
         let detail = null;
@@ -9167,6 +9175,12 @@
       } catch {
         storeLiveDetail(id, null, { promoteToCurrent: false });
         return null;
+      }
+      })();
+
+      state.pendingLiveDetailFetches.set(id, pendingRequest);
+      try {
+        return await pendingRequest;
       } finally {
         state.pendingLiveDetailFetches.delete(id);
       }
