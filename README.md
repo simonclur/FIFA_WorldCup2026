@@ -64,6 +64,7 @@ Core pages and modules include:
 - Live spotlight cards use a single-column layout where team names and score occupy the full width (row 1), with time/date and badges displayed below (row 2), preventing team names from being obscured by adjacent badges.
 - Team names and live match scores now use responsive sizing that scales appropriately based on container width, preventing text overflow and clipping on narrow viewports.
 - Team-name spans in the live spotlight scoreboard now shrink and wrap within the score row, preventing long country names from spilling outside the featured card on narrow screens.
+- Team names in the live spotlight scoreboard now use symmetric centered alignment so both home and away labels are visually center-justified around the score.
 - Live spotlight typography, flag size, and score spacing now scale fluidly across iPhone portrait, iPhone landscape, and desktop widths, and the Guardian Golden Boot embed is constrained so Special Interest content no longer causes horizontal page overflow on phones.
 - A dedicated tablet band now restores denser two-column match layouts and sidebar behavior for iPad-class widths, while a wide-desktop band expands the page canvas and promotes more three-column/dual-card layouts on larger monitors.
 - Live spotlight official-clock parsing now accepts only plausible football clock formats and rejects malformed `MatchTime` values, preventing absurd multi-hundred-minute clock labels from rendering.
@@ -72,8 +73,10 @@ Core pages and modules include:
 - Live spotlight cards now include the TV-style SBS icon as a direct link to the SBS On Demand homepage for live matches (users navigate from there); for replays it links to the specific match page.
 - Live spotlight cards now include a browser-aware Listen Live action for talkSPORT that prefers the HLS stream and falls back to MP3 when HLS playback is unavailable.
 - Live Match Centre substitution events now show explicit directional markers: green up-arrow for players coming on and red down-arrow for players coming off.
+- Live Match Centre scoreboard team names are now larger and center-justified for both home and away teams.
 - A `demoMatchId` in the URL now acts as a replay fallback only when no live fixture is active; an explicitly user-selected completed match still overrides the live default in the Live Match Centre.
 - Live Match Centre estimated time-left now prefers FIFA official `MatchTime`; when unavailable it falls back to a 45m + 15m + 45m baseline plus two mandatory 3-minute hydration breaks (stoppage time excluded).
+- Match Centre placement is now state-aware: while a live match is active, the Live Match Centre section is inserted inside Group Stage directly under the Live Match Spotlight card; when no live fixture is active, it moves to directly below Completed Matches as `Match Centre`.
 - Completed Matches now appears directly after Group Stage and uses an accordion control so the archive can be expanded or collapsed on demand.
 - The Completed Matches accordion control now uses higher-contrast button styling and a double-chevron icon to clearly signal expand/collapse affordance.
 - Completed match cards now include a small TV-style replay icon that opens the SBS On Demand match page for quick replay access in a new tab.

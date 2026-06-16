@@ -513,15 +513,24 @@
     .live-team {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 1.2mm;
       min-width: 0;
-      font-size: 9pt;
+      font-size: clamp(11pt, 0.5vw + 0.75rem, 13.5pt);
       font-weight: 800;
+      text-align: center;
+    }
+
+    .live-team span {
+      font-size: 1.05em;
+      font-weight: 900;
+      line-height: 1.08;
+      text-align: center;
     }
 
     .live-team.right {
-      justify-content: flex-end;
-      text-align: right;
+      justify-content: center;
+      text-align: center;
     }
 
     .live-score {
@@ -1135,8 +1144,11 @@
       font-weight: 900;
       text-wrap: balance;
       line-height: 1.08;
+      text-align: center;
+      display: block;
       min-width: 0;
-      flex: 1 1 0;
+      flex: 0 1 auto;
+      max-width: 40%;
       overflow-wrap: anywhere;
     }
 
@@ -1147,8 +1159,10 @@
 
     .group-live-spotlight-list .match.live-spotlight-match .teams {
       gap: clamp(1.2mm, 0.45vw, 2.4mm);
+      justify-content: center;
       grid-column: 1;
       grid-row: 1;
+      width: 100%;
       min-width: 0;
     }
 
@@ -8145,6 +8159,7 @@
       const nonLiveMatches = matches.filter((match) => !isActivelyPlayedMatch(match));
 
       renderWinnerOddsPanel();
+      updateLiveMatchCentrePresentation();
       renderGroupStageLiveSpotlight(liveMatches);
       renderDateGroupedCards('groups-grid', nonLiveMatches, 'Group stage', {
         emptyMessage: liveMatches.length
@@ -8178,6 +8193,48 @@
       }
 
       return false;
+    };
+
+    const updateLiveMatchCentrePresentation = () => {
+      const spreadNode = document.querySelector('.spread');
+      const groupStagePageNode = document.querySelector('[data-page="group-stage"]');
+      const completedPageNode = document.querySelector('[data-page="completed-matches"]');
+      const liveMatchPageNode = document.querySelector('[data-page="live-match"]');
+      const groupStageAccordionNode = document.getElementById('group-stage-accordion-content');
+      const groupLiveSpotlightNode = document.getElementById('group-live-spotlight');
+      if (!spreadNode || !groupStagePageNode || !completedPageNode || !liveMatchPageNode) {
+        return;
+      }
+
+      const liveMatchTitleNode = liveMatchPageNode.querySelector('.page-title');
+      const livePageChipValueNode = liveMatchPageNode.querySelector('.chip-cluster .chip:first-child');
+      const hasActiveLiveMatch = (state.matches || []).some(isActivelyPlayedMatch);
+
+      if (hasActiveLiveMatch) {
+        if (groupLiveSpotlightNode) {
+          groupLiveSpotlightNode.insertAdjacentElement('afterend', liveMatchPageNode);
+        } else if (groupStageAccordionNode) {
+          groupStageAccordionNode.prepend(liveMatchPageNode);
+        } else {
+          groupStagePageNode.insertAdjacentElement('afterend', liveMatchPageNode);
+        }
+        liveMatchPageNode.setAttribute('data-sticky-name', 'Live Match Centre');
+        if (liveMatchTitleNode) {
+          liveMatchTitleNode.textContent = 'Live Match Centre';
+        }
+        if (livePageChipValueNode) {
+          livePageChipValueNode.innerHTML = '<strong>Page</strong> Live match';
+        }
+      } else {
+        completedPageNode.insertAdjacentElement('afterend', liveMatchPageNode);
+        liveMatchPageNode.setAttribute('data-sticky-name', 'Match Centre');
+        if (liveMatchTitleNode) {
+          liveMatchTitleNode.textContent = 'Match Centre';
+        }
+        if (livePageChipValueNode) {
+          livePageChipValueNode.innerHTML = '<strong>Page</strong> Match centre';
+        }
+      }
     };
 
     const updateStickyPageMarker = () => {
