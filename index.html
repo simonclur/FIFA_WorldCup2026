@@ -221,6 +221,26 @@
       font-weight: 800;
     }
 
+    .chip.live-switch-chip {
+      appearance: none;
+      border-color: rgba(16, 115, 71, 0.38);
+      background: rgba(16, 115, 71, 0.12);
+      color: #0f5f3c;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.16s ease, border-color 0.16s ease;
+    }
+
+    .chip.live-switch-chip:hover {
+      background: rgba(16, 115, 71, 0.18);
+      border-color: rgba(16, 115, 71, 0.56);
+    }
+
+    .chip.live-switch-chip:focus-visible {
+      outline: 2px solid rgba(16, 115, 71, 0.45);
+      outline-offset: 1px;
+    }
+
     .section-head {
       display: flex;
       justify-content: space-between;
@@ -662,7 +682,7 @@
       width: 2.5%;
     }
 
-    .live-player-name {
+    .live-player-row td.live-player-name {
       font-weight: 500;
       text-align: left;
       width: 20%;
@@ -713,10 +733,47 @@
       color: #812020;
     }
 
+    .live-player-live-chip .chip-icon {
+      line-height: 1;
+      font-size: 1em;
+    }
+
+    .live-player-live-chip.card .chip-icon,
+    .live-player-live-chip.red .chip-icon {
+      font-size: 0.82em;
+    }
+
     .live-player-live-chip.sub {
       border-color: rgba(20, 32, 51, 0.26);
       background: rgba(20, 32, 51, 0.1);
       color: var(--muted);
+    }
+
+    .live-player-live-chip.sub .sub-on,
+    .live-player-live-chip.sub .sub-off {
+      font-weight: 900;
+      font-size: 5.8pt;
+      line-height: 1;
+    }
+
+    .live-player-live-chip.sub .sub-on {
+      color: #0f7a4a;
+    }
+
+    .live-player-live-chip.sub .sub-off {
+      color: #a52828;
+    }
+
+    .live-player-live-chip.sub .sub-minute {
+      font-weight: 700;
+      color: var(--muted);
+      margin-left: 0.12mm;
+    }
+
+    .live-player-live-chip.sub .sub-sep {
+      color: var(--muted);
+      font-weight: 700;
+      margin: 0 0.18mm;
     }
 
     .live-player-pos {
@@ -6828,7 +6885,15 @@
         }
 
         if (!stats.has(id)) {
-          stats.set(id, { goals: 0, yellow: 0, red: 0, subOn: false, subOff: false });
+          stats.set(id, {
+            goals: 0,
+            yellow: 0,
+            red: 0,
+            subOn: false,
+            subOff: false,
+            subOnMinute: null,
+            subOffMinute: null,
+          });
         }
 
         return stats.get(id);
@@ -6862,30 +6927,66 @@
         const onEntry = ensure(sub?.IdPlayerOn);
         if (onEntry) {
           onEntry.subOn = true;
+          if (onEntry.subOnMinute === null || onEntry.subOnMinute === undefined) {
+            onEntry.subOnMinute = sub?.Minute ?? null;
+          }
         }
 
         const offEntry = ensure(sub?.IdPlayerOff);
         if (offEntry) {
           offEntry.subOff = true;
+          if (offEntry.subOffMinute === null || offEntry.subOffMinute === undefined) {
+            offEntry.subOffMinute = sub?.Minute ?? null;
+          }
         }
       }
 
       return stats;
     };
 
-    const renderLivePlayerList = (team, teamName = '') => {
+    const formatSubMinuteForChip = (minute) => {
+      const raw = String(minute || '').trim();
+      if (!raw || raw === '-') {
+        return '';
+      }
+
+      if (/[A-Za-z]/.test(raw) || raw.endsWith("'")) {
+        return raw;
+      }
+
+      return `${raw}'`;
+    };
+
+    const renderLivePlayerList = (team, teamName = '', { applyLiveDeltas = false } = {}) => {
       const players = Array.isArray(team?.Players) ? [...team.Players] : [];
       if (!players.length) {
         return '<div class="empty">Player list unavailable from the current live feed.</div>';
       }
 
+      const hasLineupCoordinates = players.some((player) => (
+        player?.LineupX !== null
+        && player?.LineupX !== undefined
+        && player?.LineupY !== null
+        && player?.LineupY !== undefined
+      ));
+
       const teamCode = findTeamCodeFromSquadData(teamName);
       const liveEventStatsByPlayerId = buildLivePlayerEventStatsMap(team);
-      const enrichedPlayers = players.map((player) => {
+      const enrichedPlayers = players.map((player, lineupIndex) => {
         const squadData = teamCode ? enrichPlayerFromSquadData(player, teamCode) : null;
         const shirt = Number(player.ShirtNumber);
         const playerId = String(player.IdPlayer || '').trim();
         const liveEventStats = playerId ? (liveEventStatsByPlayerId.get(playerId) || null) : null;
+        const lineupX = Number(player.LineupX);
+        const lineupY = Number(player.LineupY);
+        const hasLineupPoint = (
+          player?.LineupX !== null
+          && player?.LineupX !== undefined
+          && player?.LineupY !== null
+          && player?.LineupY !== undefined
+          && Number.isFinite(lineupX)
+          && Number.isFinite(lineupY)
+        );
         return {
           livePlayer: player,
           squadData,
@@ -6894,11 +6995,24 @@
           liveEventStats,
           position: Number(player.Position || 99),
           captain: Boolean(player.Captain),
+          isStarter: Number(player.Status) === 1,
+          lineupIndex,
+          hasLineupPoint,
+          lineupX,
+          lineupY,
         };
       });
 
       enrichedPlayers.sort((a, b) => {
-        if (a.tournamentGoals !== b.tournamentGoals) return b.tournamentGoals - a.tournamentGoals;
+        if (a.isStarter !== b.isStarter) return a.isStarter ? -1 : 1;
+
+        if (hasLineupCoordinates && a.hasLineupPoint && b.hasLineupPoint) {
+          if (a.lineupY !== b.lineupY) return a.lineupY - b.lineupY;
+          if (a.lineupX !== b.lineupX) return a.lineupX - b.lineupX;
+        }
+
+        // Preserve FIFA-provided lineup sequence as the primary fallback.
+        if (a.lineupIndex !== b.lineupIndex) return a.lineupIndex - b.lineupIndex;
         if (a.position !== b.position) return a.position - b.position;
         return a.shirt - b.shirt;
       });
@@ -6920,39 +7034,55 @@
         const tournamentYellow = p.squadData?.tournamentStats?.yellowCards || 0;
         const tournamentRed = p.squadData?.tournamentStats?.redCards || 0;
 
-        // Data attributes for sorting
-        const dataShirt = p.shirt;
-        const dataCaps = intlCaps === '-' ? -1 : intlCaps;
-        const dataGoals = careerGoals === '-' ? -1 : careerGoals;
-        const dataTournamentGoals = tournamentGoals;
-        const dataTournamentYellow = tournamentYellow;
-        const dataTournamentRed = tournamentRed;
-        const dataPos = p.position;
-        const dataName = name.toLowerCase();
-
-        const tournamentGoalsDisplay = tournamentGoals > 0 ? String(tournamentGoals) : '';
-        const tournamentYellowDisplay = tournamentYellow > 0 ? String(tournamentYellow) : '';
-        const tournamentRedDisplay = tournamentRed > 0 ? String(tournamentRed) : '';
-
         const liveGoals = Number(p.liveEventStats?.goals || 0);
         const liveYellow = Number(p.liveEventStats?.yellow || 0);
         const liveRed = Number(p.liveEventStats?.red || 0);
         const liveSubOn = Boolean(p.liveEventStats?.subOn);
         const liveSubOff = Boolean(p.liveEventStats?.subOff);
+        const liveSubOnMinute = p.liveEventStats?.subOnMinute ?? null;
+        const liveSubOffMinute = p.liveEventStats?.subOffMinute ?? null;
+        const effectiveTournamentGoals = applyLiveDeltas ? (tournamentGoals + liveGoals) : tournamentGoals;
+        const effectiveTournamentYellow = applyLiveDeltas ? (tournamentYellow + liveYellow) : tournamentYellow;
+        const effectiveTournamentRed = applyLiveDeltas ? (tournamentRed + liveRed) : tournamentRed;
+
+        // Data attributes for sorting
+        const dataShirt = p.shirt;
+        const dataCaps = intlCaps === '-' ? -1 : intlCaps;
+        const dataGoals = careerGoals === '-' ? -1 : careerGoals;
+        const dataTournamentGoals = effectiveTournamentGoals;
+        const dataTournamentYellow = effectiveTournamentYellow;
+        const dataTournamentRed = effectiveTournamentRed;
+        const dataPos = p.position;
+        const dataName = name.toLowerCase();
+
+        const tournamentGoalsDisplay = effectiveTournamentGoals > 0 ? String(effectiveTournamentGoals) : '';
+        const tournamentYellowDisplay = effectiveTournamentYellow > 0 ? String(effectiveTournamentYellow) : '';
+        const tournamentRedDisplay = effectiveTournamentRed > 0 ? String(effectiveTournamentRed) : '';
         const liveEventChips = [];
 
         if (liveGoals > 0) {
           liveEventChips.push(`<span class="live-player-live-chip goal" title="Live goals">⚽ +${escapeHtml(String(liveGoals))}</span>`);
         }
         if (liveYellow > 0) {
-          liveEventChips.push(`<span class="live-player-live-chip card" title="Live yellow cards">🟨 +${escapeHtml(String(liveYellow))}</span>`);
+          liveEventChips.push(`<span class="live-player-live-chip card" title="Live yellow cards"><span class="chip-icon" aria-hidden="true">🟨</span> +${escapeHtml(String(liveYellow))}</span>`);
         }
         if (liveRed > 0) {
-          liveEventChips.push(`<span class="live-player-live-chip red" title="Live red cards">🟥 +${escapeHtml(String(liveRed))}</span>`);
+          liveEventChips.push(`<span class="live-player-live-chip red" title="Live red cards"><span class="chip-icon" aria-hidden="true">🟥</span> +${escapeHtml(String(liveRed))}</span>`);
         }
         if (liveSubOn || liveSubOff) {
-          const subLabel = `${liveSubOn ? '↑' : ''}${liveSubOn && liveSubOff ? ' ' : ''}${liveSubOff ? '↓' : ''}`;
-          liveEventChips.push(`<span class="live-player-live-chip sub" title="Live substitutions">${escapeHtml(subLabel)}</span>`);
+          const subParts = [];
+          if (liveSubOn) {
+            const onMinute = formatSubMinuteForChip(liveSubOnMinute);
+            subParts.push(`<span class="sub-on" aria-hidden="true">↑</span>${onMinute ? `<span class="sub-minute">${escapeHtml(onMinute)}</span>` : ''}`);
+          }
+          if (liveSubOn && liveSubOff) {
+            subParts.push('<span class="sub-sep" aria-hidden="true">•</span>');
+          }
+          if (liveSubOff) {
+            const offMinute = formatSubMinuteForChip(liveSubOffMinute);
+            subParts.push(`<span class="sub-off" aria-hidden="true">↓</span>${offMinute ? `<span class="sub-minute">${escapeHtml(offMinute)}</span>` : ''}`);
+          }
+          liveEventChips.push(`<span class="live-player-live-chip sub" title="Live substitutions">${subParts.join('')}</span>`);
         }
 
         const liveEventsMarkup = liveEventChips.length
@@ -7482,13 +7612,18 @@
       return sbsMatchCentreBaseUrl;
     };
 
+    const getCurrentActiveLiveMatch = (matches = state.matches) => {
+      const list = Array.isArray(matches) ? matches : [];
+      return [...list].filter(isActivelyPlayedMatch).sort(sortByDate)[0] || null;
+    };
+
     const resolveLiveFocusMatch = (matches) => {
       const list = Array.isArray(matches) ? matches : [];
       if (isReplayModeActive(list)) {
         return list.find((match) => String(match?.IdMatch || '').trim() === String(state.replayMatchId)) || null;
       }
 
-      return [...list].filter(isActivelyPlayedMatch).sort(sortByDate)[0] || null;
+      return getCurrentActiveLiveMatch(list);
     };
 
     const renderLiveMatchPage = () => {
@@ -7554,6 +7689,16 @@
 
       const replayModeActive = isReplayModeActive(state.matches);
       const isLiveActiveMatch = isActivelyPlayedMatch(effectiveActive) && !replayModeActive;
+      const activeLiveMatch = getCurrentActiveLiveMatch(state.matches);
+      const showSwitchToLiveBadge = Boolean(
+        replayModeActive
+        && activeLiveMatch
+        && String(activeLiveMatch?.IdMatch || '').trim() !== String(active?.IdMatch || '').trim()
+      );
+      const switchToLiveBadge = showSwitchToLiveBadge
+        ? '<button type="button" id="live-centre-switch-to-live" class="chip live-switch-chip">Switch to Live Game</button>'
+        : '';
+      const shouldApplyLiveDeltas = Boolean(detail && (isLiveActiveMatch || replayModeActive));
       const sbsOnDemandLiveStreamUrl = isLiveActiveMatch ? 'https://www.sbs.com.au/ondemand' : buildSbsOnDemandLiveStreamUrl(homeName, awayName, group, stage);
       const sbsOnDemandMatchUrl = getSbsOnDemandMatchPageUrlForMatch(active);
       const sbsPrimaryUrl = isLiveActiveMatch ? sbsOnDemandLiveStreamUrl : sbsOnDemandMatchUrl;
@@ -7569,6 +7714,7 @@
 
           <div class="live-meta">
             ${replayModeActive ? '<span class="chip"><strong>Mode</strong> Demo replay</span>' : ''}
+            ${switchToLiveBadge}
             <span class="chip"><strong>Official clock</strong> ${escapeHtml(matchClock)}</span>
             <span class="chip"><strong>Est. time left*</strong> <span id="live-match-time-remaining">${escapeHtml(getEstimatedGameTimeRemainingLabel(active, detail))}</span></span>
             <span class="chip"><strong>Status</strong> ${escapeHtml(formatStatus(effectiveActive))}</span>
@@ -7582,11 +7728,11 @@
           <div class="live-columns">
             <section class="live-column">
               <h4>${escapeHtml(homeName)} Squad</h4>
-              <div class="live-list">${renderLivePlayerList(detail?.HomeTeam, homeName)}</div>
+              <div class="live-list">${renderLivePlayerList(detail?.HomeTeam, homeName, { applyLiveDeltas: shouldApplyLiveDeltas })}</div>
             </section>
             <section class="live-column">
               <h4>${escapeHtml(awayName)} Squad</h4>
-              <div class="live-list">${renderLivePlayerList(detail?.AwayTeam, awayName)}</div>
+              <div class="live-list">${renderLivePlayerList(detail?.AwayTeam, awayName, { applyLiveDeltas: shouldApplyLiveDeltas })}</div>
             </section>
           </div>
 
@@ -7967,6 +8113,25 @@
       });
 
       document.addEventListener('click', async (event) => {
+        if (event.target?.closest?.('#live-centre-switch-to-live')) {
+          event.stopPropagation();
+          const activeLiveMatch = getCurrentActiveLiveMatch(state.matches);
+          if (!activeLiveMatch) {
+            return;
+          }
+
+          state.replayMatchId = null;
+          state.replaySelectionSource = null;
+          syncReplayMatchInUrl(null);
+          syncRefreshSchedule();
+          updateRefreshCountdownViews();
+
+          await loadLiveMatchDetails(activeLiveMatch, { refresh: true });
+          renderLiveMatchPage();
+          renderGroupStage();
+          return;
+        }
+
         const matchNode = event.target?.closest?.('.match');
         if (!matchNode) {
           return;
@@ -9415,19 +9580,21 @@
       }
     };
 
-    const fetchLiveDetailByMatchId = async (matchId, { promoteToCurrent = false } = {}) => {
+    const fetchLiveDetailByMatchId = async (matchId, { promoteToCurrent = false, refresh = false } = {}) => {
       const id = String(matchId || '').trim();
       if (!id) {
         return null;
       }
 
-      const cached = getCachedLiveDetail(id);
-      if (cached) {
-        if (promoteToCurrent) {
-          state.liveDetail = cached;
-          state.liveDetailUpdatedAt = new Date();
+      if (!refresh) {
+        const cached = getCachedLiveDetail(id);
+        if (cached) {
+          if (promoteToCurrent) {
+            state.liveDetail = cached;
+            state.liveDetailUpdatedAt = new Date();
+          }
+          return cached;
         }
-        return cached;
       }
 
       if (!(state.pendingLiveDetailFetches instanceof Map)) {
@@ -9445,12 +9612,14 @@
 
       const pendingRequest = (async () => {
       try {
-        // Try loading from local cache first (match-details/{id}.json)
+        // Try loading from local cache first (match-details/{id}.json) when refresh is not forced.
         let detail = null;
-        try {
-          detail = await fetchJson(`match-details/${encodeURIComponent(id)}.json`);
-        } catch (e) {
-          // Local cache not available, fall through to FIFA API
+        if (!refresh) {
+          try {
+            detail = await fetchJson(`match-details/${encodeURIComponent(id)}.json`);
+          } catch (e) {
+            // Local cache not available, fall through to FIFA API
+          }
         }
 
         // If not in local cache, fetch from FIFA API
@@ -9474,7 +9643,7 @@
       }
     };
 
-    async function loadLiveMatchDetails(activeMatch) {
+    async function loadLiveMatchDetails(activeMatch, { refresh = false } = {}) {
       if (!activeMatch?.IdMatch) {
         state.liveDetail = null;
         state.liveDetailUpdatedAt = new Date();
@@ -9488,7 +9657,7 @@
         return;
       }
 
-      const detail = await fetchLiveDetailByMatchId(id, { promoteToCurrent: true });
+      const detail = await fetchLiveDetailByMatchId(id, { promoteToCurrent: true, refresh });
       if (!detail) {
         state.liveDetail = null;
         state.liveDetailUpdatedAt = new Date();
@@ -9519,14 +9688,15 @@
       renderPreferredTeamSelector();
 
       const focusedMatch = resolveLiveFocusMatch(matches);
-      await loadLiveMatchDetails(focusedMatch || null);
+      const focusedMatchIsLive = Boolean(focusedMatch && isActivelyPlayedMatch(focusedMatch));
+      await loadLiveMatchDetails(focusedMatch || null, { refresh: focusedMatchIsLive });
 
       const activeLiveMatchIds = [...new Set((matches || [])
         .filter(isActivelyPlayedMatch)
         .map((match) => String(match?.IdMatch || '').trim())
         .filter(Boolean))];
       if (activeLiveMatchIds.length) {
-        await Promise.all(activeLiveMatchIds.map((matchId) => fetchLiveDetailByMatchId(matchId).catch(() => null)));
+        await Promise.all(activeLiveMatchIds.map((matchId) => fetchLiveDetailByMatchId(matchId, { refresh: true }).catch(() => null)));
       }
 
       if (goalsDetected > 0) {

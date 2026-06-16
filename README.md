@@ -163,11 +163,19 @@ python3 update-player-stats.py
 The Live Match Centre now displays enriched player data:
 
 - **Squad roster** shows: shirt # | name (C) | goals scored | club | position
-- **Default sort order**: Goals scored (descending) → Position → Shirt number
+- **Default sort order**: FIFA lineup order (starters first from live detail, then bench) with lineup coordinates when provided; falls back to feed order/position/shirt for stability.
 - Loads `squad-data.json` on page load to enrich live players with tournament stats and club information
 - Players with tournament goals display goal count with ⚽ emoji
 - Club name pulled from `squad-data.json` and displayed in muted text
 - During active matches, squad rows now also show live-event chips (goals, yellow/red cards, substitutions on/off) sourced from the current FIFA live detail payload, so in-game updates appear immediately alongside cached tournament totals.
+- During active matches, live goals/cards are also merged into the squad table ⚽/🟨/🟥 columns in-place (not only shown as chips), so the visible row totals update with each live refresh.
+- In replay/demo mode (`demoMatchId`), the same live-detail merge is applied to squad table ⚽/🟨/🟥 columns so local validation shows the same event-enriched player rows without requiring an actively played match.
+- Active-match live detail polling now forces FIFA API refreshes (instead of reusing local `match-details/*.json` snapshots), ensuring in-place player event chips keep updating while the match is live.
+- Substitution chips in squad rows now use stronger directional arrows with green for player-on (↑) and red for player-off (↓) for faster in-game scanning.
+- Substitution chips now also include the substitution minute for each direction (for example, ↑ 61' and ↓ 78') when FIFA provides it in live detail events.
+- When both on/off markers are present for a player, a centered dot separator is shown (↑ 61' • ↓ 78') for clearer readability.
+- Yellow/red card glyphs inside squad-row live chips were reduced slightly to improve legibility and table density.
+- When viewing a completed replay in Live Match Centre while another match is actively live, a `Switch to Live Game` badge appears and returns the panel to the active live match in one click.
 
 ## Special Interest: Squad Sunburst Pipeline
 
