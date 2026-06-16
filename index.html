@@ -1176,6 +1176,52 @@
       margin-bottom: 3mm;
     }
 
+    .group-live-table-spotlight {
+      margin-bottom: 3mm;
+    }
+
+    .group-live-table-spotlight[hidden] {
+      display: none !important;
+    }
+
+    .group-live-table-spotlight-card {
+      padding: 2.6mm 3mm;
+      border: 1px solid rgba(20, 32, 51, 0.18);
+      background: linear-gradient(135deg, rgba(245, 250, 247, 0.98), rgba(238, 245, 252, 0.96));
+    }
+
+    .group-live-table-spotlight-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2mm;
+      margin-bottom: 2mm;
+    }
+
+    .group-live-table-spotlight-title {
+      margin: 0;
+      font-size: 8.2pt;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .group-live-table-spotlight-sub {
+      margin: 0;
+      font-size: 6.4pt;
+      color: var(--muted);
+    }
+
+    .group-live-table-spotlight .table-wrap {
+      margin-top: 0;
+    }
+
+    .group-live-team-row td {
+      background: rgba(16, 115, 71, 0.08);
+      font-weight: 700;
+    }
+
     .group-live-spotlight[hidden] {
       display: none !important;
     }
@@ -3935,6 +3981,7 @@
         <p id="preferred-team-hint" class="preferences-hint">Select one or more teams using chips. Your choices are saved and restored after refresh.</p>
       </section>
 
+      <div id="group-live-table-spotlight" class="group-live-table-spotlight" hidden></div>
       <div id="group-live-spotlight" class="group-live-spotlight" hidden></div>
 
       <div class="group-stage-layout">
@@ -8002,6 +8049,105 @@
       `;
     };
 
+    const renderLiveGroupTableSpotlight = (liveMatches) => {
+      const spotlightNode = document.getElementById('group-live-table-spotlight');
+      if (!spotlightNode) {
+        return;
+      }
+
+      const list = Array.isArray(liveMatches) ? liveMatches : [];
+      if (!list.length) {
+        spotlightNode.innerHTML = '';
+        spotlightNode.hidden = true;
+        return;
+      }
+
+      const primaryLiveMatch = [...list].sort(sortByDate)[0] || null;
+      if (!primaryLiveMatch) {
+        spotlightNode.innerHTML = '';
+        spotlightNode.hidden = true;
+        return;
+      }
+
+      const groupStageMatches = (state.matches || [])
+        .filter((match) => stageName(match) === 'First Stage' && match.GroupName?.length)
+        .sort(sortByDate);
+      const groups = buildGroupTables(groupStageMatches);
+      const liveGroupName = groupNameFromMatch(primaryLiveMatch);
+      const group = groups.find((entry) => entry.name === liveGroupName);
+      if (!group || !Array.isArray(group.rows) || !group.rows.length) {
+        spotlightNode.innerHTML = '';
+        spotlightNode.hidden = true;
+        return;
+      }
+
+      const liveTeams = new Set([
+        canonicalTeamName(teamName(primaryLiveMatch.Home)),
+        canonicalTeamName(teamName(primaryLiveMatch.Away)),
+      ].filter(Boolean));
+      const rows = group.rows
+        .filter((row) => liveTeams.has(canonicalTeamName(row.name)))
+        .map((row) => {
+          const isLiveTeam = liveTeams.has(canonicalTeamName(row.name));
+          return `
+            <tr class="${isLiveTeam ? 'group-live-team-row' : ''}">
+              <td class="team-col">
+                <span class="team-cell">
+                  ${row.flag ? `<img class="flag" src="${escapeHtml(row.flag)}" alt="${escapeHtml(row.name)} flag">` : ''}
+                  <span>${escapeHtml(row.name)}</span>
+                </span>
+              </td>
+              <td>${row.p}</td>
+              <td>${row.w}</td>
+              <td>${row.d}</td>
+              <td>${row.l}</td>
+              <td>${row.gf}</td>
+              <td>${row.ga}</td>
+              <td>${row.gd}</td>
+              <td class="pts-col">${row.pts}</td>
+            </tr>
+          `;
+        }).join('');
+
+      if (!rows) {
+        spotlightNode.innerHTML = '';
+        spotlightNode.hidden = true;
+        return;
+      }
+
+      const home = displayTeamName(teamName(primaryLiveMatch.Home));
+      const away = displayTeamName(teamName(primaryLiveMatch.Away));
+      const score = scoreFormatter(primaryLiveMatch).replace(/-/g, ' - ');
+      spotlightNode.hidden = false;
+      spotlightNode.innerHTML = `
+        <section class="card table-card group-live-table-spotlight-card">
+          <div class="group-live-table-spotlight-head">
+            <div>
+              <h3 class="group-live-table-spotlight-title">Live Group Table Snapshot</h3>
+              <p class="group-live-table-spotlight-sub">${escapeHtml(liveGroupName)} · ${escapeHtml(home)} ${escapeHtml(score)} ${escapeHtml(away)}</p>
+            </div>
+            <span class="badge">Live group game</span>
+          </div>
+          <div class="table-wrap">
+            <table class="group-table">
+              <tr>
+                <th class="team-col">Team</th>
+                <th>P</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>GF</th>
+                <th>GA</th>
+                <th>GD</th>
+                <th class="pts-col">Pts</th>
+              </tr>
+              ${rows}
+            </table>
+          </div>
+        </section>
+      `;
+    };
+
     const attachMatchHoverHandlers = () => {
       const setHoveredFromMatch = (matchNode) => {
         const key = String(matchNode?.dataset?.hoverKey || '').trim();
@@ -8459,6 +8605,7 @@
 
       renderWinnerOddsPanel();
       updateLiveMatchCentrePresentation();
+      renderLiveGroupTableSpotlight(liveMatches);
       renderGroupStageLiveSpotlight(liveMatches);
       renderDateGroupedCards('groups-grid', nonLiveMatches, 'Group stage', {
         emptyMessage: liveMatches.length

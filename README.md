@@ -176,6 +176,7 @@ The Live Match Centre now displays enriched player data:
 - When both on/off markers are present for a player, a centered dot separator is shown (↑ 61' • ↓ 78') for clearer readability.
 - Yellow/red card glyphs inside squad-row live chips were reduced slightly to improve legibility and table density.
 - When viewing a completed replay in Live Match Centre while another match is actively live, a `Switch to Live Game` badge appears and returns the panel to the active live match in one click.
+- During active Group Stage matches, a `Live Group Table Snapshot` card is injected above the `Live Match Spotlight`, showing only the two currently playing teams' standings rows for that live group game. The snapshot is removed automatically once no Group Stage match is actively live.
 
 ## Special Interest: Squad Sunburst Pipeline
 
