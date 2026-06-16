@@ -6266,14 +6266,69 @@
       return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} (${phase})`;
     };
 
+    const MAX_PLAUSIBLE_MATCH_MINUTE = 150;
+
     const parseLiveMinuteValue = (value) => {
-      const cleanValue = String(value || '').replace(/[^\d.]/g, '');
-      const minute = Number(cleanValue);
-      if (!Number.isFinite(minute) || minute < 0) {
+      if (typeof value === 'number') {
+        return Number.isFinite(value) && value >= 0 && value <= MAX_PLAUSIBLE_MATCH_MINUTE
+          ? value
+          : Number.NaN;
+      }
+
+      const rawValue = String(value || '').trim();
+      if (!rawValue) {
+        return Number.NaN;
+      }
+
+      const stoppageMatch = rawValue.match(/^(\d{1,3})\s*\+\s*(\d{1,2})\s*'?$/);
+      if (stoppageMatch) {
+        const baseMinute = Number(stoppageMatch[1]);
+        const addedMinute = Number(stoppageMatch[2]);
+        const totalMinute = baseMinute + addedMinute;
+        return totalMinute <= MAX_PLAUSIBLE_MATCH_MINUTE ? totalMinute : Number.NaN;
+      }
+
+      const minuteSecondMatch = rawValue.match(/^(\d{1,3})\s*:\s*(\d{1,2})\s*'?$/);
+      if (minuteSecondMatch) {
+        const minutes = Number(minuteSecondMatch[1]);
+        const seconds = Number(minuteSecondMatch[2]);
+        if (seconds >= 60) {
+          return Number.NaN;
+        }
+        const totalMinute = minutes + (seconds / 60);
+        return totalMinute <= MAX_PLAUSIBLE_MATCH_MINUTE ? totalMinute : Number.NaN;
+      }
+
+      const normalized = rawValue.replace(/'+$/g, '');
+      if (!/^\d{1,3}(?:\.\d+)?$/.test(normalized)) {
+        return Number.NaN;
+      }
+
+      const minute = Number(normalized);
+      if (!Number.isFinite(minute) || minute < 0 || minute > MAX_PLAUSIBLE_MATCH_MINUTE) {
         return Number.NaN;
       }
 
       return minute;
+    };
+
+    const getEffectiveMatchState = (match, detail) => {
+      if (!match) {
+        return match;
+      }
+
+      const detailStatus = Number(detail?.MatchStatus);
+      const detailResultType = Number(detail?.ResultType);
+
+      if (!Number.isFinite(detailStatus) && !Number.isFinite(detailResultType)) {
+        return match;
+      }
+
+      return {
+        ...match,
+        ...(Number.isFinite(detailStatus) ? { MatchStatus: detailStatus } : {}),
+        ...(Number.isFinite(detailResultType) ? { ResultType: detailResultType } : {}),
+      };
     };
 
     const formatRunningClockLabel = (totalSecondsValue) => {
@@ -6336,22 +6391,19 @@
       const match = liveMatches[0];
       const matchId = String(match?.IdMatch || '').trim();
       const detail = getCachedLiveDetail(matchId);
+      const effectiveMatch = getEffectiveMatchState(match, detail);
 
       // Get the freshest MatchTime available
-      const matchTimeFromMatch = parseLiveMinuteValue(match?.MatchTime);
-      const matchTimeFromDetail = parseLiveMinuteValue(detail?.MatchTime);
-      const freshMatchTime = Number.isFinite(matchTimeFromMatch)
-        ? matchTimeFromMatch
-        : (Number.isFinite(matchTimeFromDetail) ? matchTimeFromDetail : null);
+      const isMatchCompleted = isCompletedMatch(effectiveMatch);
+      const isHalftime = isHalftimeMatch(effectiveMatch);
+      const isFrozen = isHalftime || isMatchCompleted;
+      const freshMatchTime = resolveOfficialClockMinute(effectiveMatch, detail, { preferFrozenMinute: isFrozen });
 
       // Update the clock element with fresh data
       const clockNode = spotlightNode.querySelector('.live-spotlight-clock[data-live-clock-base-minute]');
 
-      if (clockNode && freshMatchTime !== null) {
+      if (clockNode && Number.isFinite(freshMatchTime)) {
         const pullTs = state.lastFifaPullAt instanceof Date ? state.lastFifaPullAt.getTime() : Number.NaN;
-        const isMatchCompleted = isCompletedMatch(match) || isCompletedMatch(detail || {});
-        const isHalftime = isHalftimeMatch(match) || Number(detail?.MatchStatus) === 4;
-        const isFrozen = isHalftime || isMatchCompleted;
 
         clockNode.setAttribute('data-live-clock-base-minute', String(freshMatchTime));
         clockNode.setAttribute('data-live-clock-pull-ts', String(pullTs));
@@ -6802,6 +6854,52 @@
       return rows;
     };
 
+    const getDetailDerivedClockMinute = (detail) => {
+      const directCandidates = [
+        parseLiveMinuteValue(detail?.SecondHalfTime),
+        parseLiveMinuteValue(detail?.FirstHalfTime),
+        parseLiveMinuteValue(detail?.MatchTime),
+      ].filter((minute) => Number.isFinite(minute) && minute > 0);
+
+      if (directCandidates.length) {
+        return Math.max(...directCandidates);
+      }
+
+      const allEvents = [
+        ...createLiveEventRows(detail?.HomeTeam, '', 'home', detail?.AwayTeam, ''),
+        ...createLiveEventRows(detail?.AwayTeam, '', 'away', detail?.HomeTeam, ''),
+      ];
+      const eventMinutes = allEvents
+        .map((event) => Number(event.order))
+        .filter((minute) => Number.isFinite(minute) && minute >= 0 && minute <= MAX_PLAUSIBLE_MATCH_MINUTE);
+
+      return eventMinutes.length ? Math.max(...eventMinutes) : Number.NaN;
+    };
+
+    const resolveOfficialClockMinute = (match, detail, { preferFrozenMinute = false } = {}) => {
+      const matchMinute = parseLiveMinuteValue(match?.MatchTime);
+      const detailMinute = parseLiveMinuteValue(detail?.MatchTime);
+
+      if (preferFrozenMinute) {
+        const frozenCandidate = [matchMinute, detailMinute].find((minute) => Number.isFinite(minute) && minute > 0);
+        if (Number.isFinite(frozenCandidate)) {
+          return frozenCandidate;
+        }
+
+        return getDetailDerivedClockMinute(detail);
+      }
+
+      if (Number.isFinite(matchMinute)) {
+        return matchMinute;
+      }
+
+      if (Number.isFinite(detailMinute)) {
+        return detailMinute;
+      }
+
+      return getDetailDerivedClockMinute(detail);
+    };
+
     const renderEventIcon = (type) => {
       if (type === 'goal') return '<span class="et-icon" aria-hidden="true">⚽</span>';
       if (type === 'yellow') return '<span class="et-card et-card-yellow" title="Yellow card"></span>';
@@ -7164,6 +7262,7 @@
       const active = focusedMatch;
       const activeId = String(active?.IdMatch || '');
       const detail = String(state.liveDetail?.IdMatch || '') === activeId ? state.liveDetail : null;
+      const effectiveActive = getEffectiveMatchState(active, detail);
       const homeName = liveTeamName(detail?.HomeTeam, teamName(active.Home));
       const awayName = liveTeamName(detail?.AwayTeam, teamName(active.Away));
       const homeScore = Number.isFinite(Number(detail?.HomeTeam?.Score)) ? Number(detail.HomeTeam.Score) : (Number.isFinite(Number(active.HomeTeamScore)) ? Number(active.HomeTeamScore) : null);
@@ -7175,8 +7274,11 @@
       const referee = pickEnglishDescription((detail?.Officials || []).find((official) => Number(official.OfficialType) === 1)?.Name) || 'Not listed';
       const tacticsHome = String(detail?.HomeTeam?.Tactics || '').trim();
       const tacticsAway = String(detail?.AwayTeam?.Tactics || '').trim();
-      const parsedMatchTime = parseLiveMinuteValue(active.MatchTime);
-      const matchClock = Number.isFinite(parsedMatchTime) ? `${Math.floor(parsedMatchTime)}:${String(Math.floor((parsedMatchTime % 1) * 60)).padStart(2, '0')}'` : 'Live';
+      const isFrozenOfficialClock = isHalftimeMatch(effectiveActive) || isCompletedMatch(effectiveActive);
+      const resolvedMatchTime = resolveOfficialClockMinute(effectiveActive, detail, { preferFrozenMinute: isFrozenOfficialClock });
+      const matchClock = Number.isFinite(resolvedMatchTime)
+        ? `${Math.floor(resolvedMatchTime)}:${String(Math.floor((resolvedMatchTime % 1) * 60)).padStart(2, '0')}'`
+        : (isCompletedMatch(effectiveActive) ? 'FT' : isHalftimeMatch(effectiveActive) ? 'HT' : 'Live');
 
       const events = [
         ...createLiveEventRows(detail?.HomeTeam, homeName, 'home', detail?.AwayTeam, awayName),
@@ -7204,7 +7306,7 @@
         `;
       }).join('');
 
-      const isLiveActiveMatch = isActivelyPlayedMatch(active) && !state.replayMatchId;
+      const isLiveActiveMatch = isActivelyPlayedMatch(effectiveActive) && !state.replayMatchId;
       const sbsOnDemandLiveStreamUrl = isLiveActiveMatch ? 'https://www.sbs.com.au/ondemand' : buildSbsOnDemandLiveStreamUrl(homeName, awayName, group, stage);
       const sbsOnDemandMatchUrl = getSbsOnDemandMatchPageUrlForMatch(active);
       const sbsPrimaryUrl = isLiveActiveMatch ? sbsOnDemandLiveStreamUrl : sbsOnDemandMatchUrl;
@@ -7222,7 +7324,7 @@
             ${state.replayMatchId ? '<span class="chip"><strong>Mode</strong> Demo replay</span>' : ''}
             <span class="chip"><strong>Official clock</strong> ${escapeHtml(matchClock)}</span>
             <span class="chip"><strong>Est. time left*</strong> <span id="live-match-time-remaining">${escapeHtml(getEstimatedGameTimeRemainingLabel(active))}</span></span>
-            <span class="chip"><strong>Status</strong> ${escapeHtml(formatStatus(active))}</span>
+            <span class="chip"><strong>Status</strong> ${escapeHtml(formatStatus(effectiveActive))}</span>
             <span class="chip"><strong>Stage</strong> ${escapeHtml(stage)}</span>
             <span class="chip"><strong>Group</strong> ${escapeHtml(group)}</span>
             <span class="chip"><strong>Venue</strong> ${escapeHtml(stadium)}${city ? `, ${escapeHtml(city)}` : ''}</span>
@@ -7412,16 +7514,15 @@
       const renderSpotlightTicker = (match) => {
         const matchId = String(match?.IdMatch || '').trim();
         const detail = getCachedLiveDetail(matchId);
+        const effectiveMatch = getEffectiveMatchState(match, detail);
         const home = displayTeamName(teamName(match?.Home));
         const away = displayTeamName(teamName(match?.Away));
         const pullTs = state.lastFifaPullAt instanceof Date ? state.lastFifaPullAt.getTime() : Number.NaN;
         const kickoffTs = new Date(match?.Date || 0).getTime();
-        const baseMinute = Number.isFinite(parseLiveMinuteValue(match?.MatchTime))
-          ? parseLiveMinuteValue(match.MatchTime)
-          : (Number.isFinite(parseLiveMinuteValue(detail?.MatchTime)) ? parseLiveMinuteValue(detail.MatchTime) : Number.NaN);
-        const isHalftime = isHalftimeMatch(match) || Number(detail?.MatchStatus) === 4;
-        const isMatchCompleted = isCompletedMatch(match) || isCompletedMatch(detail || {});
+        const isHalftime = isHalftimeMatch(effectiveMatch);
+        const isMatchCompleted = isCompletedMatch(effectiveMatch);
         const isFrozenClock = isHalftime || isMatchCompleted;
+        const baseMinute = resolveOfficialClockMinute(effectiveMatch, detail, { preferFrozenMinute: isFrozenClock });
         const clockLabel = getSpotlightLiveClockLabel(baseMinute, pullTs, kickoffTs, isFrozenClock);
         const clockHeading = isMatchCompleted ? 'Official clock (FT)' : isHalftime ? 'Official clock (HT)' : 'Official clock';
         const freezeAttr = isFrozenClock ? '1' : '0';
