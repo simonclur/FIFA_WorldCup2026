@@ -8132,7 +8132,6 @@
         canonicalTeamName(teamName(primaryLiveMatch.Away)),
       ].filter(Boolean));
       const rows = group.rows
-        .filter((row) => liveTeams.has(canonicalTeamName(row.name)))
         .map((row) => {
           const isLiveTeam = liveTeams.has(canonicalTeamName(row.name));
           return `
