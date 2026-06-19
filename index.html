@@ -9,6 +9,16 @@
 
     :root {
       color-scheme: light;
+      --bottom-nav-touch-target: max(7mm, 44px);
+      --bottom-nav-height: max(10vh, calc(var(--bottom-nav-touch-target) + 18px));
+      --bottom-nav-surface: linear-gradient(180deg, rgba(239, 229, 215, 0.97) 0%, rgba(228, 214, 196, 0.99) 100%);
+      --bottom-nav-border: rgba(20, 32, 51, 0.32);
+      --bottom-tab-bg: #0f2a44;
+      --bottom-tab-text: #ffffff;
+      --bottom-tab-border: rgba(7, 24, 40, 0.95);
+      --bottom-tab-hover-bg: #0a1e31;
+      --bottom-tab-hover-border: rgba(7, 24, 40, 0.95);
+      --bottom-tab-hover-text: #ffffff;
       --paper: #f6f1e8;
       --paper-strong: #efe5d7;
       --ink: #142033;
@@ -35,6 +45,14 @@
     @media (prefers-color-scheme: dark) {
       :root {
         color-scheme: dark;
+        --bottom-nav-surface: linear-gradient(180deg, rgba(10, 16, 24, 0.96) 0%, rgba(7, 12, 18, 0.98) 100%);
+        --bottom-nav-border: rgba(160, 180, 204, 0.32);
+        --bottom-tab-bg: #1f4368;
+        --bottom-tab-text: #f8fbff;
+        --bottom-tab-border: rgba(176, 207, 236, 0.6);
+        --bottom-tab-hover-bg: #295680;
+        --bottom-tab-hover-border: rgba(196, 221, 244, 0.62);
+        --bottom-tab-hover-text: #ffffff;
         --spotlight-surface: linear-gradient(180deg, rgba(18, 26, 37, 0.96) 0%, rgba(11, 17, 26, 0.97) 100%);
         --spotlight-border: rgba(255, 145, 77, 0.5);
         --spotlight-title: #ffd5b4;
@@ -77,7 +95,65 @@
     .spread {
       width: min(100%, 283mm);
       margin: 0 auto;
-      padding: calc(6mm + env(safe-area-inset-top) + 38px) 5mm 4mm;
+      padding: calc(6mm + env(safe-area-inset-top) + 38px) 5mm calc(4mm + var(--bottom-nav-height) + env(safe-area-inset-bottom) + 4px);
+    }
+
+    .bottom-section-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 95;
+      height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+      padding: 7px calc(env(safe-area-inset-right) + 10px) calc(env(safe-area-inset-bottom) + 7px) calc(env(safe-area-inset-left) + 10px);
+      border-top: 1px solid var(--bottom-nav-border);
+      background: var(--bottom-nav-surface);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 -8px 18px rgba(20, 32, 51, 0.12);
+      display: flex;
+      align-items: stretch;
+    }
+
+    .bottom-section-nav-inner {
+      width: min(100%, 1200px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .bottom-section-tab {
+      appearance: none;
+      border: 1px solid var(--bottom-tab-border);
+      border-radius: 12px;
+      background: var(--bottom-tab-bg);
+      color: var(--bottom-tab-text);
+      font-family: "Unbounded", "Barlow", "Avenir Next", "Segoe UI", sans-serif;
+      font-size: clamp(10px, 1.6vw, 13px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+      line-height: 1;
+      min-height: var(--bottom-nav-touch-target);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+    }
+
+    .bottom-section-tab:hover,
+    .bottom-section-tab:focus-visible {
+      background: var(--bottom-tab-hover-bg);
+      border-color: var(--bottom-tab-hover-border);
+      color: var(--bottom-tab-hover-text);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .bottom-section-tab:active {
+      transform: translateY(0);
     }
 
     .page {
@@ -2149,6 +2225,10 @@
     }
 
     @media print {
+      .bottom-section-nav {
+        display: none;
+      }
+
       .match-actions .btn-action {
         display: none;
       }
@@ -4439,6 +4519,14 @@
       </div>
     </section>
   </main>
+
+  <nav class="bottom-section-nav" aria-label="Quick section navigation">
+    <div class="bottom-section-nav-inner">
+      <button type="button" id="bottom-tab-completed" class="bottom-section-tab">Completed</button>
+      <button type="button" id="bottom-tab-live-next" class="bottom-section-tab">Live/Next</button>
+      <button type="button" id="bottom-tab-groups" class="bottom-section-tab"><span id="bottom-tab-groups-label">Groups</span></button>
+    </div>
+  </nav>
 
   <script src="./squad-sunburst-data.js"></script>
   <script>
@@ -8797,6 +8885,16 @@
       containerNode.append(pageNode);
     };
 
+    const updateBottomSectionNavState = () => {
+      const groupsLabelNode = document.getElementById('bottom-tab-groups-label');
+      if (!groupsLabelNode) {
+        return;
+      }
+
+      const groupStageComplete = isStageComplete('First Stage');
+      groupsLabelNode.textContent = groupStageComplete ? 'RoundOf32' : 'Groups';
+    };
+
     const applySectionVisibilityAndOrder = () => {
       const spreadNode = document.querySelector('.spread');
       if (!spreadNode) {
@@ -8870,6 +8968,74 @@
       appendVisibleSection(spreadNode, round16PageNode);
       appendVisibleSection(spreadNode, finalsPageNode);
       appendVisibleSection(spreadNode, specialInterestPageNode);
+
+      updateBottomSectionNavState();
+    };
+
+    const setupBottomSectionNav = () => {
+      const completedTabNode = document.getElementById('bottom-tab-completed');
+      const liveNextTabNode = document.getElementById('bottom-tab-live-next');
+      const groupsTabNode = document.getElementById('bottom-tab-groups');
+      if (!completedTabNode || !liveNextTabNode || !groupsTabNode) {
+        return;
+      }
+
+      completedTabNode.addEventListener('click', () => {
+        applyCompletedAccordionExpanded(true);
+        window.requestAnimationFrame(() => {
+          const completedMatches = [...document.querySelectorAll('#completed-grid .match')];
+          const lastPlayedNode = completedMatches[completedMatches.length - 1];
+          if (lastPlayedNode) {
+            lastPlayedNode.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+            return;
+          }
+          const completedPageNode = document.querySelector('[data-page="completed-matches"]');
+          if (completedPageNode) {
+            completedPageNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+          }
+        });
+      });
+
+      liveNextTabNode.addEventListener('click', () => {
+        const hasActiveLiveMatch = (state.matches || []).some(isActivelyPlayedMatch);
+        if (hasActiveLiveMatch) {
+          const liveSpotlightPageNode = document.querySelector('[data-page="live-coverage"]');
+          if (liveSpotlightPageNode && !liveSpotlightPageNode.hidden) {
+            liveSpotlightPageNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+            return;
+          }
+        }
+
+        if (scrollToNextUpMatch('smooth')) {
+          return;
+        }
+
+        const matchCentreNode = document.querySelector('[data-page="live-match"]');
+        if (matchCentreNode) {
+          matchCentreNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+        }
+      });
+
+      groupsTabNode.addEventListener('click', () => {
+        const groupStageComplete = isStageComplete('First Stage');
+        if (!groupStageComplete) {
+          const groupTablesNode = document.querySelector('[data-page="group-tables"]');
+          if (groupTablesNode) {
+            groupTablesNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+          }
+          return;
+        }
+
+        const round32Node = document.querySelector('[data-page="round-of-32"]');
+        const round16Node = document.querySelector('[data-page="round-of-16"]');
+        const finalsNode = document.querySelector('[data-page="finals"]');
+        const fallbackNode = [round32Node, round16Node, finalsNode].find((node) => node && !node.hidden);
+        if (fallbackNode) {
+          fallbackNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+        }
+      });
+
+      updateBottomSectionNavState();
     };
 
     const updateStickyPageMarker = () => {
@@ -10238,6 +10404,7 @@
     setupAccordion('group-tables-accordion-toggle', 'group-tables-accordion-content', 'fifa2026_group_tables_accordion_expanded', 'Collapse', 'Expand');
     setupAccordion('live-match-accordion-toggle', 'live-match-accordion-content', 'fifa2026_live_match_accordion_expanded', 'Collapse', 'Expand');
     setupAccordion('special-interest-accordion-toggle', 'special-interest-accordion-content', 'fifa2026_special_interest_accordion_expanded', 'Collapse', 'Expand');
+    setupBottomSectionNav();
     loadOddsProviderStatus();
     applyPreferredTeamSelection(loadStoredPreferredTeams(), { persist: false });
     attachMatchHoverHandlers();

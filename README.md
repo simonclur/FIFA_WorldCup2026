@@ -89,6 +89,11 @@ Core pages and modules include:
 - The live spotlight card is given a little extra vertical breathing room on phones so the time/date column stays clear of the team rows.
 - Phone landscape mode now has its own coarse-pointer breakpoint that restores a denser two-column layout while keeping the spotlight card tall enough for the time/date column.
 - Section stage labels now use a single viewport-fixed top banner that spans the page width and updates with the incoming section in both scroll directions.
+- A persistent bottom tab navigation bar now stays visible at all times (10% viewport height) with quick-jump actions for `Completed`, `Live/Next`, and `Groups`.
+- `Completed` jumps to the last played match card in Completed Matches; `Live/Next` jumps to Live Spotlight when a game is active, otherwise jumps to the next-up fixture.
+- `Groups` jumps to Group Tables while group-stage fixtures are active, then switches label to `RoundOf32` once all group matches are completed and jumps to the first available knockout section.
+- Bottom navigation tabs now use a higher-contrast palette (light and dark modes) for improved readability against the sticky footer surface.
+- Bottom navigation tabs now enforce a mobile-friendly minimum touch target of `max(7mm, 44px)` in line with common tap-target guidance.
 - On touch devices, match-card hover affordances now support tap-to-focus, second tap to clear, and tap-outside-to-clear so odds hover context works on iPhone.
 - The World Cup winners Sankey now supports touch parity: tap year/champion/link to lock highlight, tap again to toggle off, and tap outside the chart to clear.
 
