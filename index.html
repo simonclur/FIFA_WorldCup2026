@@ -220,6 +220,12 @@
       border-bottom: 1px solid var(--line);
     }
 
+    .page-head > div:first-child,
+    .section-head > div:first-child,
+    .live-match-detail-head {
+      min-width: 0;
+    }
+
     .page-title {
       margin: 0;
       font-family: "Unbounded", "Barlow", "Avenir Next", "Segoe UI", sans-serif;
@@ -230,12 +236,45 @@
       text-wrap: balance;
     }
 
+    .page-title.title-long {
+      font-size: clamp(19px, 2.35vw, 28px);
+    }
+
+    .section-title.title-long {
+      font-size: 9pt;
+      letter-spacing: 0.08em;
+    }
+
+    .fit-single-line,
+    .fit-responsive-heading {
+      white-space: nowrap;
+      text-wrap: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      width: 100%;
+    }
+
     .page-subtitle {
       margin: 1.6mm 0 0;
       color: var(--muted);
       font-size: 8.25pt;
       line-height: 1.4;
       max-width: 88ch;
+    }
+
+    .page-subtitle-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 1.6mm;
+      min-width: 0;
+    }
+
+    .page-subtitle-row .page-subtitle {
+      margin: 0;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     .chips {
@@ -337,6 +376,99 @@
     .chip.live-highlights-chip:focus-visible {
       outline: 2px solid rgba(31, 77, 122, 0.42);
       outline-offset: 1px;
+    }
+
+    .page-head-info {
+      position: relative;
+      display: inline-flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      flex: 0 0 auto;
+    }
+
+    .info-toggle-btn {
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid rgba(20, 32, 51, 0.28);
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--accent-3);
+      font-family: "Unbounded", "Barlow", "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.22) inset;
+      transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
+    }
+
+    .info-toggle-btn:hover,
+    .info-toggle-btn:focus-visible {
+      background: rgba(31, 77, 122, 0.12);
+      border-color: rgba(31, 77, 122, 0.42);
+      color: #173553;
+      transform: translateY(-0.2px);
+      outline: none;
+    }
+
+    .page-head-info-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: min(76vw, 320px);
+      max-width: 360px;
+      padding: 10px;
+      border: 1px solid rgba(20, 32, 51, 0.18);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow: 0 14px 24px rgba(20, 32, 51, 0.14);
+      display: grid;
+      gap: 8px;
+      z-index: 8;
+    }
+
+    .page-head-info-panel[hidden] {
+      display: none;
+    }
+
+    .page-head-info-panel .chip-cluster,
+    .page-head-info-panel .chip-status-column {
+      justify-content: flex-start;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .page-head-info-panel .chip {
+      background: rgba(246, 241, 232, 0.95);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .info-toggle-btn {
+        border-color: rgba(176, 207, 236, 0.36);
+        background: rgba(28, 39, 53, 0.92);
+        color: #d8e7fb;
+      }
+
+      .info-toggle-btn:hover,
+      .info-toggle-btn:focus-visible {
+        background: rgba(45, 68, 96, 0.96);
+        border-color: rgba(196, 221, 244, 0.62);
+        color: #ffffff;
+      }
+
+      .page-head-info-panel {
+        border-color: rgba(176, 207, 236, 0.22);
+        background: rgba(11, 17, 26, 0.98);
+        box-shadow: 0 16px 28px rgba(0, 0, 0, 0.34);
+      }
+
+      .page-head-info-panel .chip {
+        background: rgba(20, 29, 40, 0.98);
+      }
     }
 
     .live-match-detail-head {
@@ -4048,20 +4180,25 @@
     <section class="page" data-page="tracker-header" data-sticky-name="FIFA Tracker">
       <header class="page-head">
         <div>
-          <h1 class="page-title">FIFA World Cup 2026 Tracker</h1>
-          <p class="page-subtitle">
-            Group stage fixtures for Brisbane, Australia. Times are shown in Australia/Brisbane, which is the same as AEST year-round. Scores refresh from FIFA's public match API whenever the page loads or refreshes.
-          </p>
-        </div>
-        <div class="chips layout-split">
-          <div class="chip-cluster">
-            <div class="chip"><strong>Page</strong> Tracker header</div>
-            <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
-            <div class="chip"><strong>Paper</strong> A4 landscape</div>
-          </div>
-          <div class="chip-status-column">
-            <div class="chip refresh-chip"><strong>Next update</strong> <span id="group-stage-next-refresh">waiting for data</span></div>
-            <div class="chip sync-chip"><strong>Last success</strong> <span id="group-stage-last-success">waiting for first successful pull</span></div>
+          <h1 class="page-title title-long">FIFA World Cup 2026 Tracker</h1>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Group stage fixtures for Brisbane, Australia. Times are shown in Australia/Brisbane, which is the same as AEST year-round. Scores refresh from FIFA's public match API whenever the page loads or refreshes.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="tracker-header-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="tracker-header-info-panel" aria-label="Show tracker header information">i</button>
+              <div id="tracker-header-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Tracker header</div>
+                  <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
+                  <div class="chip"><strong>Paper</strong> A4 landscape</div>
+                </div>
+                <div class="chip-status-column">
+                  <div class="chip refresh-chip"><strong>Next update</strong> <span id="group-stage-next-refresh">waiting for data</span></div>
+                  <div class="chip sync-chip"><strong>Last success</strong> <span id="group-stage-last-success">waiting for first successful pull</span></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -4070,15 +4207,22 @@
     <section class="page" data-page="preferred-teams" data-sticky-name="Preferred Teams">
       <header class="page-head">
         <div>
-          <h2 class="page-title">Preferred Team Highlights</h2>
-          <p class="page-subtitle">
-            Choose one or more teams to highlight their fixtures throughout the tracker.
-          </p>
-        </div>
-        <div class="chips">
-          <div class="chip"><strong>Page</strong> Preferred teams</div>
-          <div class="chip"><strong>Scope</strong> Match highlighting</div>
-          <div class="chip"><strong>Save</strong> local browser storage</div>
+          <h2 class="page-title title-long">Preferred Team Highlights</h2>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Choose one or more teams to highlight their fixtures throughout the tracker.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="preferred-teams-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="preferred-teams-info-panel" aria-label="Show preferred teams information">i</button>
+              <div id="preferred-teams-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Preferred teams</div>
+                  <div class="chip"><strong>Scope</strong> Match highlighting</div>
+                  <div class="chip"><strong>Save</strong> local browser storage</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -4101,13 +4245,20 @@
       <header class="page-head">
         <div>
           <h2 class="page-title">Group Stage</h2>
-          <p class="page-subtitle">
-            Active and upcoming first-stage matches only.
-          </p>
-        </div>
-        <div class="chips">
-          <div class="chip"><strong>Page</strong> Group stage</div>
-          <div class="chip"><strong>Scope</strong> Active and upcoming</div>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Active and upcoming first-stage matches only.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="group-stage-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="group-stage-info-panel" aria-label="Show group stage information">i</button>
+              <div id="group-stage-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Group stage</div>
+                  <div class="chip"><strong>Scope</strong> Active and upcoming</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -4154,15 +4305,22 @@
     <section class="page" id="live-coverage-page" data-page="live-coverage" data-sticky-name="Live Spotlight" hidden>
       <header class="page-head">
         <div>
-          <h2 class="page-title">Live Spotlight</h2>
-          <p class="page-subtitle">
-            Dedicated live context section for spotlight cards and live match detail.
-          </p>
-        </div>
-        <div class="chips">
-          <div class="chip"><strong>Page</strong> Live spotlight</div>
-          <div class="chip"><strong>Update</strong> every 60s when active</div>
-          <div class="chip"><strong>Source</strong> FIFA live endpoints</div>
+          <h2 class="page-title title-long">Live Spotlight</h2>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Dedicated live context section for spotlight cards and live match detail.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="live-spotlight-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="live-spotlight-info-panel" aria-label="Show live spotlight information">i</button>
+              <div id="live-spotlight-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Live spotlight</div>
+                  <div class="chip"><strong>Update</strong> every 60s when active</div>
+                  <div class="chip"><strong>Source</strong> FIFA live endpoints</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -4173,20 +4331,25 @@
     <section class="page" data-page="live-match" data-sticky-name="Live Match Centre">
       <header class="page-head">
         <div>
-          <h2 class="page-title">Live Match Centre</h2>
-          <p class="page-subtitle">
-            Live in-game detail page. Refreshes every 60 seconds while a match is active.
-          </p>
-        </div>
-        <div class="chips layout-split">
-          <div class="chip-cluster">
-            <div class="chip"><strong>Page</strong> Live match</div>
-            <div class="chip"><strong>Update</strong> every 60s when active</div>
-            <div class="chip"><strong>Source</strong> FIFA live endpoint</div>
-          </div>
-          <div class="chip-status-column">
-            <div class="chip refresh-chip"><strong>Next update</strong> <span id="live-centre-next-refresh">waiting for data</span></div>
-            <div class="chip sync-chip"><strong>Last success</strong> <span id="live-centre-last-success">waiting for first successful pull</span></div>
+          <h2 class="page-title title-long fit-single-line" data-fit-single-line="1">Live Match Centre</h2>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Live in-game detail page. Refreshes every 60 seconds while a match is active.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="live-match-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="live-match-info-panel" aria-label="Show live match information">i</button>
+              <div id="live-match-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Live match</div>
+                  <div class="chip"><strong>Update</strong> every 60s when active</div>
+                  <div class="chip"><strong>Source</strong> FIFA live endpoint</div>
+                </div>
+                <div class="chip-status-column">
+                  <div class="chip refresh-chip"><strong>Next update</strong> <span id="live-centre-next-refresh">waiting for data</span></div>
+                  <div class="chip sync-chip"><strong>Last success</strong> <span id="live-centre-last-success">waiting for first successful pull</span></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -4222,15 +4385,22 @@
     <section class="page" data-page="group-tables" data-sticky-name="Group Tables">
       <header class="page-head">
         <div>
-          <h2 class="page-title">Group Tables</h2>
-          <p class="page-subtitle">
-            Live standings for each first-stage group, recalculated from completed World Cup matches.
-          </p>
-        </div>
-        <div class="chips">
-          <div class="chip"><strong>Page</strong> Group tables</div>
-          <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
-          <div class="chip"><strong>Update</strong> live standings</div>
+          <h2 class="page-title title-long">Group Tables</h2>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Live standings for each first-stage group, recalculated from completed World Cup matches.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="group-tables-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="group-tables-info-panel" aria-label="Show group tables information">i</button>
+              <div id="group-tables-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Group tables</div>
+                  <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
+                  <div class="chip"><strong>Update</strong> live standings</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -4262,14 +4432,21 @@
       <header class="page-head">
         <div>
           <h2 class="page-title">Round of 32</h2>
-          <p class="page-subtitle">
-            Knockout play-offs, one match per line, with live score and Brisbane time.
-          </p>
-        </div>
-        <div class="chips">
-          <div class="chip"><strong>Page</strong> Round of 32</div>
-          <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
-          <div class="chip"><strong>Status</strong> live / scheduled</div>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Knockout play-offs, one match per line, with live score and Brisbane time.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="round32-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="round32-info-panel" aria-label="Show round of 32 information">i</button>
+              <div id="round32-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Round of 32</div>
+                  <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
+                  <div class="chip"><strong>Status</strong> live / scheduled</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -4301,14 +4478,21 @@
       <header class="page-head">
         <div>
           <h2 class="page-title">Round of 16</h2>
-          <p class="page-subtitle">
-            The last sixteen. This page stays compact enough to print cleanly on A4.
-          </p>
-        </div>
-        <div class="chips">
-          <div class="chip"><strong>Page</strong> Round of 16</div>
-          <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
-          <div class="chip"><strong>Source</strong> FIFA API</div>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              The last sixteen. This page stays compact enough to print cleanly on A4.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="round16-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="round16-info-panel" aria-label="Show round of 16 information">i</button>
+              <div id="round16-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Round of 16</div>
+                  <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
+                  <div class="chip"><strong>Source</strong> FIFA API</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -4340,20 +4524,27 @@
       <header class="page-head">
         <div>
           <h2 class="page-title">Finals</h2>
-          <p class="page-subtitle">
-            Quarter-finals, semi-finals, third place, and the final on one print-friendly page.
-          </p>
-        </div>
-        <div class="chips">
-          <div class="chip"><strong>Page</strong> Finals</div>
-          <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
-          <div class="chip"><strong>Stages</strong> QF to final</div>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Quarter-finals, semi-finals, third place, and the final on one print-friendly page.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="finals-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="finals-info-panel" aria-label="Show finals information">i</button>
+              <div id="finals-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Finals</div>
+                  <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
+                  <div class="chip"><strong>Stages</strong> QF to final</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
       <div class="section-head">
         <div>
-          <h2 class="section-title">Championship Path</h2>
+          <h2 class="section-title title-long">Championship Path</h2>
           <p class="section-note">Quarter-finals through the final.</p>
         </div>
         <button type="button" id="finals-accordion-toggle" class="accordion-toggle" aria-controls="finals-accordion-content" aria-expanded="true">
@@ -4378,15 +4569,22 @@
     <section class="page" data-page="completed-matches" data-sticky-name="Completed Matches">
       <header class="page-head">
         <div>
-          <h2 class="page-title">Completed Matches</h2>
-          <p class="page-subtitle">
-            Finished fixtures are archived here so active and upcoming matches stay easier to scan.
-          </p>
-        </div>
-        <div class="chips">
-          <div class="chip"><strong>Page</strong> Completed</div>
-          <div class="chip"><strong>Sort</strong> earliest first</div>
-          <div class="chip"><strong>Status</strong> FT</div>
+          <h2 class="page-title title-long">Completed Matches</h2>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Finished fixtures are archived here so active and upcoming matches stay easier to scan.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="completed-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="completed-info-panel" aria-label="Show completed matches information">i</button>
+              <div id="completed-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Completed</div>
+                  <div class="chip"><strong>Sort</strong> earliest first</div>
+                  <div class="chip"><strong>Status</strong> FT</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -4417,21 +4615,28 @@
     <section class="page" data-page="special-interest-stats" data-sticky-name="Special Interest Stats">
       <header class="page-head">
         <div>
-          <h2 class="page-title">Special Interest Stats</h2>
-          <p class="page-subtitle">
-            Curated external visualizations that add broader World Cup context and perspective.
-          </p>
-        </div>
-        <div class="chips">
-          <div class="chip"><strong>Page</strong> Special interest</div>
-          <div class="chip"><strong>Source</strong> Flourish</div>
-          <div class="chip"><strong>Type</strong> Embedded visual</div>
+          <h2 class="page-title title-long">Special Interest Stats</h2>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Curated external visualizations that add broader World Cup context and perspective.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="special-interest-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="special-interest-info-panel" aria-label="Show special interest information">i</button>
+              <div id="special-interest-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Special interest</div>
+                  <div class="chip"><strong>Source</strong> Flourish</div>
+                  <div class="chip"><strong>Type</strong> Embedded visual</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
       <div class="section-head">
         <div>
-          <h2 class="section-title">Global Tournament Context</h2>
+          <h2 class="section-title title-long">Global Tournament Context</h2>
           <p class="section-note">A local Wikipedia-based chart plus selected embedded visualizations.</p>
         </div>
         <button type="button" id="special-interest-accordion-toggle" class="accordion-toggle" aria-controls="special-interest-accordion-content" aria-expanded="true">
@@ -8713,7 +8918,7 @@
 
     const renderGroupTablesPage = () => {
       const groupStageMatches = state.matches
-        .filter((match) => stageName(match) === 'First Stage' && match.GroupName?.length)
+        .filter((match) => stageName(match) === 'First Stage' && match.GroupName?.length && isCompletedMatch(match))
         .sort(sortByDate);
 
       const groups = buildGroupTables(groupStageMatches);
@@ -8866,6 +9071,8 @@
         }
       }
 
+      fitSingleLineTitles();
+
       applySectionVisibilityAndOrder();
     };
 
@@ -8883,6 +9090,106 @@
         return;
       }
       containerNode.append(pageNode);
+    };
+
+    const fitSingleLineTitles = () => {
+      const titleNodes = [
+        ...document.querySelectorAll('[data-fit-single-line="1"]'),
+        ...document.querySelectorAll('.page-title, .section-title'),
+      ];
+      const uniqueNodes = [...new Set(titleNodes)];
+
+      uniqueNodes.forEach((node) => {
+        node.classList.add('fit-responsive-heading');
+        if (!node.dataset.fitBasePx) {
+          node.dataset.fitBasePx = String(parseFloat(window.getComputedStyle(node).fontSize) || 16);
+        }
+
+        const maxSize = Number(node.dataset.fitMaxPx || node.dataset.fitBasePx || 33);
+        const minSize = Number(node.dataset.fitMinPx || (node.classList.contains('section-title') ? 12 : 16));
+        let nextSize = maxSize;
+        node.style.fontSize = `${nextSize}px`;
+        while (node.scrollWidth > node.clientWidth && nextSize > minSize) {
+          nextSize -= 0.5;
+          node.style.fontSize = `${nextSize}px`;
+        }
+      });
+    };
+
+    const setupHeaderInfoToggles = () => {
+      const toggleNodes = [...document.querySelectorAll('[data-info-toggle="1"]')];
+      if (!toggleNodes.length) {
+        return;
+      }
+
+      const hideAllPanels = () => {
+        toggleNodes.forEach((toggleNode) => {
+          const panelId = String(toggleNode.getAttribute('aria-controls') || '').trim();
+          const panelNode = panelId ? document.getElementById(panelId) : null;
+          toggleNode.setAttribute('aria-expanded', 'false');
+          if (panelNode) {
+            panelNode.hidden = true;
+          }
+        });
+      };
+
+      toggleNodes.forEach((toggleNode) => {
+        const panelId = String(toggleNode.getAttribute('aria-controls') || '').trim();
+        const panelNode = panelId ? document.getElementById(panelId) : null;
+        if (!panelNode) {
+          return;
+        }
+
+        toggleNode.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const currentlyExpanded = toggleNode.getAttribute('aria-expanded') === 'true';
+          hideAllPanels();
+          toggleNode.setAttribute('aria-expanded', String(!currentlyExpanded));
+          panelNode.hidden = currentlyExpanded;
+        });
+
+        panelNode.addEventListener('click', (event) => {
+          event.stopPropagation();
+        });
+      });
+
+      document.addEventListener('click', hideAllPanels);
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          hideAllPanels();
+        }
+      });
+    };
+
+    const getStickyMarkerOffset = () => {
+      const markerNode = document.getElementById('page-sticky-marker');
+      const markerHeight = markerNode ? markerNode.getBoundingClientRect().height : 0;
+      return Math.max(markerHeight + 8, 12);
+    };
+
+    const getBottomNavOffset = () => {
+      const navNode = document.querySelector('.bottom-section-nav');
+      return navNode ? navNode.getBoundingClientRect().height : 0;
+    };
+
+    const scrollNodeBelowStickyMarker = (node, behavior = 'smooth') => {
+      if (!node) {
+        return false;
+      }
+      const top = window.scrollY + node.getBoundingClientRect().top - getStickyMarkerOffset();
+      window.scrollTo({ top: Math.max(0, top), behavior });
+      return true;
+    };
+
+    const scrollNodeAboveBottomNav = (node, behavior = 'smooth') => {
+      if (!node) {
+        return false;
+      }
+      const rect = node.getBoundingClientRect();
+      const targetBottom = window.innerHeight - getBottomNavOffset() - 8;
+      const top = window.scrollY + rect.bottom - targetBottom;
+      window.scrollTo({ top: Math.max(0, top), behavior });
+      return true;
     };
 
     const updateBottomSectionNavState = () => {
@@ -8985,13 +9292,12 @@
         window.requestAnimationFrame(() => {
           const completedMatches = [...document.querySelectorAll('#completed-grid .match')];
           const lastPlayedNode = completedMatches[completedMatches.length - 1];
-          if (lastPlayedNode) {
-            lastPlayedNode.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+          if (scrollNodeAboveBottomNav(lastPlayedNode, 'smooth')) {
             return;
           }
           const completedPageNode = document.querySelector('[data-page="completed-matches"]');
           if (completedPageNode) {
-            completedPageNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+            scrollNodeBelowStickyMarker(completedPageNode, 'smooth');
           }
         });
       });
@@ -8999,39 +9305,38 @@
       liveNextTabNode.addEventListener('click', () => {
         const hasActiveLiveMatch = (state.matches || []).some(isActivelyPlayedMatch);
         if (hasActiveLiveMatch) {
-          const liveSpotlightPageNode = document.querySelector('[data-page="live-coverage"]');
-          if (liveSpotlightPageNode && !liveSpotlightPageNode.hidden) {
-            liveSpotlightPageNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+          const liveSnapshotCardNode = document.querySelector('.group-live-table-spotlight-card');
+          if (scrollNodeBelowStickyMarker(liveSnapshotCardNode, 'smooth')) {
             return;
           }
         }
 
-        if (scrollToNextUpMatch('smooth')) {
+        const nextUpNode = document.querySelector('.match.next-up');
+        if (scrollNodeBelowStickyMarker(nextUpNode, 'smooth')) {
           return;
         }
 
         const matchCentreNode = document.querySelector('[data-page="live-match"]');
         if (matchCentreNode) {
-          matchCentreNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+          scrollNodeBelowStickyMarker(matchCentreNode, 'smooth');
         }
       });
 
       groupsTabNode.addEventListener('click', () => {
         const groupStageComplete = isStageComplete('First Stage');
         if (!groupStageComplete) {
-          const groupTablesNode = document.querySelector('[data-page="group-tables"]');
-          if (groupTablesNode) {
-            groupTablesNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+          const firstGroupTableCardNode = document.querySelector('#group-tables-grid .table-card');
+          if (scrollNodeBelowStickyMarker(firstGroupTableCardNode, 'smooth')) {
           }
           return;
         }
 
-        const round32Node = document.querySelector('[data-page="round-of-32"]');
+        const round32Node = document.querySelector('#round32-grid .match, [data-page="round-of-32"]');
         const round16Node = document.querySelector('[data-page="round-of-16"]');
         const finalsNode = document.querySelector('[data-page="finals"]');
         const fallbackNode = [round32Node, round16Node, finalsNode].find((node) => node && !node.hidden);
         if (fallbackNode) {
-          fallbackNode.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+          scrollNodeBelowStickyMarker(fallbackNode, 'smooth');
         }
       });
 
@@ -10404,14 +10709,17 @@
     setupAccordion('group-tables-accordion-toggle', 'group-tables-accordion-content', 'fifa2026_group_tables_accordion_expanded', 'Collapse', 'Expand');
     setupAccordion('live-match-accordion-toggle', 'live-match-accordion-content', 'fifa2026_live_match_accordion_expanded', 'Collapse', 'Expand');
     setupAccordion('special-interest-accordion-toggle', 'special-interest-accordion-content', 'fifa2026_special_interest_accordion_expanded', 'Collapse', 'Expand');
+    setupHeaderInfoToggles();
     setupBottomSectionNav();
     loadOddsProviderStatus();
     applyPreferredTeamSelection(loadStoredPreferredTeams(), { persist: false });
     attachMatchHoverHandlers();
     renderWorldCupWinnersSankey();
     renderSquadClubSunburst();
+    fitSingleLineTitles();
     window.addEventListener('resize', renderWorldCupWinnersSankey);
     window.addEventListener('resize', renderSquadClubSunburst);
+    window.addEventListener('resize', fitSingleLineTitles);
 
     const topScorersYearNode = document.getElementById('top-scorers-year');
     const topScorersTeamNode = document.getElementById('top-scorers-team');

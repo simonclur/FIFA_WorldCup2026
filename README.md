@@ -94,6 +94,11 @@ Core pages and modules include:
 - `Groups` jumps to Group Tables while group-stage fixtures are active, then switches label to `RoundOf32` once all group matches are completed and jumps to the first available knockout section.
 - Bottom navigation tabs now use a higher-contrast palette (light and dark modes) for improved readability against the sticky footer surface.
 - Bottom navigation tabs now enforce a mobile-friendly minimum touch target of `max(7mm, 44px)` in line with common tap-target guidance.
+- Bottom navigation scrolling is card-aware: `Completed` aligns the last completed match card above the bottom tab bar, while `Live/Next` and `Groups` align the target card just below the sticky top section label.
+- During live play, `Live/Next` now targets the `Live Group Table Snapshot` card inside `Live Spotlight`; otherwise it targets the next-up match card.
+- Page and section headings now shrink responsively to stay on one line when space is tight, including the `Live Match Centre` / `Match Centre` heading.
+- Longer headings also start from a slightly smaller default size before the responsive fitter runs, which reduces visible resizing on initial render.
+- Page header metadata now uses a compact inline info button pattern: the button sits on the same row as the subtitle/context copy, and the metadata is shown only on demand in a popover.
 - On touch devices, match-card hover affordances now support tap-to-focus, second tap to clear, and tap-outside-to-clear so odds hover context works on iPhone.
 - The World Cup winners Sankey now supports touch parity: tap year/champion/link to lock highlight, tap again to toggle off, and tap outside the chart to clear.
 
@@ -274,6 +279,10 @@ Each key screen page now exposes a sticky page-name banner at the top while scro
 ## Group Tables
 
 The Group Tables page displays standings for each group with the following columns:
+
+- Standings are compiled locally in the page code from FIFA match calendar results; they are not fetched from a separate FIFA standings endpoint.
+- The main Group Tables page now uses completed Group Stage matches only, so positions reflect finished results rather than in-progress scorelines.
+- The `Live Group Table Snapshot` inside `Live Spotlight` remains a separate live-context card and is left unchanged.
 
 - **Team**: Flag and team name
 - **P**: Matches played
