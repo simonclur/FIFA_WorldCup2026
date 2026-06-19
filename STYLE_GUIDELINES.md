@@ -30,15 +30,35 @@ This document defines visual and interaction rules for the tracker, with emphasi
 
 ## Current Screen Intent
 
-Screen page order:
-1. Group Stage
-2. Completed Matches
-3. Live Match Centre
-4. Group Tables
-5. Round of 32
-6. Round of 16
-7. Finals
-8. Special Interest
+Screen page order (active game):
+1. FIFA Tracker Header
+2. Preferred Team Highlights
+3. Completed Matches
+4. Live Spotlight
+5. Group Stage
+6. Group Tables
+7. Round of 32
+8. Round of 16
+9. Finals
+10. Special Interest
+
+Screen page order (no active game):
+1. FIFA Tracker Header
+2. Preferred Team Highlights
+3. Completed Matches
+4. Match Centre
+5. Group Stage
+6. Group Tables
+7. Round of 32
+8. Round of 16
+9. Finals
+10. Special Interest
+
+Stage-complete behavior:
+1. Hide Group Stage once all Group Stage fixtures are completed.
+2. Move Group Tables above Completed Matches when Group Stage is hidden.
+3. Hide Round of 32 once all Round of 32 fixtures are completed.
+4. Hide Round of 16 once all Round of 16 fixtures are completed.
 
 Special Interest card order:
 1. Guardian atom

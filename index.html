@@ -3965,7 +3965,7 @@
 <body>
   <div id="page-sticky-marker" class="page-sticky-marker" aria-live="polite" data-visible="false"></div>
   <main class="spread">
-    <section class="page" data-page="group-stage" data-sticky-name="Group Stage">
+    <section class="page" data-page="tracker-header" data-sticky-name="FIFA Tracker">
       <header class="page-head">
         <div>
           <h1 class="page-title">FIFA World Cup 2026 Tracker</h1>
@@ -3975,7 +3975,7 @@
         </div>
         <div class="chips layout-split">
           <div class="chip-cluster">
-            <div class="chip"><strong>Page</strong> Group stage</div>
+            <div class="chip"><strong>Page</strong> Tracker header</div>
             <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
             <div class="chip"><strong>Paper</strong> A4 landscape</div>
           </div>
@@ -3985,22 +3985,23 @@
           </div>
         </div>
       </header>
+    </section>
 
-      <div class="section-head">
+    <section class="page" data-page="preferred-teams" data-sticky-name="Preferred Teams">
+      <header class="page-head">
         <div>
-          <h2 class="section-title">Group Stage</h2>
-          <p class="section-note">Active and upcoming first-stage matches only.</p>
+          <h2 class="page-title">Preferred Team Highlights</h2>
+          <p class="page-subtitle">
+            Choose one or more teams to highlight their fixtures throughout the tracker.
+          </p>
         </div>
-        <button type="button" id="group-stage-accordion-toggle" class="accordion-toggle" aria-controls="group-stage-accordion-content" aria-expanded="true">
-          <span class="accordion-toggle-label">Collapse</span>
-          <svg class="accordion-toggle-icon" viewBox="0 0 10 10" aria-hidden="true" focusable="false">
-            <path d="M2 3.3 5 6.1 8 3.3" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 1.5 5 4.3 8 1.5" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
+        <div class="chips">
+          <div class="chip"><strong>Page</strong> Preferred teams</div>
+          <div class="chip"><strong>Scope</strong> Match highlighting</div>
+          <div class="chip"><strong>Save</strong> local browser storage</div>
+        </div>
+      </header>
 
-      <div id="group-stage-accordion-content" class="accordion-content">
       <section class="preferences-bar" aria-label="Preferred teams settings">
         <div class="preferences-head">
           <h3 class="preferences-title">Preferred Team Highlights</h3>
@@ -4014,10 +4015,37 @@
         </div>
         <p id="preferred-team-hint" class="preferences-hint">Select one or more teams using chips. Your choices are saved and restored after refresh.</p>
       </section>
+    </section>
 
-      <div id="group-live-table-spotlight" class="group-live-table-spotlight" hidden></div>
-      <div id="group-live-spotlight" class="group-live-spotlight" hidden></div>
+    <section class="page" data-page="group-stage" data-sticky-name="Group Stage">
+      <header class="page-head">
+        <div>
+          <h2 class="page-title">Group Stage</h2>
+          <p class="page-subtitle">
+            Active and upcoming first-stage matches only.
+          </p>
+        </div>
+        <div class="chips">
+          <div class="chip"><strong>Page</strong> Group stage</div>
+          <div class="chip"><strong>Scope</strong> Active and upcoming</div>
+        </div>
+      </header>
 
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Fixtures</h2>
+          <p class="section-note">Browse all active and upcoming first-stage matches.</p>
+        </div>
+        <button type="button" id="group-stage-accordion-toggle" class="accordion-toggle" aria-controls="group-stage-accordion-content" aria-expanded="true">
+          <span class="accordion-toggle-label">Collapse</span>
+          <svg class="accordion-toggle-icon" viewBox="0 0 10 10" aria-hidden="true" focusable="false">
+            <path d="M2 3.3 5 6.1 8 3.3" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 1.5 5 4.3 8 1.5" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="group-stage-accordion-content" class="accordion-content">
       <div class="group-stage-layout">
         <div class="group-stage-main">
           <div class="grid groups-grid" id="groups-grid"></div>
@@ -4041,6 +4069,25 @@
         <div id="group-rendered-at"></div>
       </div>
       </div>
+    </section>
+
+    <section class="page" id="live-coverage-page" data-page="live-coverage" data-sticky-name="Live Spotlight" hidden>
+      <header class="page-head">
+        <div>
+          <h2 class="page-title">Live Spotlight</h2>
+          <p class="page-subtitle">
+            Dedicated live context section for spotlight cards and live match detail.
+          </p>
+        </div>
+        <div class="chips">
+          <div class="chip"><strong>Page</strong> Live spotlight</div>
+          <div class="chip"><strong>Update</strong> every 60s when active</div>
+          <div class="chip"><strong>Source</strong> FIFA live endpoints</div>
+        </div>
+      </header>
+
+      <div id="group-live-table-spotlight" class="group-live-table-spotlight" hidden></div>
+      <div id="group-live-spotlight" class="group-live-spotlight" hidden></div>
     </section>
 
     <section class="page" data-page="live-match" data-sticky-name="Live Match Centre">
@@ -4258,7 +4305,7 @@
         </div>
         <div class="chips">
           <div class="chip"><strong>Page</strong> Completed</div>
-          <div class="chip"><strong>Sort</strong> latest first</div>
+          <div class="chip"><strong>Sort</strong> earliest first</div>
           <div class="chip"><strong>Status</strong> FT</div>
         </div>
       </header>
@@ -4266,7 +4313,7 @@
       <div class="section-head">
         <h2 class="section-title">Archive</h2>
         <div class="section-note-with-control">
-          <p class="section-note">Most recently completed fixtures appear first.</p>
+          <p class="section-note">Completed fixtures are listed first-to-last, with the most recent at the end.</p>
           <button type="button" id="completed-accordion-toggle" class="completed-accordion-toggle" aria-controls="completed-accordion-content" aria-expanded="true">
             <span class="completed-accordion-toggle-label">Collapse archive</span>
             <svg class="completed-accordion-toggle-icon" viewBox="0 0 10 10" aria-hidden="true" focusable="false">
@@ -8688,12 +8735,10 @@
 
     const updateLiveMatchCentrePresentation = () => {
       const spreadNode = document.querySelector('.spread');
-      const groupStagePageNode = document.querySelector('[data-page="group-stage"]');
-      const completedPageNode = document.querySelector('[data-page="completed-matches"]');
+      const liveCoveragePageNode = document.getElementById('live-coverage-page');
       const liveMatchPageNode = document.querySelector('[data-page="live-match"]');
-      const groupStageAccordionNode = document.getElementById('group-stage-accordion-content');
       const groupLiveSpotlightNode = document.getElementById('group-live-spotlight');
-      if (!spreadNode || !groupStagePageNode || !completedPageNode || !liveMatchPageNode) {
+      if (!spreadNode || !liveMatchPageNode) {
         return;
       }
 
@@ -8702,12 +8747,15 @@
       const hasActiveLiveMatch = (state.matches || []).some(isActivelyPlayedMatch);
 
       if (hasActiveLiveMatch) {
+        if (liveCoveragePageNode) {
+          liveCoveragePageNode.hidden = false;
+        }
         if (groupLiveSpotlightNode) {
           groupLiveSpotlightNode.insertAdjacentElement('afterend', liveMatchPageNode);
-        } else if (groupStageAccordionNode) {
-          groupStageAccordionNode.prepend(liveMatchPageNode);
+        } else if (liveCoveragePageNode) {
+          liveCoveragePageNode.append(liveMatchPageNode);
         } else {
-          groupStagePageNode.insertAdjacentElement('afterend', liveMatchPageNode);
+          spreadNode.append(liveMatchPageNode);
         }
         liveMatchPageNode.setAttribute('data-sticky-name', 'Live Match Centre');
         if (liveMatchTitleNode) {
@@ -8717,7 +8765,10 @@
           livePageChipValueNode.innerHTML = '<strong>Page</strong> Live match';
         }
       } else {
-        completedPageNode.insertAdjacentElement('afterend', liveMatchPageNode);
+        if (liveCoveragePageNode) {
+          liveCoveragePageNode.hidden = true;
+        }
+        spreadNode.append(liveMatchPageNode);
         liveMatchPageNode.setAttribute('data-sticky-name', 'Match Centre');
         if (liveMatchTitleNode) {
           liveMatchTitleNode.textContent = 'Match Centre';
@@ -8726,6 +8777,99 @@
           livePageChipValueNode.innerHTML = '<strong>Page</strong> Match centre';
         }
       }
+
+      applySectionVisibilityAndOrder();
+    };
+
+    const isStageComplete = (stageNames) => {
+      const names = Array.isArray(stageNames) ? stageNames : [stageNames];
+      const stageMatches = (state.matches || []).filter((match) => names.includes(stageName(match)));
+      if (!stageMatches.length) {
+        return false;
+      }
+      return stageMatches.every((match) => isCompletedMatch(match));
+    };
+
+    const appendVisibleSection = (containerNode, pageNode) => {
+      if (!containerNode || !pageNode || pageNode.hidden) {
+        return;
+      }
+      containerNode.append(pageNode);
+    };
+
+    const applySectionVisibilityAndOrder = () => {
+      const spreadNode = document.querySelector('.spread');
+      if (!spreadNode) {
+        return;
+      }
+
+      const trackerHeaderPageNode = document.querySelector('[data-page="tracker-header"]');
+      const preferredTeamsPageNode = document.querySelector('[data-page="preferred-teams"]');
+      const completedPageNode = document.querySelector('[data-page="completed-matches"]');
+      const liveCoveragePageNode = document.getElementById('live-coverage-page');
+      const liveMatchPageNode = document.querySelector('[data-page="live-match"]');
+      const groupStagePageNode = document.querySelector('[data-page="group-stage"]');
+      const groupTablesPageNode = document.querySelector('[data-page="group-tables"]');
+      const round32PageNode = document.querySelector('[data-page="round-of-32"]');
+      const round16PageNode = document.querySelector('[data-page="round-of-16"]');
+      const finalsPageNode = document.querySelector('[data-page="finals"]');
+      const specialInterestPageNode = document.querySelector('[data-page="special-interest-stats"]');
+
+      const hasActiveLiveMatch = (state.matches || []).some(isActivelyPlayedMatch);
+      const groupStageComplete = isStageComplete('First Stage');
+      const round32Complete = isStageComplete(knockoutStages.slice(0, 1));
+      const round16Complete = isStageComplete(knockoutStages.slice(1, 2));
+
+      if (groupStagePageNode) {
+        groupStagePageNode.hidden = groupStageComplete;
+      }
+      if (round32PageNode) {
+        round32PageNode.hidden = round32Complete;
+      }
+      if (round16PageNode) {
+        round16PageNode.hidden = round16Complete;
+      }
+      if (liveCoveragePageNode) {
+        liveCoveragePageNode.hidden = !hasActiveLiveMatch;
+      }
+
+      if (hasActiveLiveMatch) {
+        appendVisibleSection(spreadNode, trackerHeaderPageNode);
+        appendVisibleSection(spreadNode, preferredTeamsPageNode);
+        appendVisibleSection(spreadNode, completedPageNode);
+        appendVisibleSection(spreadNode, liveCoveragePageNode);
+        appendVisibleSection(spreadNode, groupStagePageNode);
+        appendVisibleSection(spreadNode, groupTablesPageNode);
+        appendVisibleSection(spreadNode, round32PageNode);
+        appendVisibleSection(spreadNode, round16PageNode);
+        appendVisibleSection(spreadNode, finalsPageNode);
+        appendVisibleSection(spreadNode, specialInterestPageNode);
+        return;
+      }
+
+      if (groupStageComplete) {
+        appendVisibleSection(spreadNode, trackerHeaderPageNode);
+        appendVisibleSection(spreadNode, preferredTeamsPageNode);
+        appendVisibleSection(spreadNode, groupTablesPageNode);
+        appendVisibleSection(spreadNode, liveMatchPageNode);
+        appendVisibleSection(spreadNode, completedPageNode);
+        appendVisibleSection(spreadNode, round32PageNode);
+        appendVisibleSection(spreadNode, round16PageNode);
+        appendVisibleSection(spreadNode, finalsPageNode);
+        appendVisibleSection(spreadNode, specialInterestPageNode);
+        return;
+      }
+
+      appendVisibleSection(spreadNode, trackerHeaderPageNode);
+      appendVisibleSection(spreadNode, preferredTeamsPageNode);
+      appendVisibleSection(spreadNode, completedPageNode);
+      appendVisibleSection(spreadNode, liveMatchPageNode);
+      appendVisibleSection(spreadNode, groupStagePageNode);
+      appendVisibleSection(spreadNode, groupTablesPageNode);
+      appendVisibleSection(spreadNode, round32PageNode);
+      appendVisibleSection(spreadNode, round16PageNode);
+      appendVisibleSection(spreadNode, finalsPageNode);
+      appendVisibleSection(spreadNode, specialInterestPageNode);
     };
 
     const updateStickyPageMarker = () => {
@@ -8781,7 +8925,6 @@
         .filter((match) => isCompletedMatch(match));
 
       const stampText = renderDateGroupedCards('completed-grid', completedMatches, 'Completed matches', {
-        sortComparator: (left, right) => sortByDate(right, left),
         emptyMessage: 'No completed matches yet.',
       });
 
@@ -10085,13 +10228,7 @@
       });
     };
 
-    // Keep completed fixtures directly after Group Stage in the screen flow.
-    const spreadNode = document.querySelector('.spread');
-    const completedPageNode = document.querySelector('[data-page="completed-matches"]');
-    const groupStagePageNode = document.querySelector('[data-page="group-stage"]');
-    if (spreadNode && completedPageNode && groupStagePageNode) {
-      groupStagePageNode.insertAdjacentElement('afterend', completedPageNode);
-    }
+    applySectionVisibilityAndOrder();
 
     setupCompletedAccordion();
     setupAccordion('group-stage-accordion-toggle', 'group-stage-accordion-content', 'fifa2026_group_stage_accordion_expanded', 'Collapse', 'Expand');

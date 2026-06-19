@@ -76,9 +76,13 @@ Core pages and modules include:
 - Live Match Centre scoreboard team names are now larger and center-justified for both home and away teams.
 - A `demoMatchId` in the URL now acts as a replay fallback only when no live fixture is active; an explicitly user-selected completed match still overrides the live default in the Live Match Centre.
 - Live Match Centre estimated time-left now prefers FIFA official `MatchTime`; when unavailable it falls back to a 45m + 15m + 45m baseline plus two mandatory 3-minute hydration breaks (stoppage time excluded).
-- Match Centre placement is now state-aware: while a live match is active, the Live Match Centre section is inserted inside Group Stage directly under the Live Match Spotlight card; when no live fixture is active, it moves to directly below Completed Matches as `Match Centre`.
-- Completed Matches now appears directly after Group Stage and uses an accordion control so the archive can be expanded or collapsed on demand.
+- Match Centre placement is now state-aware: while a live match is active, Live Match Centre is inserted under the Live Match Spotlight inside the `Live Spotlight` section; when no live fixture is active, it appears as `Match Centre` after Completed Matches.
+- The `FIFA World Cup 2026 Tracker` title block and `Next update` / `Last success` refresh chips now live in their own top page-header section; Group Stage fixtures render in a separate section directly below.
+- Completed Matches appears near the top of the page and uses an accordion control so the archive can be expanded or collapsed on demand.
 - The Completed Matches accordion control now uses higher-contrast button styling and a double-chevron icon to clearly signal expand/collapse affordance.
+- Completed Matches are ordered first-to-last by completion time (oldest first, newest last).
+- Preferred Team Highlights controls now live in their own dedicated section near the top of the page instead of inside Group Stage.
+- Section visibility is stage-aware: once all Group Stage fixtures are completed, the Group Stage section is hidden and Group Tables moves above Completed Matches; once all Round of 32 fixtures are completed, the Round of 32 section is hidden; once all Round of 16 fixtures are completed, the Round of 16 section is hidden.
 - Completed match cards now include a small TV-style replay icon that opens the SBS On Demand match page for quick replay access in a new tab.
 - A dedicated phone breakpoint (`max-width: 430px`) optimizes iPhone-sized screens with safe-area padding, larger tap targets, and rebalanced card/spotlight typography for one-handed readability.
 - On the phone breakpoint, match metadata keeps the kickoff time and date in a right-aligned column instead of wrapping under the team names.
@@ -222,18 +226,45 @@ Inside the Special Interest page, card order is:
 
 ## Screen Page Order
 
-Current screen order:
+Active game in progress order:
 
-1. Group Stage
-2. Completed Matches
-3. Live Match Centre
-4. Group Tables
-5. Round of 32
-6. Round of 16
-7. Finals
-8. Special Interest
+1. FIFA Tracker Header
+2. Preferred Team Highlights
+3. Completed Matches
+4. Live Spotlight
+5. Group Stage
+6. Group Tables
+7. Round of 32
+8. Round of 16
+9. Finals
+10. Special Interest
 
-Each key screen page now exposes a sticky page-name banner at the top while scrolling (`Group Stage`, `Completed Matches`, `Live Match Centre`, `Group Tables`, `Round of 32`, `Round of 16`, `Finals`, `Special Interest Stats`) so section context remains visible through long content in either scroll direction.
+No active game order:
+
+1. FIFA Tracker Header
+2. Preferred Team Highlights
+3. Completed Matches
+4. Match Centre
+5. Group Stage
+6. Group Tables
+7. Round of 32
+8. Round of 16
+9. Finals
+10. Special Interest
+
+No active game with Group Stage completed:
+
+1. FIFA Tracker Header
+2. Preferred Team Highlights
+3. Group Tables
+4. Match Centre
+5. Completed Matches
+6. Round of 32 (if not fully completed)
+7. Round of 16 (if not fully completed)
+8. Finals
+9. Special Interest
+
+Each key screen page now exposes a sticky page-name banner at the top while scrolling (`FIFA Tracker`, `Preferred Teams`, `Completed Matches`, `Live Spotlight`, `Match Centre`, `Group Stage`, `Group Tables`, `Round of 32`, `Round of 16`, `Finals`, `Special Interest Stats`) so section context remains visible through long content in either scroll direction.
 
 ## Group Tables
 
