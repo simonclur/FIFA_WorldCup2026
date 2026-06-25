@@ -7094,6 +7094,9 @@
     };
 
     const isActivelyPlayedMatch = (match) => {
+      if (isCompletedMatch(match)) {
+        return false;
+      }
       const kickoff = new Date(match?.Date || 0).getTime();
       if (!Number.isFinite(kickoff)) {
         return false;

@@ -26,24 +26,27 @@ Core pages and modules include:
 
 ## Live/Auto-Refresh Features
 
-### Match refresh
+### Auto-Refresh Timers Architecture
 
-- FIFA match calendar refresh every 5 minutes while active
-- Also refreshes when tab visibility resumes
-- Re-renders group stage, knockout, completed, and standings pages from latest payload
+The tracker implements a three-tier adaptive polling architecture to minimize API load while remaining instant:
 
-### Kickoff-triggered fetch
+1. **Base Schedule Polling (5m cadence)**
+   - A constant `setInterval` fetches the full FIFA schedule and Odds integration payloads every 5 minutes globally.
+   - Triggers page-wide re-renders (group stage, knockouts, standings, predicted brackets).
 
-- A one-shot `setTimeout` fires at each scheduled match kickoff + 5 s, triggering an immediate `loadMatches` call.
-- This ensures scores appear as soon as the match goes live rather than waiting up to 5 minutes for the regular poll cycle.
-- The trigger is scheduled (or rescheduled) on every `loadMatches` completion; it cancels any prior pending trigger first.
-- If the kickoff has already passed by the time the trigger would be set, it is skipped — the 60 s live-refresh timer takes over.
+2. **Live Match Polling (60s cadence)**
+   - Evaluates `isActivelyPlayedMatch()` across all global tournament matches.
+   - When active matches are detected (Status 2-6, or within 4 hours if missing a status code), a dedicated 60-second polling cadence engages for live feeds.
+   - **Crucial Behavior:** Immediately exits 60s polling back to the 5m cadence the moment FIFA marks the match as `ResultType: 1` or `Status: 0` (Completed), preventing aggressive polling from persisting unnecessarily over the post-match 4-hour window.
 
-### Live polling
+3. **Imminent Kickoff Trigger**
+   - A single-use `setTimeout` identifies the closest future kickoff and explicitly fires at `Kickoff + 5 seconds`.
+   - This bypasses the 5-minute wait and instantly pushes the tracker into 60s Live Mode exactly when a match is scheduled to start.
 
-- 60-second live-only polling when there are active matches (or replay mode)
-- Keeps scores and Live Match Centre details up to date during play
-- On first load, the page auto-scrolls to the live match spotlight when a live match is in progress; otherwise it lands on the next-up Group Stage fixture.
+4. **Isolated UI Tickers (No Network calls)**
+   - Refresh countdown clocks update locally every `1s`.
+   - Next-up kickoff countdown labels compute locally every `30s`.
+   - Match Reminder bell checks fire locally every `60s`.
 
 ### Group Stage live spotlight
 
