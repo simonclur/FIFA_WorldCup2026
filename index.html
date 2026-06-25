@@ -23,7 +23,9 @@
       --paper-strong: #efe5d7;
       --ink: #142033;
       --muted: #607083;
+
       --line: rgba(20, 32, 51, 0.14);
+      --actual-qual-bg: rgba(13, 107, 114, 0.13);
       --accent: #0d6b72;
       --accent-2: #b45309;
       --accent-3: #1f4d7a;
@@ -118,8 +120,8 @@
       width: min(100%, 1200px);
       margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
     }
 
     .bottom-section-tab {
@@ -2252,6 +2254,18 @@
       color: #9a2f00;
     }
 
+    
+    .score-inline.spoiler-blur {
+      filter: blur(4px);
+      opacity: 0.8;
+      cursor: pointer;
+      transition: filter 0.2s ease, opacity 0.2s ease;
+    }
+    .score-inline.spoiler-blur:hover {
+      filter: blur(2px);
+      opacity: 1;
+    }
+
     .score-inline.final {
       color: var(--accent-3);
     }
@@ -3044,6 +3058,12 @@
       border-bottom: none;
     }
 
+    
+    .bracket-team.actual-qualified {
+      background: var(--actual-qual-bg);
+      font-weight: 700;
+    }
+
     .bracket-team.predicted {
       opacity: 0.5;
     }
@@ -3262,7 +3282,9 @@
         --paper-strong: #0f1c30;
         --ink: #e8f0ff;
         --muted: #9fb2cf;
+
         --line: rgba(173, 201, 236, 0.24);
+        --actual-qual-bg: rgba(121, 210, 184, 0.16);
         --accent: #79d2b8;
         --accent-2: #8fd3ff;
         --accent-3: #b8d8ff;
@@ -4528,7 +4550,33 @@
         padding: 3mm;
       }
     }
-  </style>
+  
+    .spoiler-segmented-control {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 2px;
+      border: 1px solid var(--line);
+    }
+    .spoiler-segmented-control button {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .spoiler-segmented-control button:hover {
+      color: var(--ink);
+    }
+    .spoiler-segmented-control button.active {
+      background: var(--brand);
+      color: #fff;
+    }
+</style>
 </head>
 <body>
   <div id="page-sticky-marker" class="page-sticky-marker" aria-live="polite" data-visible="false"></div>
@@ -4542,6 +4590,20 @@
               Group stage fixtures for Brisbane, Australia. Times are shown in Australia/Brisbane, which is the same as AEST year-round. Scores refresh from FIFA's public match API whenever the page loads or refreshes.
             </p>
             <div class="page-head-info">
+
+              <button type="button" id="tracker-header-settings-toggle" class="info-toggle-btn" data-info-toggle="1" style="padding-bottom: 2px" aria-expanded="false" aria-controls="tracker-header-settings-panel" aria-label="Show tracker settings">⚙️</button>
+              <div id="tracker-header-settings-panel" class="page-head-info-panel" hidden>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <label for="spoiler-blur-select" style="color: var(--muted); font-size: 0.75rem; text-transform: uppercase;">Spoiler Blur</label>
+                  <div class="spoiler-segmented-control" id="spoiler-blur-group">
+                    <button type="button" data-val="0">Off</button>
+                    <button type="button" data-val="12">12h</button>
+                    <button type="button" data-val="24">24h</button>
+                    <button type="button" data-val="48">48h</button>
+                  </div>
+                </div>
+              </div>
+
               <button type="button" id="tracker-header-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="tracker-header-info-panel" aria-label="Show tracker header information">i</button>
               <div id="tracker-header-info-panel" class="page-head-info-panel" hidden>
                 <div class="chip-cluster">
@@ -5158,6 +5220,7 @@
       <button type="button" id="bottom-tab-completed" class="bottom-section-tab">Completed</button>
       <button type="button" id="bottom-tab-live-next" class="bottom-section-tab">Live/Next</button>
       <button type="button" id="bottom-tab-groups" class="bottom-section-tab"><span id="bottom-tab-groups-label">Groups</span></button>
+      <button type="button" id="bottom-tab-knockout" class="bottom-section-tab">Knockout</button>
     </div>
   </nav>
 
@@ -5204,7 +5267,19 @@
     const knockoutStages = ['Round of 32', 'Round of 16'];
     const finalsStages = ['Quarter-final', 'Semi-final', 'Play-off for third place', 'Final'];
 
+    window.unblurScore = (e, matchId) => {
+      e.stopPropagation();
+      e.preventDefault();
+      e.currentTarget.classList.remove('spoiler-blur');
+      e.currentTarget.removeAttribute('onclick');
+      state.unblurredScores.add(matchId);
+    };
+
+    const spoilerBlurHoursKey = 'fifa2026_spoiler_blur_hours_v1';
+
     const state = {
+      spoilerBlurHours: 24,
+      unblurredScores: new Set(),
       matches: [],
       updatedAt: null,
       nextDataRefreshAt: null,
@@ -8673,6 +8748,11 @@
       const isUpcoming = isUpcomingMatch(displayMatch);
       const isLive = isActivelyPlayedMatch(displayMatch);
       const isFinished = isCompletedMatch(displayMatch);
+      const isSpoilered = state.spoilerBlurHours > 0 
+        && isFinished 
+        && Number.isFinite(kickoffTs) 
+        && (Date.now() - kickoffTs < ((state.spoilerBlurHours + 2) * 60 * 60 * 1000)) 
+        && !state.unblurredScores.has(matchId);
       const gcalUrl = isUpcoming ? buildGoogleCalendarUrl(match) : null;
       const isReminderSet = isUpcoming && state.matchReminders.has(matchId);
       const oddsInline = renderMatchOddsInline(match);
@@ -8729,7 +8809,7 @@
           <div class="teams">
             ${renderFlag(match.Home)}
             <span class="team-name">${escapeHtml(home)}</span>
-            <span class="score-inline${isLive ? ' live' : ''}${isFinished ? ' final' : ''}">${escapeHtml(scoreText)}</span>
+            <span class="score-inline${isLive ? ' live' : ''}${isFinished ? ' final' : ''}${isSpoilered ? ' spoiler-blur' : ''}"${isSpoilered ? ` onclick="unblurScore(event, '${escapeHtml(matchId)}');"` : ''} title="${isSpoilered ? 'Click to reveal score' : ''}">${escapeHtml(scoreText)}</span>
             ${renderFlag(match.Away)}
             <span class="team-name">${escapeHtml(away)}</span>
           </div>
@@ -9596,7 +9676,8 @@
 
       fitSingleLineTitles();
 
-      applySectionVisibilityAndOrder();
+  applySectionVisibilityAndOrder();
+    setupSpoilerSettings();
     };
 
     const isStageComplete = (stageNames) => {
@@ -9817,9 +9898,17 @@
       const completedTabNode = document.getElementById('bottom-tab-completed');
       const liveNextTabNode = document.getElementById('bottom-tab-live-next');
       const groupsTabNode = document.getElementById('bottom-tab-groups');
-      if (!completedTabNode || !liveNextTabNode || !groupsTabNode) {
+      const knockoutTabNode = document.getElementById('bottom-tab-knockout');
+      if (!completedTabNode || !liveNextTabNode || !groupsTabNode || !knockoutTabNode) {
         return;
       }
+
+      knockoutTabNode.addEventListener('click', () => {
+        const knockoutPageNode = document.querySelector('[data-page="predicted-bracket"]');
+        if (knockoutPageNode) {
+          scrollNodeBelowStickyMarker(knockoutPageNode, 'smooth');
+        }
+      });
 
       completedTabNode.addEventListener('click', () => {
         applyCompletedAccordionExpanded(true);
@@ -10130,7 +10219,8 @@ const renderPredictedBracketPage = () => {
          const tlaCode = getTlaCode(teamName);
          const flag = teamName ? getFlag(teamName) : '';
          const flagImg = flag ? `<img src="${escapeHtml(flag)}" class="flag" />` : `<span class="flag-placeholder"></span>`;
-         const classes = `bracket-team ${isPred ? 'predicted' : ''}`;
+         const actualQualifiedClass = teamName && !isPred ? ' actual-qualified' : '';
+         const classes = `bracket-team ${isPred ? 'predicted' : ''}${actualQualifiedClass}`;
          const formHTML = !teamName ? '' : getTeamForm(teamName);
          const cardsHTML = !teamName ? '' : getTeamCards(teamName, isPostQF);
          return `<div class="${classes}">${flagImg}<span class="bracket-team-tla">${tlaCode}</span><span class="bracket-team-name">${cleanName}</span>${formHTML}${cardsHTML}</div>`;
@@ -11494,6 +11584,44 @@ const renderPredictedBracketPage = () => {
         } catch {
           // Ignore storage failures.
         }
+      }
+    };
+
+
+    const loadSpoilerBlurHours = () => {
+      try {
+        const raw = localStorage.getItem(spoilerBlurHoursKey);
+        if (raw) return parseInt(raw, 10);
+      } catch {}
+      return 24;
+    };
+
+    const setupSpoilerSettings = () => {
+      state.spoilerBlurHours = loadSpoilerBlurHours();
+      const groupNode = document.getElementById('spoiler-blur-group');
+      if (groupNode) {
+        const btns = groupNode.querySelectorAll('button');
+        const updateActive = () => {
+          btns.forEach(b => {
+            if (parseInt(b.getAttribute('data-val'), 10) === state.spoilerBlurHours) {
+              b.classList.add('active');
+            } else {
+              b.classList.remove('active');
+            }
+          });
+        };
+        updateActive();
+
+        btns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.spoilerBlurHours = parseInt(btn.getAttribute('data-val'), 10);
+            try {
+               localStorage.setItem(spoilerBlurHoursKey, String(state.spoilerBlurHours));
+            } catch {}
+            updateActive();
+            refreshAll();
+          });
+        });
       }
     };
 
