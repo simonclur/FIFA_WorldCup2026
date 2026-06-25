@@ -3082,8 +3082,8 @@
       border-radius: 1.5px;
     }
 
-    .form-w { background-color: var(--positive); }
-    .form-l { background-color: var(--negative); }
+    .form-w { background-color: #10b981; }
+    .form-l { background-color: #ef4444; }
     .form-d { background-color: var(--muted); }
 
     @media (max-width: 480px) {
@@ -3883,8 +3883,8 @@
       border-radius: 1.5px;
     }
 
-    .form-w { background-color: var(--positive); }
-    .form-l { background-color: var(--negative); }
+    .form-w { background-color: #10b981; }
+    .form-l { background-color: #ef4444; }
     .form-d { background-color: var(--muted); }
 
     @media (max-width: 480px) {
@@ -10003,14 +10003,26 @@ const renderPredictedBracketPage = () => {
          .sort((a,b) => new Date(a.Date) - new Date(b.Date))
          .map(m => {
             const isHome = canonicalTeamName(teamName(m.Home)) === canonName;
-            const hs = Number(m.HomeTeamScore);
-            const as = Number(m.AwayTeamScore);
+            
+            const getInnerScore = (match, isHomeSide) => {
+               if (isHomeSide) {
+                  if (match.HomeTeamScore !== null && match.HomeTeamScore !== undefined) return Number(match.HomeTeamScore);
+                  return Number(match.Home?.Score);
+               } else {
+                  if (match.AwayTeamScore !== null && match.AwayTeamScore !== undefined) return Number(match.AwayTeamScore);
+                  return Number(match.Away?.Score);
+               }
+            };
+
+            const hs = getInnerScore(m, true);
+            const as = getInnerScore(m, false);
+
             let result = 'd';
             if (hs > as) result = isHome ? 'w' : 'l';
             else if (as > hs) result = isHome ? 'l' : 'w';
             else {
-               const hp = m.HomeTeamPenaltyScore ? Number(m.HomeTeamPenaltyScore) : null;
-               const ap = m.AwayTeamPenaltyScore ? Number(m.AwayTeamPenaltyScore) : null;
+               const hp = m.HomeTeamPenaltyScore !== null && m.HomeTeamPenaltyScore !== undefined ? Number(m.HomeTeamPenaltyScore) : null;
+               const ap = m.AwayTeamPenaltyScore !== null && m.AwayTeamPenaltyScore !== undefined ? Number(m.AwayTeamPenaltyScore) : null;
                if (hp !== null && ap !== null) {
                    if (hp > ap) result = isHome ? 'w' : 'l';
                    else if (ap > hp) result = isHome ? 'l' : 'w';
