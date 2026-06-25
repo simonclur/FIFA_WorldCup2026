@@ -249,7 +249,8 @@ Active game in progress order:
 8. Round of 32
 9. Round of 16
 10. Finals
-11. Special Interest
+11. Predicted Bracket
+12. Special Interest
 
 No active game order:
 
@@ -263,7 +264,8 @@ No active game order:
 8. Round of 32
 9. Round of 16
 10. Finals
-11. Special Interest
+11. Predicted Bracket
+12. Special Interest
 
 No active game with Group Stage completed:
 
@@ -276,9 +278,10 @@ No active game with Group Stage completed:
 7. Round of 32 (if not fully completed)
 8. Round of 16 (if not fully completed)
 9. Finals
-10. Special Interest
+10. Predicted Bracket
+11. Special Interest
 
-Each key screen page now exposes a sticky page-name banner at the top while scrolling (`FIFA Tracker`, `Preferred Teams`, `Completed Matches`, `Live Spotlight`, `Match Centre`, `Group Stage`, `Group Tables`, `Third-Placed`, `Round of 32`, `Round of 16`, `Finals`, `Special Interest Stats`) so section context remains visible through long content in either scroll direction.
+Each key screen page now exposes a sticky page-name banner at the top while scrolling (`FIFA Tracker`, `Preferred Teams`, `Completed Matches`, `Live Spotlight`, `Match Centre`, `Group Stage`, `Group Tables`, `Third-Placed`, `Round of 32`, `Round of 16`, `Finals`, `Knockout Bracket`, `Special Interest Stats`) so section context remains visible through long content in either scroll direction.
 
 ## Group Tables
 
