@@ -9590,11 +9590,12 @@
 
       const liveMatches = matches.filter(isActivelyPlayedMatch);
       const nonLiveMatches = matches.filter((match) => !isActivelyPlayedMatch(match));
+      const allLiveMatches = state.matches.filter(isActivelyPlayedMatch);
 
       renderWinnerOddsPanel();
       updateLiveMatchCentrePresentation();
       renderLiveGroupTableSpotlight(liveMatches);
-      renderGroupStageLiveSpotlight(liveMatches);
+      renderGroupStageLiveSpotlight(allLiveMatches);
       renderDateGroupedCards('groups-grid', nonLiveMatches, 'Group stage', {
         emptyMessage: liveMatches.length
           ? 'No additional non-live group-stage fixtures right now.'
