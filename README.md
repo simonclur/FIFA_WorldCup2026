@@ -84,6 +84,9 @@ Core pages and modules include:
 - Preferred Team Highlights controls now live in their own dedicated section near the top of the page instead of inside Group Stage.
 - `Third-Placed Teams` ("Lucky 8") operates alongside Group Tables and dynamically calculates the top 8 third-placed teams advancing to the Round of 32.
 - Section visibility is stage-aware: once all Group Stage fixtures are completed, the Group Stage section is hidden and Group Tables / Third-Placed Teams move above Completed Matches; once all Round of 32 fixtures are completed, the Round of 32 and Third-Placed sections are hidden; once all Round of 16 fixtures are completed, the Round of 16 section is hidden.
+- The `Predicted Bracket` visualization plots the mathematical knockout pathways for all 32 teams through to the Final, using predictive odds progression to resolve upcoming match winners.
+- Knockout Bracket nodes now display Team Form indicators (Win/Loss/Draw) derived from recent completed match outcomes.
+- Knockout Bracket nodes dynamically report accumulated Yellow and Red card counts next to team names; counts strictly respect the FIFA semi-final amnesty rule by wiping tallies from the Quarter-finals onward.
 - Completed match cards now include a small TV-style replay icon that opens the SBS On Demand match page for quick replay access in a new tab.
 - A dedicated phone breakpoint (`max-width: 430px`) optimizes iPhone-sized screens with safe-area padding, larger tap targets, and rebalanced card/spotlight typography for one-handed readability.
 - On the phone breakpoint, match metadata keeps the kickoff time and date in a right-aligned column instead of wrapping under the team names.
@@ -102,6 +105,7 @@ Core pages and modules include:
 - Page header metadata now uses a compact inline info button pattern: the button sits on the same row as the subtitle/context copy, and the metadata is shown only on demand in a popover.
 - On touch devices, match-card hover affordances now support tap-to-focus, second tap to clear, and tap-outside-to-clear so odds hover context works on iPhone.
 - The World Cup winners Sankey now supports touch parity: tap year/champion/link to lock highlight, tap again to toggle off, and tap outside the chart to clear.
+- The World Cup winners Sankey was upgraded to include a full-width selectable bounding box over each Champion node, drastically improving desktop hover and mobile tap interaction targeting.
 
 ### Match Events timeline
 

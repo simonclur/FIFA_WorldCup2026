@@ -2957,6 +2957,15 @@
       transition: opacity 180ms ease;
     }
 
+    
+    .winners-sankey-box {
+      transition: all 180ms ease;
+    }
+    .winners-sankey-champion:hover .winners-sankey-box {
+      fill: rgba(128, 128, 128, 0.05);
+      stroke: var(--ink);
+    }
+
     .winners-sankey-node.is-dim,
     .winners-sankey-label.is-dim {
       opacity: 0.24;
@@ -3068,6 +3077,56 @@
       flex-shrink: 0;
     }
 
+    
+    .team-cards {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      margin-left: 6px;
+      font-size: 0.55rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .card-count {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       padding: 0 3px;
+       height: 12px;
+       border-radius: 2px;
+    }
+
+    .card-y { background-color: #facc15; color: #000; }
+    .card-r { background-color: #ef4444; color: #fff; }
+
+    .bracket-match-wrapper { position: relative; }
+    .bracket-col-matches { position: relative; }
+
+    .bracket-col:nth-child(n+2):nth-child(-n+4) .bracket-match-wrapper::before,
+    .bracket-col:nth-child(5) .bracket-col-matches::before {
+      content: '';
+      position: absolute;
+      top: 25%;
+      bottom: 25%;
+      left: -1.5rem; 
+      width: 0.75rem;
+      border: solid var(--line);
+      border-width: 1px 1px 1px 0;
+      border-radius: 0 4px 4px 0;
+      z-index: 0;
+    }
+
+    .bracket-col:nth-child(n+2):nth-child(-n+4) .bracket-match-wrapper::after,
+    .bracket-col:nth-child(5) .bracket-col-matches::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -0.75rem;
+      width: 0.75rem;
+      border-top: 1px solid var(--line);
+      z-index: 0;
+    }
     .team-form {
       display: flex;
       gap: 2px;
@@ -3094,6 +3153,20 @@
       .bracket-team-name { display: none; }
       .bracket-team-tla { display: none; }
       .team-form { display: none; }
+      .team-cards { display: none; }
+      
+      .bracket-col:nth-child(n+2):nth-child(-n+4) .bracket-match-wrapper::before,
+      .bracket-col:nth-child(5) .bracket-col-matches::before,
+      .bracket-col:nth-child(n+2):nth-child(-n+4) .bracket-match-wrapper::after,
+      .bracket-col:nth-child(5) .bracket-col-matches::after {
+         left: -0.35rem;
+         width: 0.175rem;
+      }
+      
+      .bracket-col:nth-child(n+2):nth-child(-n+4) .bracket-match-wrapper::after,
+      .bracket-col:nth-child(5) .bracket-col-matches::after {
+         left: -0.175rem;
+      }
       .bracket-team { justify-content: center; padding: 4px 0; gap: 0; }
     }
 
@@ -9810,7 +9883,7 @@
         return;
       }
 
-      const pages = [...document.querySelectorAll('.page[data-sticky-name]')];
+      const pages = [...document.querySelectorAll('.page[data-sticky-name]')].filter(page => page.getBoundingClientRect().height > 0);
       if (!pages.length) {
         markerNode.textContent = '';
         markerNode.setAttribute('data-visible', 'false');
@@ -9991,6 +10064,19 @@ const renderPredictedBracketPage = () => {
       const orderedRounds = getBracketOrder(); 
       const roundNames = ['Round of 32', 'Round of 16', 'Quarter-finals', 'Semi-finals', 'Final'];
 
+      const getTeamCards = (teamNameStr, isPostQF) => {
+         if (!teamNameStr || !state.squadData || isPostQF) return '';
+         let y = 0, r = 0;
+         state.squadData.forEach(p => {
+           if (p.nationalTeam && p.nationalTeam.toLowerCase() === teamNameStr.toLowerCase() && p.tournamentStats) {
+             y += p.tournamentStats.yellowCards || 0;
+             r += p.tournamentStats.redCards || 0;
+           }
+         });
+         if (y === 0 && r === 0) return '';
+         return `<div class="team-cards">${y > 0 ? `<span class="card-count card-y">${y}</span>` : ''}${r > 0 ? `<span class="card-count card-r">${r}</span>` : ''}</div>`;
+      };
+
       const getTeamForm = (teamNameStr) => {
          if (!teamNameStr) return '';
          const canonName = canonicalTeamName(teamNameStr);
@@ -10039,14 +10125,15 @@ const renderPredictedBracketPage = () => {
       const getTlaOrName = (name) => name ? escapeHtml(name) : 'TBD';
       const getTlaCode = (name) => name ? escapeHtml(name.substring(0, 3).toUpperCase()) : 'TBD';
 
-      const renderTeam = (teamName, isPred) => {
+      const renderTeam = (teamName, isPred, isPostQF) => {
          const cleanName = getTlaOrName(teamName);
          const tlaCode = getTlaCode(teamName);
          const flag = teamName ? getFlag(teamName) : '';
          const flagImg = flag ? `<img src="${escapeHtml(flag)}" class="flag" />` : `<span class="flag-placeholder"></span>`;
          const classes = `bracket-team ${isPred ? 'predicted' : ''}`;
          const formHTML = !teamName ? '' : getTeamForm(teamName);
-         return `<div class="${classes}">${flagImg}<span class="bracket-team-tla">${tlaCode}</span><span class="bracket-team-name">${cleanName}</span>${formHTML}</div>`;
+         const cardsHTML = !teamName ? '' : getTeamCards(teamName, isPostQF);
+         return `<div class="${classes}">${flagImg}<span class="bracket-team-tla">${tlaCode}</span><span class="bracket-team-name">${cleanName}</span>${formHTML}${cardsHTML}</div>`;
       };
 
       const colsHTML = orderedRounds.map((nums, idx) => {
@@ -10070,8 +10157,8 @@ const renderPredictedBracketPage = () => {
                 <div class="bracket-match-wrapper"${wrapperStyle}>
                   ${labelHTML}
                   <div class="bracket-match">
-                     ${renderTeam(b.home, b.homePred)}
-                     ${renderTeam(b.away, b.awayPred)}
+                     ${renderTeam(b.home, b.homePred, idx >= 3)}
+                     ${renderTeam(b.away, b.awayPred, idx >= 3)}
                   </div>
                 </div>
               `;
@@ -10357,10 +10444,17 @@ const renderPredictedBracketPage = () => {
         const y = layout.y;
         const nodeHeight = layout.height;
         const fill = colorByChampion.get(name) || '#0d6b72';
+        
+        const boxTop = y - Math.max(4, Math.round(4 * sankeyScale));
+        const boxHeight = nodeHeight + Math.max(8, Math.round(8 * sankeyScale));
+        const textOffsetLeftX = Math.round(14 * sankeyScale);
+        const boxWidth = (leftX + nodeWidth) - textOffsetLeftX + Math.max(4, Math.round(4 * sankeyScale));
+
         return `
-          <g class="winners-sankey-champion" data-champion="${escapeHtml(name)}">
+          <g class="winners-sankey-champion" style="cursor: pointer;" data-champion="${escapeHtml(name)}">
+            <rect class="winners-sankey-box" x="${textOffsetLeftX - Math.max(4, Math.round(4 * sankeyScale))}" y="${boxTop}" width="${boxWidth}" height="${boxHeight}" fill="transparent" stroke="var(--line)" stroke-width="1" rx="4" />
             <rect class="winners-sankey-node" x="${leftX}" y="${y}" width="${nodeWidth}" height="${nodeHeight}" fill="${escapeHtml(fill)}" />
-            <text class="winners-sankey-label" x="${leftX - Math.max(6, Math.round(8 * sankeyScale))}" y="${y + (nodeHeight / 2)}" text-anchor="end" style="font-size:${labelFontSize.toFixed(2)}px">${escapeHtml(name)} (${escapeHtml(wins)})</text>
+            <text class="winners-sankey-label" x="${leftX - Math.max(6, Math.round(8 * sankeyScale))}" y="${y + (nodeHeight / 2)}" text-anchor="end" style="font-size:${labelFontSize.toFixed(2)}px; pointer-events: none;">${escapeHtml(name)} (${escapeHtml(wins)})</text>
           </g>
         `;
       }).join('');
@@ -10395,6 +10489,7 @@ const renderPredictedBracketPage = () => {
 
         const rect = node.querySelector('.winners-sankey-node');
         const label = node.querySelector('.winners-sankey-label');
+        const box = node.querySelector('.winners-sankey-box');
         if (rect) {
           rect.classList.toggle('is-active', state === 'active');
           rect.classList.toggle('is-dim', state === 'dim');
@@ -10404,6 +10499,21 @@ const renderPredictedBracketPage = () => {
           label.classList.toggle('is-active', state === 'active');
           label.classList.toggle('is-dim', state === 'dim');
           label.style.opacity = state === 'dim' ? '0.24' : '1';
+        }
+        if (box) {
+          if (state === 'active') {
+            box.style.fill = 'rgba(128, 128, 128, 0.08)';
+            box.style.stroke = 'var(--ink)';
+            box.style.opacity = '1';
+          } else if (state === 'dim') {
+            box.style.fill = 'transparent';
+            box.style.stroke = 'var(--line)';
+            box.style.opacity = '0.24';
+          } else {
+            box.style.fill = 'transparent';
+            box.style.stroke = 'var(--line)';
+            box.style.opacity = '1';
+          }
         }
       };
 
