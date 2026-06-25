@@ -1333,6 +1333,15 @@
       color: var(--accent-3);
     }
 
+    .group-table tr.lucky8-qualified td {
+      background-color: var(--chip);
+    }
+
+    .group-table tr.lucky8-eliminated td {
+      color: var(--muted);
+      opacity: 0.8;
+    }
+
     .group-table th:nth-child(9),
     .group-table td:nth-child(9) {
       text-align: center;
@@ -4428,6 +4437,52 @@
       </div>
     </section>
 
+    <section class="page" data-page="lucky-8" data-sticky-name="Third-Placed">
+      <header class="page-head">
+        <div>
+          <h2 class="page-title title-long">Third-Placed Teams (Lucky 8)</h2>
+          <div class="page-subtitle-row">
+            <p class="page-subtitle">
+              Live tracking of the third-placed teams. The top 8 advance to the Round of 32.
+            </p>
+            <div class="page-head-info">
+              <button type="button" id="lucky8-info-toggle" class="info-toggle-btn" data-info-toggle="1" aria-expanded="false" aria-controls="lucky8-info-panel" aria-label="Show third-placed teams information">i</button>
+              <div id="lucky8-info-panel" class="page-head-info-panel" hidden>
+                <div class="chip-cluster">
+                  <div class="chip"><strong>Page</strong> Third-placed teams</div>
+                  <div class="chip"><strong>Timezone</strong> Australia/Brisbane</div>
+                  <div class="chip"><strong>Update</strong> live standings</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Lucky 8 Tracker</h2>
+          <p class="section-note">Top 8 third-placed teams advance to knockouts.</p>
+        </div>
+        <button type="button" id="lucky8-accordion-toggle" class="accordion-toggle" aria-controls="lucky8-accordion-content" aria-expanded="true">
+          <span class="accordion-toggle-label">Collapse</span>
+          <svg class="accordion-toggle-icon" viewBox="0 0 10 10" aria-hidden="true" focusable="false">
+            <path d="M2 3.3 5 6.1 8 3.3" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 1.5 5 4.3 8 1.5" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="lucky8-accordion-content" class="accordion-content">
+        <div class="grid" id="lucky8-grid"></div>
+
+        <div class="footer">
+          <div><strong>Tiebreak note:</strong> sorted by Points, Goal Difference, Goals For, then team name.</div>
+          <div id="lucky8-rendered-at"></div>
+        </div>
+      </div>
+    </section>
+
     <section class="page" data-page="round-of-32" data-sticky-name="Round of 32">
       <header class="page-head">
         <div>
@@ -4751,6 +4806,7 @@
         const groupTablesGrid = document.getElementById('group-tables-grid');
         if (groupTablesGrid && groupTablesGrid.innerHTML !== '') {
           renderGroupTablesPage();
+          renderThirdPlacedTeamsPage();
         }
       })
       .catch(err => console.warn('Failed to load squad-data.json for player enrichment:', err));
@@ -8981,6 +9037,99 @@
       stampNode.textContent = `Group tables updated ${state.updatedAt ? updateFormatter.format(state.updatedAt) : 'waiting for data'}`;
     };
 
+    const renderThirdPlacedTeamsPage = () => {
+      const groupStageMatches = state.matches
+        .filter((match) => stageName(match) === 'First Stage' && match.GroupName?.length && isCompletedMatch(match))
+        .sort(sortByDate);
+
+      const groups = buildGroupTables(groupStageMatches);
+      const gridNode = document.getElementById('lucky8-grid');
+      const stampNode = document.getElementById('lucky8-rendered-at');
+
+      if (!groups.length) {
+        gridNode.innerHTML = '<div class="empty">Third-placed teams tracking will appear as group-stage fixtures become available.</div>';
+        stampNode.textContent = 'Updated waiting for data';
+        return;
+      }
+
+      // Extract 3rd placed teams
+      const thirdPlacedTeams = [];
+      for (const group of groups) {
+        if (group.rows.length >= 3) {
+          const team = group.rows[2];
+          thirdPlacedTeams.push({
+            groupName: group.name,
+            ...team
+          });
+        }
+      }
+
+      // If we don't have enough 3rd placed teams yet
+      if (!thirdPlacedTeams.length) {
+        gridNode.innerHTML = '<div class="empty">Third-placed teams will populate once group tables have sufficient matches.</div>';
+        stampNode.textContent = 'Updated waiting for data';
+        return;
+      }
+
+      // Sort according to tie-breakers
+      thirdPlacedTeams.sort((a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts;
+        if (b.gd !== a.gd) return b.gd - a.gd;
+        if (b.gf !== a.gf) return b.gf - a.gf;
+        return a.name.localeCompare(b.name);
+      });
+
+      const rowsHTML = thirdPlacedTeams.map((row, index) => {
+        const isQualified = index < 8; // Top 8 third-placed advance
+        // We'll use a style class for qualified
+        const rowClass = isQualified ? 'lucky8-qualified' : 'lucky8-eliminated';
+        const rankIndicator = isQualified ? '✅ ' : '❌ ';
+
+        return `
+          <tr class="${rowClass}">
+            <td>${index + 1}</td>
+            <td class="team-col">
+              <span class="team-cell">
+                ${row.flag ? `<img class="flag" src="${escapeHtml(row.flag)}" alt="${escapeHtml(row.name)} flag">` : ''}
+                <span>${escapeHtml(row.name)} <small>(${escapeHtml(row.groupName)})</small></span>
+              </span>
+            </td>
+            <td>${row.p}</td>
+            <td>${row.w}</td>
+            <td>${row.d}</td>
+            <td>${row.l}</td>
+            <td>${row.gf}</td>
+            <td>${row.gd}</td>
+            <td class="pts-col">${row.pts}</td>
+          </tr>
+        `;
+      }).join('');
+
+      gridNode.innerHTML = `
+        <section class="card table-card" style="grid-column: 1 / -1;">
+          <h3><span>Current "Lucky 8" Ranking</span></h3>
+          <div class="table-wrap">
+            <table class="group-table">
+              <tr>
+                <th>Rk</th>
+                <th class="team-col">Team</th>
+                <th>P</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>GF</th>
+                <th>GD</th>
+                <th class="pts-col">Pts</th>
+              </tr>
+              ${rowsHTML}
+            </table>
+          </div>
+        </section>
+      `;
+
+      stampNode.textContent = `Third-placed teams updated ${state.updatedAt ? updateFormatter.format(state.updatedAt) : 'waiting for data'}`;
+    };
+
     const renderGroupStage = () => {
       const matches = state.matches
         .filter((match) => stageName(match) === 'First Stage' && !isCompletedMatch(match));
@@ -9215,6 +9364,7 @@
       const liveMatchPageNode = document.querySelector('[data-page="live-match"]');
       const groupStagePageNode = document.querySelector('[data-page="group-stage"]');
       const groupTablesPageNode = document.querySelector('[data-page="group-tables"]');
+      const lucky8PageNode = document.querySelector('[data-page="lucky-8"]');
       const round32PageNode = document.querySelector('[data-page="round-of-32"]');
       const round16PageNode = document.querySelector('[data-page="round-of-16"]');
       const finalsPageNode = document.querySelector('[data-page="finals"]');
@@ -9227,6 +9377,9 @@
 
       if (groupStagePageNode) {
         groupStagePageNode.hidden = groupStageComplete;
+      }
+      if (lucky8PageNode) {
+        lucky8PageNode.hidden = round32Complete; // Hide lucky 8 once the Round of 32 is finished
       }
       if (round32PageNode) {
         round32PageNode.hidden = round32Complete;
@@ -9245,6 +9398,7 @@
         appendVisibleSection(spreadNode, liveCoveragePageNode);
         appendVisibleSection(spreadNode, groupStagePageNode);
         appendVisibleSection(spreadNode, groupTablesPageNode);
+        appendVisibleSection(spreadNode, lucky8PageNode);
         appendVisibleSection(spreadNode, round32PageNode);
         appendVisibleSection(spreadNode, round16PageNode);
         appendVisibleSection(spreadNode, finalsPageNode);
@@ -9256,6 +9410,7 @@
         appendVisibleSection(spreadNode, trackerHeaderPageNode);
         appendVisibleSection(spreadNode, preferredTeamsPageNode);
         appendVisibleSection(spreadNode, groupTablesPageNode);
+        appendVisibleSection(spreadNode, lucky8PageNode);
         appendVisibleSection(spreadNode, liveMatchPageNode);
         appendVisibleSection(spreadNode, completedPageNode);
         appendVisibleSection(spreadNode, round32PageNode);
@@ -9271,6 +9426,7 @@
       appendVisibleSection(spreadNode, liveMatchPageNode);
       appendVisibleSection(spreadNode, groupStagePageNode);
       appendVisibleSection(spreadNode, groupTablesPageNode);
+      appendVisibleSection(spreadNode, lucky8PageNode);
       appendVisibleSection(spreadNode, round32PageNode);
       appendVisibleSection(spreadNode, round16PageNode);
       appendVisibleSection(spreadNode, finalsPageNode);
@@ -10521,6 +10677,7 @@
       renderLiveMatchPage();
       renderGroupStage();
       renderGroupTablesPage();
+      renderThirdPlacedTeamsPage();
       renderKnockoutPage('round32-grid', knockoutStages.slice(0, 1), 'round32-rendered-at', 'Round of 32');
       renderKnockoutPage('round16-grid', knockoutStages.slice(1, 2), 'round16-rendered-at', 'Round of 16');
       renderKnockoutPage('finals-grid', finalsStages, 'finals-rendered-at', 'Finals');
@@ -10707,6 +10864,7 @@
     setupAccordion('round16-accordion-toggle', 'round16-accordion-content', 'fifa2026_round16_accordion_expanded', 'Collapse', 'Expand');
     setupAccordion('finals-accordion-toggle', 'finals-accordion-content', 'fifa2026_finals_accordion_expanded', 'Collapse', 'Expand');
     setupAccordion('group-tables-accordion-toggle', 'group-tables-accordion-content', 'fifa2026_group_tables_accordion_expanded', 'Collapse', 'Expand');
+    setupAccordion('lucky8-accordion-toggle', 'lucky8-accordion-content', 'fifa2026_lucky8_accordion_expanded', 'Collapse', 'Expand');
     setupAccordion('live-match-accordion-toggle', 'live-match-accordion-content', 'fifa2026_live_match_accordion_expanded', 'Collapse', 'Expand');
     setupAccordion('special-interest-accordion-toggle', 'special-interest-accordion-content', 'fifa2026_special_interest_accordion_expanded', 'Collapse', 'Expand');
     setupHeaderInfoToggles();

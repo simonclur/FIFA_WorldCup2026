@@ -82,7 +82,8 @@ Core pages and modules include:
 - The Completed Matches accordion control now uses higher-contrast button styling and a double-chevron icon to clearly signal expand/collapse affordance.
 - Completed Matches are ordered first-to-last by completion time (oldest first, newest last).
 - Preferred Team Highlights controls now live in their own dedicated section near the top of the page instead of inside Group Stage.
-- Section visibility is stage-aware: once all Group Stage fixtures are completed, the Group Stage section is hidden and Group Tables moves above Completed Matches; once all Round of 32 fixtures are completed, the Round of 32 section is hidden; once all Round of 16 fixtures are completed, the Round of 16 section is hidden.
+- `Third-Placed Teams` ("Lucky 8") operates alongside Group Tables and dynamically calculates the top 8 third-placed teams advancing to the Round of 32.
+- Section visibility is stage-aware: once all Group Stage fixtures are completed, the Group Stage section is hidden and Group Tables / Third-Placed Teams move above Completed Matches; once all Round of 32 fixtures are completed, the Round of 32 and Third-Placed sections are hidden; once all Round of 16 fixtures are completed, the Round of 16 section is hidden.
 - Completed match cards now include a small TV-style replay icon that opens the SBS On Demand match page for quick replay access in a new tab.
 - A dedicated phone breakpoint (`max-width: 430px`) optimizes iPhone-sized screens with safe-area padding, larger tap targets, and rebalanced card/spotlight typography for one-handed readability.
 - On the phone breakpoint, match metadata keeps the kickoff time and date in a right-aligned column instead of wrapping under the team names.
@@ -244,10 +245,11 @@ Active game in progress order:
 4. Live Spotlight
 5. Group Stage
 6. Group Tables
-7. Round of 32
-8. Round of 16
-9. Finals
-10. Special Interest
+7. Third-Placed (Lucky 8)
+8. Round of 32
+9. Round of 16
+10. Finals
+11. Special Interest
 
 No active game order:
 
@@ -257,24 +259,26 @@ No active game order:
 4. Match Centre
 5. Group Stage
 6. Group Tables
-7. Round of 32
-8. Round of 16
-9. Finals
-10. Special Interest
+7. Third-Placed (Lucky 8)
+8. Round of 32
+9. Round of 16
+10. Finals
+11. Special Interest
 
 No active game with Group Stage completed:
 
 1. FIFA Tracker Header
 2. Preferred Team Highlights
 3. Group Tables
-4. Match Centre
-5. Completed Matches
-6. Round of 32 (if not fully completed)
-7. Round of 16 (if not fully completed)
-8. Finals
-9. Special Interest
+4. Third-Placed (Lucky 8)
+5. Match Centre
+6. Completed Matches
+7. Round of 32 (if not fully completed)
+8. Round of 16 (if not fully completed)
+9. Finals
+10. Special Interest
 
-Each key screen page now exposes a sticky page-name banner at the top while scrolling (`FIFA Tracker`, `Preferred Teams`, `Completed Matches`, `Live Spotlight`, `Match Centre`, `Group Stage`, `Group Tables`, `Round of 32`, `Round of 16`, `Finals`, `Special Interest Stats`) so section context remains visible through long content in either scroll direction.
+Each key screen page now exposes a sticky page-name banner at the top while scrolling (`FIFA Tracker`, `Preferred Teams`, `Completed Matches`, `Live Spotlight`, `Match Centre`, `Group Stage`, `Group Tables`, `Third-Placed`, `Round of 32`, `Round of 16`, `Finals`, `Special Interest Stats`) so section context remains visible through long content in either scroll direction.
 
 ## Group Tables
 
