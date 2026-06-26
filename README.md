@@ -87,7 +87,7 @@ The tracker implements a three-tier adaptive polling architecture to minimize AP
 - Preferred Team Highlights controls now live in their own dedicated section near the top of the page instead of inside Group Stage.
 - `Third-Placed Teams` ("Lucky 8") operates alongside Group Tables and dynamically calculates the top 8 third-placed teams advancing to the Round of 32.
 - Section visibility is stage-aware: once all Group Stage fixtures are completed, the Group Stage section is hidden and Group Tables / Third-Placed Teams move above Completed Matches; once all Round of 32 fixtures are completed, the Round of 32 and Third-Placed sections are hidden; once all Round of 16 fixtures are completed, the Round of 16 section is hidden.
-- The `Predicted Bracket` visualization plots the mathematical knockout pathways for all 32 teams through to the Final, using predictive odds progression to resolve upcoming match winners.
+- The `Predicted Bracket` visualization plots the mathematical knockout pathways for all 32 teams through to the Final, using predictive odds progression to resolve upcoming match winners. It correctly preserves natural tree-flow alignment to prevent visual path jumping between brackets.
 - Knockout Bracket nodes now display Team Form indicators (Win/Loss/Draw) derived from recent completed match outcomes.
 - Knockout Bracket nodes dynamically report accumulated Yellow and Red card counts next to team names; counts strictly respect the FIFA semi-final amnesty rule by wiping tallies from the Quarter-finals onward.
 - Completed match cards now include a small TV-style replay icon that opens the SBS On Demand match page for quick replay access in a new tab.

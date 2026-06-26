@@ -10151,6 +10151,7 @@ const renderPredictedBracketPage = () => {
             order[level].push(matchNum);
          };
          traverse(104, 4);
+         order[4].push(103);
          return order;
       };
       
@@ -10232,7 +10233,6 @@ const renderPredictedBracketPage = () => {
 
       const colsHTML = orderedRounds.map((nums, idx) => {
           if (!nums.length) return '';
-          nums.sort((a,b) => a - b);
           
           const isFinalCol = idx === 4;
           const colMatchesStyle = isFinalCol ? ' style="justify-content: center;"' : '';
